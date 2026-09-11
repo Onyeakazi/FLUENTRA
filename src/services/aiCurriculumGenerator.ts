@@ -19,6 +19,8 @@ class AICurriculumGenerator {
 
   public getGeminiApiKey(): string | null {
     try {
+      const fromEnv = (import.meta.env.VITE_GEMINI_API_KEY || (import.meta.env as any).GEMINI_API_KEY || '').trim();
+      if (fromEnv) return fromEnv;
       return localStorage.getItem(STORAGE_KEY_GEMINI_KEY) || null;
     } catch {
       return null;

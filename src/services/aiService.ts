@@ -1,9 +1,10 @@
-// FLUENTRA AI Conversation & Roleplay Service
+// FLUENTRA AI Conversation & Roleplay Service with Gemini Cloud Integration
 import { ConversationScenario, ConversationTurn, ConversationReview } from '../types/conversation';
+import { aiCurriculumGenerator } from './aiCurriculumGenerator';
 
 class AIService {
   /**
-   * Generates a level-aware contextual response from the roleplay AI persona
+   * Generates a level-aware contextual response from the roleplay AI persona (Gemini 1.5 Flash or Smart Fallback)
    */
   public async generateReply(
     scenario: ConversationScenario,
@@ -11,12 +12,58 @@ class AIService {
     userMessage: string,
     learnerLevel: number
   ): Promise<{ replyText: string; translation: string }> {
-    // Artificial slight delay to mimic natural typing / contemplation (400-800ms)
-    await new Promise(res => setTimeout(res, 600));
+    const apiKey = aiCurriculumGenerator.getGeminiApiKey();
 
+    if (apiKey) {
+      try {
+        const conversationContext = history
+          .slice(-6)
+          .map(t => `${t.sender === 'user' ? 'Learner' : scenario.aiRole}: ${t.text}`)
+          .join('\n');
+
+        const prompt = `You are roleplaying as the "${scenario.aiRole}" in a language learning scenario: "${scenario.title}".
+Context: ${scenario.description}
+Learner Level: CEFR Level ${learnerLevel}
+Conversation so far:
+${conversationContext}
+Learner just said: "${userMessage}"
+
+Respond in character as ${scenario.aiRole}. Keep your reply natural, engaging, and suitable for a level ${learnerLevel} language learner (1-3 sentences).
+Return ONLY valid JSON matching this exact structure:
+{
+  "replyText": "your response in the scenario language",
+  "translation": "English translation of your response"
+}`;
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { response_mime_type: 'application/json' }
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed.replyText && parsed.translation) {
+              return { replyText: parsed.replyText, translation: parsed.translation };
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Gemini live roleplay fallback:', err);
+      }
+    }
+
+    // Contextual fallback responses if Gemini is offline or not configured
+    await new Promise(res => setTimeout(res, 500));
     const clean = userMessage.toLowerCase();
 
-    // Contextual responses tailored by scenario
     if (scenario.id === 'sc-bakery') {
       if (clean.includes('baguette') || clean.includes('pain')) {
         return {
@@ -96,7 +143,6 @@ class AIService {
     const userTurns = turns.filter(t => t.sender === 'user');
     const turnCount = userTurns.length;
 
-    // Calculate dynamic performance scores based on conversation volume & attempts
     const baseScore = Math.min(95, 75 + turnCount * 4);
     const commScore = Math.min(98, baseScore + 3);
     const pronScore = Math.min(96, Math.max(72, baseScore - 2));
@@ -120,11 +166,11 @@ class AIService {
         'Spontaneous sentence construction without long hesitation pauses.'
       ],
       growthAreas: [
-        'Pay attention to masculine/feminine noun agreement in quick responses.',
-        'Use conversational connectors (par exemple, en fait, d’ailleurs) to transition smoothly.'
+        'Pay attention to grammatical agreement in quick responses.',
+        'Use conversational connectors to transition smoothly between ideas.'
       ],
       newVocabulary: [
-        { word: 'Une viennoiserie', translation: 'Baked breakfast pastry (croissant, pain au chocolat)', example: 'Les viennoiseries sortent du four.' },
+        { word: 'Une viennoiserie', translation: 'Baked breakfast pastry (croissant, etc.)', example: 'Les viennoiseries sortent du four.' },
         { word: 'Le plat du jour', translation: 'Daily special', example: 'Quel est le plat du jour aujourd’hui ?' },
         { word: 'En espèces', translation: 'In cash', example: 'Vous payez par carte ou en espèces ?' }
       ],

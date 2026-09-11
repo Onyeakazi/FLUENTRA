@@ -4,5 +4,5 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  envPrefix: ['VITE_', 'FIREBASE_'],
+  envPrefix: ['VITE_', 'FIREBASE_', 'GEMINI_'],
 })
