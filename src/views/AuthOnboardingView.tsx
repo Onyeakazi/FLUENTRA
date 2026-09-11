@@ -84,9 +84,16 @@ export const AuthOnboardingView: React.FC = () => {
     setShowGoogleModal(true);
   };
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    if (firebaseService.isReady() && password) {
+      try {
+        await firebaseService.signInWithEmail(email, password);
+      } catch (err) {
+        console.warn('Firebase email sign in notice:', err);
+      }
+    }
     login(email, password);
   };
 
@@ -122,7 +129,15 @@ export const AuthOnboardingView: React.FC = () => {
     }
   };
 
-  const handleFinishOnboarding = () => {
+  const handleFinishOnboarding = async () => {
+    if (firebaseService.isReady() && email && password && authProvider === 'email') {
+      try {
+        await firebaseService.registerWithEmail(email, password);
+      } catch (err) {
+        console.warn('Firebase registration notice:', err);
+      }
+    }
+
     register({
       name: name.trim() || 'Learner',
       email: email.trim(),
