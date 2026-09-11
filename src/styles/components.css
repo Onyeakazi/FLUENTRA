@@ -8,9 +8,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 600;
+  font-family: inherit;
+  font-weight: 700;
   font-size: 16px;
+  min-height: 48px;
   padding: 14px 24px;
   border-radius: var(--fl-radius-md);
   border: none;
@@ -197,6 +198,28 @@
 }
 
 /* ==========================================================================
+   INPUTS & FORM CONTROLS
+   ========================================================================== */
+.fl-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--fl-text-primary);
+  background-color: var(--fl-bg-input);
+  border: 1px solid var(--fl-border-strong);
+  border-radius: var(--fl-radius-md);
+  outline: none;
+  transition: all var(--fl-transition-fast);
+}
+
+.fl-input:focus {
+  border-color: var(--fl-border-focus);
+  box-shadow: 0 0 0 3px rgba(0, 196, 140, 0.18);
+}
+
+/* ==========================================================================
    TOP BAR & BOTTOM NAVIGATION
    ========================================================================== */
 .fl-top-bar {
@@ -248,8 +271,8 @@
   gap: 4px;
   color: var(--fl-text-secondary);
   text-decoration: none;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   height: 100%;
   transition: all var(--fl-transition-fast);
   background: transparent;

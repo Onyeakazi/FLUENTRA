@@ -129,56 +129,56 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
             <span className="fl-badge fl-badge-teal">
               Roleplay Completed 🎉
             </span>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '8px' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: 800, marginTop: '8px' }}>
               Conversation Review
             </h2>
-            <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+            <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
               {scenario.title} · {review.totalTurns} turns exchanged
             </p>
           </div>
 
           {/* Scores Matrix */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <div className="fl-card" style={{ padding: '12px', textAlign: 'center' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div className="fl-card" style={{ padding: '16px', textAlign: 'center' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Communication
               </span>
-              <p style={{ fontSize: '22px', fontWeight: 800, color: 'var(--fl-teal-light)' }}>
+              <p style={{ fontSize: '26px', fontWeight: 800, color: 'var(--fl-teal-light)', marginTop: '4px' }}>
                 {review.communicationScore}%
               </p>
             </div>
-            <div className="fl-card" style={{ padding: '12px', textAlign: 'center' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
+            <div className="fl-card" style={{ padding: '16px', textAlign: 'center' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Pronunciation
               </span>
-              <p style={{ fontSize: '22px', fontWeight: 800, color: 'var(--fl-coral-flame)' }}>
+              <p style={{ fontSize: '26px', fontWeight: 800, color: 'var(--fl-coral-flame)', marginTop: '4px' }}>
                 {review.pronunciationScore}%
               </p>
             </div>
-            <div className="fl-card" style={{ padding: '12px', textAlign: 'center' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
+            <div className="fl-card" style={{ padding: '16px', textAlign: 'center' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Vocabulary
               </span>
-              <p style={{ fontSize: '22px', fontWeight: 800, color: 'var(--fl-gold-star)' }}>
+              <p style={{ fontSize: '26px', fontWeight: 800, color: 'var(--fl-gold-star)', marginTop: '4px' }}>
                 {review.vocabularyScore}%
               </p>
             </div>
-            <div className="fl-card" style={{ padding: '12px', textAlign: 'center' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
+            <div className="fl-card" style={{ padding: '16px', textAlign: 'center' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Fluency
               </span>
-              <p style={{ fontSize: '22px', fontWeight: 800, color: 'var(--fl-indigo-light)' }}>
+              <p style={{ fontSize: '26px', fontWeight: 800, color: 'var(--fl-indigo-light)', marginTop: '4px' }}>
                 {review.fluencyScore}%
               </p>
             </div>
           </div>
 
           {/* Strengths */}
-          <div style={{ backgroundColor: 'rgba(0, 196, 140, 0.08)', padding: '14px', borderRadius: 'var(--fl-radius-md)', border: '1px solid rgba(0, 196, 140, 0.2)' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-teal-light)', marginBottom: '6px' }}>
+          <div style={{ backgroundColor: 'rgba(0, 196, 140, 0.08)', padding: '16px', borderRadius: 'var(--fl-radius-md)', border: '1px solid rgba(0, 196, 140, 0.2)' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-teal-light)', marginBottom: '8px' }}>
               What You Did Well
             </h4>
-            <ul style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <ul style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {review.strengths.map((s, idx) => (
                 <li key={idx}>{s}</li>
               ))}
@@ -186,11 +186,11 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
           </div>
 
           {/* Growth Areas */}
-          <div style={{ backgroundColor: 'rgba(255, 107, 74, 0.08)', padding: '14px', borderRadius: 'var(--fl-radius-md)', border: '1px solid rgba(255, 107, 74, 0.2)' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-coral-flame)', marginBottom: '6px' }}>
+          <div style={{ backgroundColor: 'rgba(255, 107, 74, 0.08)', padding: '16px', borderRadius: 'var(--fl-radius-md)', border: '1px solid rgba(255, 107, 74, 0.2)' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-coral-flame)', marginBottom: '8px' }}>
               Growth & Coaching Areas
             </h4>
-            <ul style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <ul style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {review.growthAreas.map((g, idx) => (
                 <li key={idx}>{g}</li>
               ))}
@@ -199,21 +199,21 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
 
           {/* Discovered Words */}
           <div>
-            <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '8px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '10px' }}>
               Encountered Vocabulary
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {review.newVocabulary.map((v, i) => (
-                <div key={i} className="fl-card" style={{ padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={i} className="fl-card" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--fl-text-primary)' }}>
+                    <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--fl-text-primary)' }}>
                       {v.word}
                     </span>
-                    <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)', display: 'block' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)', display: 'block', marginTop: '2px' }}>
                       {v.example}
                     </span>
                   </div>
-                  <span style={{ fontSize: '13px', color: 'var(--fl-teal-light)' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--fl-teal-light)', fontWeight: 600 }}>
                     {v.translation}
                   </span>
                 </div>
@@ -226,10 +226,10 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
             id="btn-close-conversation-review"
             className="fl-btn fl-btn-primary"
             onClick={onExit}
-            style={{ width: '100%', marginTop: '8px' }}
+            style={{ width: '100%', marginTop: '8px', minHeight: '50px', fontSize: '16px' }}
           >
             <span>Return to Studio</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={18} />
           </button>
         </div>
       </div>
@@ -260,8 +260,8 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h3 style={{ fontSize: '15px', fontWeight: 800 }}>{scenario.title}</h3>
-            <span style={{ fontSize: '12px', color: 'var(--fl-teal-light)' }}>
+            <h3 style={{ fontSize: '17px', fontWeight: 800 }}>{scenario.title}</h3>
+            <span style={{ fontSize: '13px', color: 'var(--fl-teal-light)' }}>
               AI Role: {scenario.aiRole}
             </span>
           </div>
@@ -272,7 +272,7 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
           id="btn-finish-roleplay"
           className="fl-btn fl-btn-secondary"
           onClick={handleFinishConversation}
-          style={{ padding: '6px 12px', fontSize: '12px', borderRadius: 'var(--fl-radius-full)' }}
+          style={{ padding: '8px 14px', fontSize: '13px', borderRadius: 'var(--fl-radius-full)' }}
         >
           <span>Finish & Review</span>
         </button>
@@ -295,7 +295,7 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
             >
               <div
                 style={{
-                  padding: '14px 16px',
+                  padding: '14px 18px',
                   borderRadius: isAi ? '4px 18px 18px 18px' : '18px 4px 18px 18px',
                   backgroundColor: isAi ? 'var(--fl-bg-card-elevated)' : 'var(--fl-teal-primary)',
                   color: '#FFFFFF',
@@ -303,19 +303,19 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
                   boxShadow: 'var(--fl-shadow-sm)'
                 }}
               >
-                <p style={{ fontSize: '15px', lineHeight: 1.4, fontWeight: isAi ? 500 : 600, color: '#FFFFFF' }}>
+                <p style={{ fontSize: '16px', lineHeight: 1.45, fontWeight: isAi ? 500 : 600, color: '#FFFFFF' }}>
                   {turn.text}
                 </p>
 
                 {turn.translation && (
-                  <p style={{ fontSize: '12px', color: 'var(--fl-text-muted)', marginTop: '4px', fontStyle: 'italic' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--fl-text-muted)', marginTop: '4px', fontStyle: 'italic' }}>
                     {turn.translation}
                   </p>
                 )}
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 4px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--fl-text-muted)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)' }}>
                   {turn.timestamp}
                 </span>
                 {isAi && (
@@ -325,7 +325,7 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
                     style={{ background: 'none', border: 'none', color: 'var(--fl-teal-light)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                     title="Play pronunciation"
                   >
-                    <Volume2 size={13} />
+                    <Volume2 size={15} />
                   </button>
                 )}
               </div>
@@ -334,8 +334,8 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
         })}
 
         {isThinking && (
-          <div style={{ alignSelf: 'flex-start', padding: '10px 16px', borderRadius: '14px', backgroundColor: 'var(--fl-bg-card)', border: '1px solid var(--fl-border)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>Thinking...</span>
+          <div style={{ alignSelf: 'flex-start', padding: '12px 18px', borderRadius: '14px', backgroundColor: 'var(--fl-bg-card)', border: '1px solid var(--fl-border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>Thinking...</span>
           </div>
         )}
       </div>
@@ -349,7 +349,7 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
               type="button"
               className="fl-badge fl-badge-teal"
               onClick={() => handleSendMessage(starter)}
-              style={{ padding: '6px 12px', fontSize: '12px', whiteSpace: 'nowrap', cursor: 'pointer' }}
+              style={{ padding: '8px 14px', fontSize: '13px', whiteSpace: 'nowrap', cursor: 'pointer' }}
             >
               <span>{starter}</span>
             </button>
@@ -375,14 +375,14 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
           className="fl-btn-icon"
           onClick={handleStartVoiceInput}
           style={{
-            width: '42px',
-            height: '42px',
+            width: '46px',
+            height: '46px',
             backgroundColor: isListening ? 'var(--fl-coral-flame)' : 'var(--fl-bg-card-elevated)',
             color: isListening ? '#FFFFFF' : 'var(--fl-teal-light)'
           }}
           title="Speak into microphone"
         >
-          <Mic size={20} />
+          <Mic size={22} />
         </button>
 
         <input
@@ -394,13 +394,13 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
           placeholder={isListening ? 'Listening...' : 'Type or speak in French...'}
           style={{
             flex: 1,
-            height: '42px',
-            padding: '0 14px',
+            height: '48px',
+            padding: '0 16px',
             borderRadius: 'var(--fl-radius-full)',
             backgroundColor: 'var(--fl-bg-input)',
             border: '1px solid var(--fl-border)',
             color: 'var(--fl-text-primary)',
-            fontSize: '14px',
+            fontSize: '16px',
             outline: 'none'
           }}
         />
@@ -412,15 +412,15 @@ export const ConversationRoleplayView: React.FC<ConversationRoleplayViewProps> =
           onClick={() => handleSendMessage()}
           disabled={!inputText.trim()}
           style={{
-            width: '42px',
-            height: '42px',
+            width: '46px',
+            height: '46px',
             backgroundColor: 'var(--fl-teal-light)',
             color: '#0B0F19',
             opacity: inputText.trim() ? 1 : 0.4
           }}
           aria-label="Send message"
         >
-          <Send size={18} />
+          <Send size={20} />
         </button>
       </div>
     </div>

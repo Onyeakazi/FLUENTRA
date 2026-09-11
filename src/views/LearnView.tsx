@@ -32,10 +32,10 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
       {/* 8-Level Horizontal Scroll Tabs */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Curriculum Progression
           </span>
-          <span style={{ fontSize: '12px', color: 'var(--fl-teal-light)', fontWeight: 700 }}>
+          <span style={{ fontSize: '13px', color: 'var(--fl-teal-light)', fontWeight: 700 }}>
             800 Units Total
           </span>
         </div>
@@ -63,8 +63,8 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
                 }}
                 className={`fl-badge ${isSelected ? 'fl-badge-teal' : 'fl-badge-locked'}`}
                 style={{
-                  padding: '8px 14px',
-                  fontSize: '13px',
+                  padding: '8px 16px',
+                  fontSize: '14px',
                   fontWeight: 700,
                   whiteSpace: 'nowrap',
                   cursor: 'pointer',
@@ -88,18 +88,18 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span className="fl-badge fl-badge-indigo">
+          <span className="fl-badge fl-badge-indigo" style={{ fontSize: '13px' }}>
             Level {currentLevel.number}
           </span>
-          <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 600 }}>
+          <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', fontWeight: 600 }}>
             {completedInLevel} / 100 Units ({levelPercent}%)
           </span>
         </div>
 
-        <h2 style={{ fontSize: '20px', fontWeight: 800, marginTop: '8px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 800, marginTop: '8px' }}>
           {currentLevel.name}
         </h2>
-        <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
           {currentLevel.description}
         </p>
 
@@ -111,10 +111,10 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
       {/* 10-Stage Selection Pills */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
             Stages (10 Units Each)
           </span>
-          <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>
+          <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
             Stage {activeStage} of 10
           </span>
         </div>
@@ -122,7 +122,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
         <div
           style={{
             display: 'flex',
-            gap: '6px',
+            gap: '8px',
             overflowX: 'auto',
             paddingBottom: '6px',
             scrollbarWidth: 'none'
@@ -138,8 +138,9 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
                 onClick={() => setActiveStage(stage.number)}
                 className={`fl-badge ${isStageActive ? 'fl-badge-teal' : 'fl-badge-locked'}`}
                 style={{
-                  padding: '6px 12px',
-                  fontSize: '12px',
+                  padding: '8px 14px',
+                  fontSize: '13px',
+                  fontWeight: 600,
                   cursor: 'pointer',
                   whiteSpace: 'nowrap'
                 }}
@@ -153,10 +154,10 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
 
       {/* Current Stage Headline */}
       <div style={{ padding: '4px 0' }}>
-        <h3 style={{ fontSize: '17px', fontWeight: 800 }}>
+        <h3 style={{ fontSize: '18px', fontWeight: 800 }}>
           Stage {currentStage.number}: {currentStage.title}
         </h3>
-        <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
+        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
           {currentStage.description} · Units {currentStage.unitRange[0]} to {currentStage.unitRange[1]}
         </p>
       </div>

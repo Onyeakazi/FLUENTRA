@@ -61,13 +61,13 @@ export const LockedGateModal: React.FC<LockedGateModalProps> = ({
             marginBottom: '20px'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <ShieldAlert size={16} color="var(--fl-gold-star)" />
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-gold-star)', textTransform: 'uppercase' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <ShieldAlert size={18} color="var(--fl-gold-star)" />
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-gold-star)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Unlock Prerequisite
             </span>
           </div>
-          <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', lineHeight: 1.4 }}>
+          <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', lineHeight: 1.5 }}>
             {prereqUnit ? (
               <>
                 You must complete <strong>Unit {prereqUnit.number}: {prereqUnit.title}</strong> before moving forward in this level.
@@ -83,7 +83,7 @@ export const LockedGateModal: React.FC<LockedGateModalProps> = ({
             type="button"
             className="fl-btn fl-btn-secondary"
             onClick={onClose}
-            style={{ flex: 1 }}
+            style={{ flex: 1, minHeight: '48px', fontSize: '15px' }}
           >
             Close
           </button>
@@ -96,10 +96,10 @@ export const LockedGateModal: React.FC<LockedGateModalProps> = ({
                 onClose();
                 onJumpToPrereq(prereqUnit.id);
               }}
-              style={{ flex: 1.3 }}
+              style={{ flex: 1.3, minHeight: '48px', fontSize: '15px' }}
             >
               <span>Go to Unit {prereqUnit.number}</span>
-              <ArrowRight size={16} />
+              <ArrowRight size={18} />
             </button>
           )}
         </div>

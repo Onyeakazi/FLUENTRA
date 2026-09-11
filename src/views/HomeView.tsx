@@ -45,20 +45,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* Personalized Greeting & Language Banner */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-teal-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-teal-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Welcome Back, {profile.name || 'Learner'} 👋
           </span>
           {profile.learningGoal && (
-            <span className="fl-badge fl-badge-teal" style={{ fontSize: '11px', padding: '2px 8px' }}>
+            <span className="fl-badge fl-badge-teal" style={{ fontSize: '13px', padding: '3px 10px' }}>
               {goalLabels[profile.learningGoal] || profile.learningGoal}
             </span>
           )}
         </div>
 
-        <h1 style={{ fontSize: '24px', fontWeight: 800, marginTop: '4px', color: 'var(--fl-text-primary)' }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 800, marginTop: '4px', color: 'var(--fl-text-primary)' }}>
           Continue Learning {profile.currentLanguage || 'French'}
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
+        <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
           Level {activeLevel} · Stage {currentUnit.stageNumber}
         </p>
       </div>
@@ -76,19 +76,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span className="fl-badge fl-badge-teal">
+          <span className="fl-badge fl-badge-teal" style={{ fontSize: '13px' }}>
             Active Unit {currentUnit.number}
           </span>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-secondary)' }}>
+          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-text-secondary)' }}>
             {unitPercentage}% Completed
           </span>
         </div>
 
         <div>
-          <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
             {currentUnit.title}
           </h3>
-          <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+          <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
             {currentUnit.subtitle}
           </p>
         </div>
@@ -103,7 +103,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           id="btn-home-continue-lesson"
           className="fl-btn fl-btn-primary"
           onClick={onContinueCourse}
-          style={{ width: '100%', marginTop: '4px' }}
+          style={{ width: '100%', marginTop: '4px', minHeight: '50px', fontSize: '16px' }}
         >
           <Play size={18} fill="currentColor" />
           <span>Continue Lesson</span>
@@ -116,32 +116,32 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* Streak Tile */}
         <div className="fl-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
               Daily Streak
             </span>
             <Flame size={20} color="var(--fl-coral-flame)" fill="var(--fl-coral-flame)" />
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-            <span style={{ fontSize: '24px', fontWeight: 800, color: 'var(--fl-coral-flame)' }}>
+            <span style={{ fontSize: '26px', fontWeight: 800, color: 'var(--fl-coral-flame)' }}>
               {profile.streak.currentStreak}
             </span>
-            <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>days on fire</span>
+            <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>days on fire</span>
           </div>
         </div>
 
         {/* Daily Goal Tile */}
         <div className="fl-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase' }}>
               Daily Goal
             </span>
             <Zap size={20} color="var(--fl-gold-star)" fill="var(--fl-gold-star)" />
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-            <span style={{ fontSize: '24px', fontWeight: 800, color: 'var(--fl-gold-star)' }}>
+            <span style={{ fontSize: '26px', fontWeight: 800, color: 'var(--fl-gold-star)' }}>
               {profile.dailyGoal.currentXp}
             </span>
-            <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>/ {profile.dailyGoal.targetXp} XP</span>
+            <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>/ {profile.dailyGoal.targetXp} XP</span>
           </div>
           <div className="fl-progress-track" style={{ height: '4px' }}>
             <div className="fl-progress-fill fl-progress-fill-gold" style={{ width: `${dailyGoalPercent}%` }} />
@@ -151,7 +151,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* Recommended Practice Quick Actions */}
       <div>
-        <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '12px', color: 'var(--fl-text-primary)' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '12px', color: 'var(--fl-text-primary)' }}>
           Targeted Practice
         </h3>
 
@@ -165,7 +165,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '14px 16px',
+              padding: '16px 18px',
               textAlign: 'left',
               width: '100%'
             }}
@@ -173,8 +173,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <div
                 style={{
-                  width: '42px',
-                  height: '42px',
+                  width: '46px',
+                  height: '46px',
                   borderRadius: 'var(--fl-radius-md)',
                   backgroundColor: 'var(--fl-coral-subtle)',
                   display: 'flex',
@@ -183,18 +183,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   flexShrink: 0
                 }}
               >
-                <Mic size={20} color="var(--fl-coral-flame)" />
+                <Mic size={22} color="var(--fl-coral-flame)" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                   Voice Pronunciation Studio
                 </span>
-                <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>
+                <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                   Practice target sounds with instant phonetic feedback
                 </span>
               </div>
             </div>
-            <ArrowRight size={18} color="var(--fl-text-muted)" />
+            <ArrowRight size={20} color="var(--fl-text-muted)" />
           </button>
 
           {/* AI Roleplay Conversation */}
@@ -206,7 +206,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '14px 16px',
+              padding: '16px 18px',
               textAlign: 'left',
               width: '100%'
             }}
@@ -214,8 +214,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <div
                 style={{
-                  width: '42px',
-                  height: '42px',
+                  width: '46px',
+                  height: '46px',
                   borderRadius: 'var(--fl-radius-md)',
                   backgroundColor: 'var(--fl-teal-subtle)',
                   display: 'flex',
@@ -224,18 +224,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   flexShrink: 0
                 }}
               >
-                <MessageSquare size={20} color="var(--fl-teal-light)" />
+                <MessageSquare size={22} color="var(--fl-teal-light)" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                   Real-World AI Conversation
                 </span>
-                <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>
+                <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                   Level-aware roleplay in cafés, airports, and social situations
                 </span>
               </div>
             </div>
-            <ArrowRight size={18} color="var(--fl-text-muted)" />
+            <ArrowRight size={20} color="var(--fl-text-muted)" />
           </button>
 
           {/* Interactive Drills */}
@@ -247,7 +247,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '14px 16px',
+              padding: '16px 18px',
               textAlign: 'left',
               width: '100%'
             }}
@@ -255,8 +255,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <div
                 style={{
-                  width: '42px',
-                  height: '42px',
+                  width: '46px',
+                  height: '46px',
                   borderRadius: 'var(--fl-radius-md)',
                   backgroundColor: 'var(--fl-indigo-subtle)',
                   display: 'flex',
@@ -265,18 +265,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   flexShrink: 0
                 }}
               >
-                <Sparkles size={20} color="var(--fl-indigo-light)" />
+                <Sparkles size={22} color="var(--fl-indigo-light)" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                   Active Recall Drills
                 </span>
-                <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>
+                <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                   Matching, sentence building & listening comprehension
                 </span>
               </div>
             </div>
-            <ArrowRight size={18} color="var(--fl-text-muted)" />
+            <ArrowRight size={20} color="var(--fl-text-muted)" />
           </button>
         </div>
       </div>

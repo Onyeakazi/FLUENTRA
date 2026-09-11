@@ -61,10 +61,10 @@ export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, onComplete }) => 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
-        <h3 style={{ fontSize: '19px', fontWeight: 700, marginBottom: '6px' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px' }}>
           Match the Pairs
         </h3>
-        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
+        <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
           Tap matching French and English words
         </p>
       </div>
@@ -84,9 +84,10 @@ export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, onComplete }) => 
                 onClick={() => handleSelectLeft(item.id)}
                 disabled={isMatched}
                 style={{
-                  padding: '14px',
+                  padding: '14px 12px',
+                  minHeight: '48px',
                   textAlign: 'center',
-                  fontSize: '15px',
+                  fontSize: '16px',
                   fontWeight: 600,
                   opacity: isMatched ? 0.35 : 1,
                   backgroundColor: isSelected ? 'var(--fl-teal-subtle)' : 'var(--fl-bg-card)',
@@ -115,9 +116,10 @@ export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, onComplete }) => 
                 onClick={() => handleSelectRight(item.id)}
                 disabled={isMatched}
                 style={{
-                  padding: '14px',
+                  padding: '14px 12px',
+                  minHeight: '48px',
                   textAlign: 'center',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontWeight: 600,
                   opacity: isMatched ? 0.35 : 1,
                   backgroundColor: isSelected ? 'var(--fl-teal-subtle)' : 'var(--fl-bg-card)',

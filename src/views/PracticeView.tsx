@@ -37,13 +37,13 @@ export const PracticeView: React.FC = () => {
   return (
     <div className="content-scrollable" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
-        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-indigo-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-indigo-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Interactive Practice
         </span>
-        <h1 style={{ fontSize: '24px', fontWeight: 800, marginTop: '2px' }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 800, marginTop: '2px' }}>
           Active Recall Drills
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
+        <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
           Strengthen vocabulary memory and sentence construction reflexes.
         </p>
       </div>
@@ -68,10 +68,11 @@ export const PracticeView: React.FC = () => {
               className={`fl-badge ${isActive ? 'fl-badge-teal' : 'fl-badge-locked'}`}
               style={{
                 flex: 1,
-                padding: '10px 8px',
+                padding: '10px 10px',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                fontSize: '13px'
+                fontSize: '14px',
+                fontWeight: 700
               }}
             >
               <span>{tab.label}</span>
@@ -177,7 +178,7 @@ export const PracticeView: React.FC = () => {
 
             {activeDrill === 'listening' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', textAlign: 'center', padding: '16px 0' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 800 }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 800 }}>
                   Listen & Identify Phrase
                 </h3>
 
@@ -194,9 +195,9 @@ export const PracticeView: React.FC = () => {
                       type="button"
                       className="fl-card fl-card-interactive"
                       onClick={handleFinishDrill}
-                      style={{ padding: '14px', textAlign: 'left' }}
+                      style={{ padding: '16px 18px', minHeight: '52px', textAlign: 'left' }}
                     >
-                      <span style={{ fontSize: '15px', fontWeight: 600 }}>
+                      <span style={{ fontSize: '17px', fontWeight: 600 }}>
                         {opt.text}
                       </span>
                     </button>

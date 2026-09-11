@@ -125,24 +125,24 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
 
           {/* Reward Badges */}
           <div style={{ display: 'flex', gap: '12px', width: '100%', justifyContent: 'center' }}>
-            <div className="fl-card" style={{ flex: 1, padding: '14px', textAlign: 'center' }}>
+            <div className="fl-card" style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                <Zap size={18} color="var(--fl-gold-star)" fill="var(--fl-gold-star)" />
-                <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--fl-gold-star)' }}>
+                <Zap size={20} color="var(--fl-gold-star)" fill="var(--fl-gold-star)" />
+                <span style={{ fontSize: '22px', fontWeight: 800, color: 'var(--fl-gold-star)' }}>
                   +{lesson.xpReward}
                 </span>
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)' }}>XP Earned</span>
+              <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)' }}>XP Earned</span>
             </div>
 
-            <div className="fl-card" style={{ flex: 1, padding: '14px', textAlign: 'center' }}>
+            <div className="fl-card" style={{ flex: 1, padding: '16px', textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                <Award size={18} color="var(--fl-teal-light)" />
-                <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--fl-teal-light)' }}>
+                <Award size={20} color="var(--fl-teal-light)" />
+                <span style={{ fontSize: '22px', fontWeight: 800, color: 'var(--fl-teal-light)' }}>
                   {Math.min(100, accuracy)}%
                 </span>
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)' }}>Accuracy</span>
+              <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)' }}>Accuracy</span>
             </div>
           </div>
 
@@ -151,7 +151,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
             id="btn-lesson-continue-finish"
             className="fl-btn fl-btn-primary"
             onClick={onExit}
-            style={{ width: '100%', marginTop: '8px' }}
+            style={{ width: '100%', marginTop: '8px', minHeight: '50px', fontSize: '16px' }}
           >
             <span>Continue Journey</span>
             <ArrowRight size={18} />
@@ -287,10 +287,10 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
                 </div>
               )}
               <div>
-                <p style={{ fontWeight: 800, fontSize: '16px', color: isCorrect ? 'var(--fl-teal-light)' : 'var(--fl-coral-flame)' }}>
+                <p style={{ fontWeight: 800, fontSize: '17px', color: isCorrect ? 'var(--fl-teal-light)' : 'var(--fl-coral-flame)' }}>
                   {isCorrect ? 'Nicely done!' : 'Correct solution:'}
                 </p>
-                <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                   {currentExercise.explanation || currentExercise.targetText}
                 </p>
               </div>
@@ -303,7 +303,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
             className={`fl-btn ${isChecked ? (isCorrect ? 'fl-btn-primary' : 'fl-btn-coral') : 'fl-btn-primary'}`}
             onClick={isChecked ? handleNext : handleCheck}
             disabled={!isChecked && !selectedOptionId && selectedWords.length === 0}
-            style={{ width: '100%', fontSize: '16px' }}
+            style={{ width: '100%', minHeight: '50px', fontSize: '16px' }}
           >
             <span>{isChecked ? 'Continue' : 'Check Answer'}</span>
             <ArrowRight size={18} />

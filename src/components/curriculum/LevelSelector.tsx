@@ -65,16 +65,16 @@ export const LevelSelector: React.FC<LevelSelectorProps> = ({ onSelectLevel }) =
 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                    <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                       Level {lvl.number} — {lvl.name}
                     </span>
                     {isActive && (
-                      <span className="fl-badge fl-badge-teal" style={{ padding: '2px 8px', fontSize: '11px' }}>
+                      <span className="fl-badge fl-badge-teal" style={{ padding: '3px 9px', fontSize: '12px' }}>
                         Current
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                     {lvl.tagline}
                   </span>
                 </div>

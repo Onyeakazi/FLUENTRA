@@ -34,17 +34,17 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
     >
       {/* Header with Score Radial/Pill */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {isPassed ? (
-            <CheckCircle2 size={24} color="var(--fl-teal-light)" />
+            <CheckCircle2 size={26} color="var(--fl-teal-light)" />
           ) : (
-            <AlertCircle size={24} color="var(--fl-coral-flame)" />
+            <AlertCircle size={26} color="var(--fl-coral-flame)" />
           )}
           <div>
-            <h4 style={{ fontSize: '17px', margin: 0 }}>
+            <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>
               {isPassed ? 'Pronunciation Verified' : 'Needs Another Try'}
             </h4>
-            <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
+            <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '2px' }}>
               {result.feedbackMessage}
             </span>
           </div>
@@ -61,16 +61,16 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
             border: `1px solid ${scoreColor}`
           }}
         >
-          <span style={{ fontSize: '20px', fontWeight: 800, color: scoreColor }}>
+          <span style={{ fontSize: '22px', fontWeight: 800, color: scoreColor }}>
             {score}
           </span>
-          <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)' }}>%</span>
+          <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)' }}>%</span>
         </div>
       </div>
 
       {/* Word-by-Word Articulation Breakdown */}
       <div style={{ marginTop: '16px' }}>
-        <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+        <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
           Word Articulation Breakdown
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -94,16 +94,16 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
                   display: 'inline-flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  padding: '6px 10px',
+                  padding: '8px 12px',
                   borderRadius: 'var(--fl-radius-sm)',
                   backgroundColor: wordBg,
                   border: `1px solid ${wordColor}`
                 }}
               >
-                <span style={{ fontWeight: 700, fontSize: '14px', color: wordColor }}>
+                <span style={{ fontWeight: 700, fontSize: '15px', color: wordColor }}>
                   {item.expected}
                 </span>
-                <span style={{ fontSize: '10px', color: 'var(--fl-text-muted)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)', marginTop: '2px' }}>
                   {item.score}%
                 </span>
               </div>
@@ -117,12 +117,13 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
         <div
           style={{
             marginTop: '14px',
-            padding: '10px 14px',
+            padding: '12px 16px',
             borderRadius: 'var(--fl-radius-md)',
             backgroundColor: 'rgba(0, 0, 0, 0.25)',
             border: '1px solid var(--fl-border)',
-            fontSize: '13px',
-            color: 'var(--fl-text-secondary)'
+            fontSize: '14px',
+            color: 'var(--fl-text-secondary)',
+            lineHeight: 1.5
           }}
         >
           <strong style={{ color: 'var(--fl-text-primary)' }}>Coach Tip: </strong>
@@ -136,7 +137,7 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
           type="button"
           className="fl-btn fl-btn-secondary"
           onClick={onRetry}
-          style={{ flex: 1, padding: '10px 16px', fontSize: '14px' }}
+          style={{ flex: 1, padding: '12px 16px', fontSize: '15px', minHeight: '48px' }}
         >
           <RotateCcw size={16} />
           <span>Practice Again</span>
@@ -147,7 +148,7 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
           id="btn-pronunciation-continue"
           className="fl-btn fl-btn-primary"
           onClick={onContinue}
-          style={{ flex: 1.2, padding: '10px 16px', fontSize: '14px' }}
+          style={{ flex: 1.2, padding: '12px 16px', fontSize: '15px', minHeight: '48px' }}
         >
           <span>Continue</span>
           <ArrowRight size={16} />

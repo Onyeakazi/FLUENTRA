@@ -91,17 +91,17 @@ export const UnitNode: React.FC<UnitNodeProps> = ({
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--fl-teal-light)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-teal-light)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Unit {unit.number}
             </span>
-            <span style={{ fontSize: '11px', color: 'var(--fl-text-muted)' }}>
+            <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)' }}>
               · {unit.cefrLevel}
             </span>
           </div>
-          <span style={{ fontSize: '15px', fontWeight: 700, color: isLocked ? 'var(--fl-text-secondary)' : 'var(--fl-text-primary)' }}>
+          <span style={{ fontSize: '16px', fontWeight: 700, color: isLocked ? 'var(--fl-text-secondary)' : 'var(--fl-text-primary)' }}>
             {unit.title}
           </span>
-          <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)' }}>
+          <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)', marginTop: '2px' }}>
             {unit.lessonCount} lessons · {unit.requiredXp} XP
           </span>
         </div>
@@ -109,22 +109,22 @@ export const UnitNode: React.FC<UnitNodeProps> = ({
 
       <div>
         {status === 'in_progress' && (
-          <span className="fl-badge fl-badge-teal" style={{ fontSize: '11px', padding: '3px 8px' }}>
+          <span className="fl-badge fl-badge-teal" style={{ fontSize: '12px', padding: '4px 10px' }}>
             Current
           </span>
         )}
         {status === 'completed' && (
-          <span className="fl-badge fl-badge-teal" style={{ fontSize: '11px', padding: '3px 8px' }}>
+          <span className="fl-badge fl-badge-teal" style={{ fontSize: '12px', padding: '4px 10px' }}>
             Done
           </span>
         )}
         {status === 'mastered' && (
-          <span className="fl-badge fl-badge-gold" style={{ fontSize: '11px', padding: '3px 8px' }}>
+          <span className="fl-badge fl-badge-gold" style={{ fontSize: '12px', padding: '4px 10px' }}>
             Mastered
           </span>
         )}
         {isLocked && (
-          <Lock size={16} color="var(--fl-text-muted)" />
+          <Lock size={18} color="var(--fl-text-muted)" />
         )}
       </div>
     </button>

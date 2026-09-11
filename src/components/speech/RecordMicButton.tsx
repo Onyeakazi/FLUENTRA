@@ -56,14 +56,14 @@ export const RecordMicButton: React.FC<RecordMicButtonProps> = ({
 
       {/* Human Guidance Label */}
       <div style={{ textAlign: 'center' }}>
-        <p style={{ fontWeight: 700, fontSize: '15px', color: isListening ? 'var(--fl-coral-flame)' : 'var(--fl-text-primary)' }}>
+        <p style={{ fontWeight: 700, fontSize: '16px', color: isListening ? 'var(--fl-coral-flame)' : 'var(--fl-text-primary)' }}>
           {isListening
             ? 'Listening... Speak clearly'
             : isProcessing
             ? 'Analyzing pronunciation...'
             : 'Tap microphone and speak'}
         </p>
-        <p style={{ fontSize: '12px', color: 'var(--fl-text-muted)', marginTop: '2px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--fl-text-muted)', marginTop: '3px' }}>
           {isListening ? 'Tap square when finished' : 'Speak at natural speed'}
         </p>
       </div>
@@ -75,14 +75,14 @@ export const RecordMicButton: React.FC<RecordMicButtonProps> = ({
           className="fl-btn-secondary"
           onClick={() => onSimulateSpeech(targetSample)}
           style={{
-            fontSize: '12px',
-            padding: '6px 12px',
+            fontSize: '13px',
+            padding: '8px 14px',
             borderRadius: 'var(--fl-radius-full)',
             marginTop: '4px'
           }}
           title="Simulate speaking for testing"
         >
-          <Sparkles size={13} color="var(--fl-teal-light)" />
+          <Sparkles size={14} color="var(--fl-teal-light)" />
           <span>Quick Voice Demo</span>
         </button>
       )}

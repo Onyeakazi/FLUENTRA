@@ -87,10 +87,10 @@ export const SpeakingChallenge: React.FC<SpeakingChallengeProps> = ({ exercise, 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
-        <h3 style={{ fontSize: '19px', fontWeight: 700, marginBottom: '6px' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px' }}>
           {exercise.prompt}
         </h3>
-        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
+        <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
           Listen to the model pronunciation, then tap the mic to speak.
         </p>
       </div>
@@ -103,23 +103,23 @@ export const SpeakingChallenge: React.FC<SpeakingChallengeProps> = ({ exercise, 
           flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
-          gap: '12px',
-          padding: '24px 16px'
+          gap: '14px',
+          padding: '26px 18px'
         }}
       >
         <AudioControls text={target} size="lg" />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span style={{ fontSize: '24px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '28px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
             {target}
           </span>
           {exercise.phoneticHint && (
-            <span style={{ fontSize: '14px', color: 'var(--fl-teal-light)', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: '15px', color: 'var(--fl-teal-light)', fontFamily: 'monospace' }}>
               {exercise.phoneticHint}
             </span>
           )}
           {exercise.translation && (
-            <span style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
+            <span style={{ fontSize: '16px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
               “{exercise.translation}”
             </span>
           )}

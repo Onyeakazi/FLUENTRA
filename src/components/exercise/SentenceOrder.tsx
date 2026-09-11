@@ -25,11 +25,11 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
-        <h3 style={{ fontSize: '19px', fontWeight: 700, marginBottom: '6px' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px' }}>
           {exercise.prompt}
         </h3>
         {exercise.translation && (
-          <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', fontStyle: 'italic' }}>
+          <p style={{ fontSize: '16px', color: 'var(--fl-text-secondary)', fontStyle: 'italic' }}>
             “{exercise.translation}”
           </p>
         )}
@@ -38,8 +38,8 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
       {/* Answer Slot Box */}
       <div
         style={{
-          minHeight: '80px',
-          padding: '14px',
+          minHeight: '86px',
+          padding: '16px',
           borderRadius: 'var(--fl-radius-md)',
           backgroundColor: isChecked
             ? isCorrect
@@ -56,11 +56,11 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px'
         }}
       >
         {selectedWords.length === 0 ? (
-          <span style={{ fontSize: '14px', color: 'var(--fl-text-muted)' }}>
+          <span style={{ fontSize: '15px', color: 'var(--fl-text-muted)' }}>
             Tap the word tiles below in order
           </span>
         ) : (
@@ -71,8 +71,9 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
               className="fl-btn fl-btn-secondary"
               onClick={() => !isChecked && onRemoveWord(idx)}
               style={{
-                padding: '8px 14px',
-                fontSize: '15px',
+                padding: '10px 16px',
+                fontSize: '16px',
+                fontWeight: 600,
                 backgroundColor: 'var(--fl-bg-card-elevated)',
                 borderColor: 'var(--fl-teal-light)'
               }}
@@ -86,9 +87,9 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
         {isChecked && (
           <div style={{ marginLeft: 'auto' }}>
             {isCorrect ? (
-              <Check size={24} color="var(--fl-teal-light)" />
+              <Check size={26} color="var(--fl-teal-light)" />
             ) : (
-              <X size={24} color="var(--fl-coral-flame)" />
+              <X size={26} color="var(--fl-coral-flame)" />
             )}
           </div>
         )}
@@ -96,7 +97,7 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
 
       {/* Available Word Chips Bank */}
       <div>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Word Bank
         </span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
@@ -113,8 +114,10 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
                 onClick={() => !isExhausted && !isChecked && onAddWord(chip)}
                 disabled={isExhausted || isChecked}
                 style={{
-                  padding: '10px 16px',
-                  fontSize: '15px',
+                  padding: '10px 18px',
+                  minHeight: '46px',
+                  fontSize: '16px',
+                  fontWeight: 600,
                   opacity: isExhausted ? 0.35 : 1
                 }}
               >

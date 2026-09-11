@@ -133,14 +133,14 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
     <div className="content-scrollable" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-coral-flame)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-coral-flame)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Voice Studio · {profile.currentLanguage}
           </span>
         </div>
-        <h1 style={{ fontSize: '24px', fontWeight: 800, marginTop: '2px', color: 'var(--fl-text-primary)' }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 800, marginTop: '2px', color: 'var(--fl-text-primary)' }}>
           Voice Pronunciation Studio
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
+        <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
           Master native {profile.currentLanguage} accent articulation with real-time phonetic feedback.
         </p>
       </div>
@@ -161,8 +161,9 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
               }}
               className={`fl-badge ${isSelected ? 'fl-badge-flame' : 'fl-badge-locked'}`}
               style={{
-                padding: '6px 14px',
-                fontSize: '12px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: 700,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap'
               }}
@@ -181,7 +182,7 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
           flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
-          padding: '24px 18px',
+          padding: '26px 18px',
           gap: '14px',
           background: 'linear-gradient(180deg, rgba(255, 107, 74, 0.08) 0%, var(--fl-bg-card) 100%)',
           borderColor: 'rgba(255, 107, 74, 0.3)'
@@ -190,13 +191,13 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
         <AudioControls text={currentPhrase.text} lang={targetLangCode} size="lg" />
 
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#FFFFFF' }}>
             {currentPhrase.text}
           </h2>
-          <span style={{ fontSize: '13px', color: 'var(--fl-teal-light)', fontFamily: 'monospace', display: 'block', marginTop: '4px' }}>
+          <span style={{ fontSize: '15px', color: 'var(--fl-teal-light)', fontFamily: 'monospace', display: 'block', marginTop: '4px' }}>
             {currentPhrase.hint}
           </span>
-          <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '4px' }}>
+          <span style={{ fontSize: '16px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '4px' }}>
             “{currentPhrase.trans}”
           </span>
         </div>
@@ -235,14 +236,14 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
           <div>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
               AI Real-World Roleplay
             </h3>
-            <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
+            <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
               Interactive conversations in {profile.currentLanguage} unlocking with your level.
             </p>
           </div>
-          <span className="fl-badge fl-badge-teal">
+          <span className="fl-badge fl-badge-teal" style={{ fontSize: '13px' }}>
             {CONVERSATION_SCENARIOS.length} Scenarios
           </span>
         </div>
@@ -262,7 +263,7 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '14px 16px',
+                  padding: '16px 18px',
                   textAlign: 'left',
                   width: '100%'
                 }}
@@ -271,8 +272,8 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div
                     style={{
-                      width: '40px',
-                      height: '40px',
+                      width: '44px',
+                      height: '44px',
                       borderRadius: 'var(--fl-radius-md)',
                       backgroundColor: isLocked ? 'rgba(255,255,255,0.05)' : 'var(--fl-teal-subtle)',
                       display: 'flex',
@@ -284,29 +285,29 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
                     {isLocked ? (
                       <Lock size={18} color="var(--fl-text-muted)" />
                     ) : (
-                      <MessageSquare size={18} color="var(--fl-teal-light)" />
+                      <MessageSquare size={20} color="var(--fl-teal-light)" />
                     )}
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                         {scenario.title}
                       </span>
                       {isLocked && (
-                        <span className="fl-badge fl-badge-locked" style={{ fontSize: '10px', padding: '2px 6px' }}>
+                        <span className="fl-badge fl-badge-locked" style={{ fontSize: '12px', padding: '2px 8px' }}>
                           Requires Level {scenario.minLevelNumber}
                         </span>
                       )}
                     </div>
-                    <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                    <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                       {scenario.description}
                     </span>
                   </div>
                 </div>
 
                 {!isLocked && (
-                  <ChevronRight size={18} color="var(--fl-text-muted)" />
+                  <ChevronRight size={20} color="var(--fl-text-muted)" />
                 )}
               </button>
             );

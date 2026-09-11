@@ -206,7 +206,7 @@ export const AuthOnboardingView: React.FC = () => {
             {savedGoogleAccount && !useAnotherGoogleAccount ? (
               /* Previously saved genuine account on this browser */
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
+                <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
                   Continue to <strong>FLUENTRA</strong> with your Google account:
                 </p>
 
@@ -219,7 +219,7 @@ export const AuthOnboardingView: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    padding: '12px 14px',
+                    padding: '14px 16px',
                     textAlign: 'left',
                     border: '1.5px solid var(--fl-teal-primary)',
                     backgroundColor: 'var(--fl-bg-card-hover)'
@@ -228,13 +228,13 @@ export const AuthOnboardingView: React.FC = () => {
                   <img
                     src={savedGoogleAccount.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(savedGoogleAccount.name)}`}
                     alt={savedGoogleAccount.name}
-                    style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
+                    style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover' }}
                   />
                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>{savedGoogleAccount.name}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>{savedGoogleAccount.email}</span>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>{savedGoogleAccount.name}</span>
+                    <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>{savedGoogleAccount.email}</span>
                   </div>
-                  <Check size={16} color="var(--fl-teal-light)" />
+                  <Check size={18} color="var(--fl-teal-light)" />
                 </button>
 
                 <button
@@ -242,7 +242,7 @@ export const AuthOnboardingView: React.FC = () => {
                   id="btn-google-use-another"
                   onClick={() => setUseAnotherGoogleAccount(true)}
                   className="fl-btn fl-btn-outline"
-                  style={{ padding: '8px', fontSize: '12px', color: 'var(--fl-text-muted)' }}
+                  style={{ padding: '10px', fontSize: '14px', color: 'var(--fl-text-muted)' }}
                 >
                   Use another Google account
                 </button>
@@ -256,12 +256,12 @@ export const AuthOnboardingView: React.FC = () => {
                 }}
                 style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
               >
-                <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
+                <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
                   Enter your Google Account email to continue to <strong>FLUENTRA</strong>:
                 </p>
 
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--fl-text-muted)', display: 'block', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-muted)', display: 'block', marginBottom: '6px' }}>
                     Google Email Address
                   </label>
                   <input
@@ -275,19 +275,19 @@ export const AuthOnboardingView: React.FC = () => {
                     className="fl-input"
                     style={{
                       width: '100%',
-                      height: '42px',
-                      padding: '0 12px',
+                      height: '48px',
+                      padding: '0 14px',
                       borderRadius: 'var(--fl-radius-md)',
                       backgroundColor: 'var(--fl-bg-input)',
                       border: '1px solid var(--fl-border-strong)',
                       color: 'var(--fl-text-primary)',
-                      fontSize: '14px'
+                      fontSize: '16px'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--fl-text-muted)', display: 'block', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-muted)', display: 'block', marginBottom: '6px' }}>
                     Your Name (Optional)
                   </label>
                   <input
@@ -299,19 +299,19 @@ export const AuthOnboardingView: React.FC = () => {
                     className="fl-input"
                     style={{
                       width: '100%',
-                      height: '42px',
-                      padding: '0 12px',
+                      height: '48px',
+                      padding: '0 14px',
                       borderRadius: 'var(--fl-radius-md)',
                       backgroundColor: 'var(--fl-bg-input)',
                       border: '1px solid var(--fl-border-strong)',
                       color: 'var(--fl-text-primary)',
-                      fontSize: '14px'
+                      fontSize: '16px'
                     }}
                   />
                 </div>
 
-                <div style={{ padding: '8px 10px', borderRadius: '8px', backgroundColor: 'rgba(66, 133, 244, 0.08)', border: '1px solid rgba(66, 133, 244, 0.2)', fontSize: '11px', color: 'var(--fl-text-secondary)', lineHeight: 1.4 }}>
-                  <Shield size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
+                <div style={{ padding: '10px 12px', borderRadius: '8px', backgroundColor: 'rgba(66, 133, 244, 0.08)', border: '1px solid rgba(66, 133, 244, 0.2)', fontSize: '13px', color: 'var(--fl-text-secondary)', lineHeight: 1.45 }}>
+                  <Shield size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
                   Google will securely authenticate your identity and share your verified email and profile with FLUENTRA.
                 </div>
 
@@ -323,11 +323,13 @@ export const AuthOnboardingView: React.FC = () => {
                     backgroundColor: '#4285F4',
                     color: '#FFFFFF',
                     fontWeight: 700,
+                    fontSize: '16px',
+                    minHeight: '48px',
                     boxShadow: '0 2px 10px rgba(66, 133, 244, 0.4)',
                     padding: '12px'
                   }}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24">
+                  <svg width="20" height="20" viewBox="0 0 24 24">
                     <path fill="#FFFFFF" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
                   </svg>
                   <span>Continue with Google</span>
@@ -338,7 +340,7 @@ export const AuthOnboardingView: React.FC = () => {
                     type="button"
                     onClick={() => setUseAnotherGoogleAccount(false)}
                     className="fl-btn fl-btn-outline"
-                    style={{ padding: '6px', fontSize: '12px', color: 'var(--fl-text-muted)' }}
+                    style={{ padding: '8px', fontSize: '14px', color: 'var(--fl-text-muted)' }}
                   >
                     Back to saved account
                   </button>
@@ -358,14 +360,14 @@ export const AuthOnboardingView: React.FC = () => {
             id="btn-auth-theme-toggle"
             onClick={toggleTheme}
             className="fl-btn-icon"
-            style={{ width: '32px', height: '32px', borderRadius: '50%' }}
+            style={{ width: '36px', height: '36px', borderRadius: '50%' }}
             title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
             aria-label={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
           >
             {theme === 'dark' ? (
-              <Sun size={15} color="var(--fl-gold-light)" />
+              <Sun size={17} color="var(--fl-gold-light)" />
             ) : (
-              <Moon size={15} color="var(--fl-indigo-primary)" />
+              <Moon size={17} color="var(--fl-indigo-primary)" />
             )}
           </button>
 
@@ -375,7 +377,7 @@ export const AuthOnboardingView: React.FC = () => {
               id="btn-toggle-signin"
               className="fl-badge fl-badge-locked"
               onClick={() => setMode('signin')}
-              style={{ cursor: 'pointer', padding: '6px 12px' }}
+              style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '13px' }}
             >
               <span>Sign In</span>
             </button>
@@ -385,7 +387,7 @@ export const AuthOnboardingView: React.FC = () => {
               id="btn-toggle-signup"
               className="fl-badge fl-badge-teal"
               onClick={() => setMode('onboard')}
-              style={{ cursor: 'pointer', padding: '6px 12px' }}
+              style={{ cursor: 'pointer', padding: '8px 14px', fontSize: '13px' }}
             >
               <span>Create Account</span>
             </button>
@@ -397,15 +399,15 @@ export const AuthOnboardingView: React.FC = () => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         {mode === 'signin' ? (
           /* ================= SIGN IN VIEW ================= */
-          <div className="animate-pop-in" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div className="animate-pop-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
               <span className="fl-badge fl-badge-teal" style={{ marginBottom: '8px' }}>
                 Welcome Back
               </span>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
+              <h2 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
                 Sign in to FLUENTRA
               </h2>
-              <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
+              <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
                 Pick up your speaking streak right where you left off.
               </p>
             </div>
@@ -422,6 +424,7 @@ export const AuthOnboardingView: React.FC = () => {
                 justifyContent: 'center',
                 gap: '12px',
                 padding: '14px',
+                minHeight: '50px',
                 backgroundColor: '#FFFFFF',
                 borderRadius: 'var(--fl-radius-md)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
@@ -430,26 +433,26 @@ export const AuthOnboardingView: React.FC = () => {
                 width: '100%'
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24">
+              <svg width="22" height="22" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z" />
                 <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15Z" />
                 <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
               </svg>
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#1F2937' }}>
+              <span style={{ fontSize: '16px', fontWeight: 700, color: '#1F2937' }}>
                 Continue with Google
               </span>
             </button>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--fl-border)' }} />
-              <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)', fontWeight: 600 }}>OR EMAIL</span>
+              <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)', fontWeight: 600 }}>OR EMAIL</span>
               <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--fl-border)' }} />
             </div>
 
-            <form onSubmit={handleSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
+                <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
                   Email Address
                 </label>
                 <input
@@ -461,20 +464,20 @@ export const AuthOnboardingView: React.FC = () => {
                   placeholder="your.email@example.com"
                   style={{
                     width: '100%',
-                    height: '46px',
-                    padding: '0 14px',
+                    height: '50px',
+                    padding: '0 16px',
                     borderRadius: 'var(--fl-radius-md)',
                     backgroundColor: 'var(--fl-bg-card)',
                     border: '1px solid var(--fl-border)',
                     color: 'var(--fl-text-primary)',
-                    fontSize: '15px',
+                    fontSize: '16px',
                     outline: 'none'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
+                <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
                   Password
                 </label>
                 <input
@@ -485,13 +488,13 @@ export const AuthOnboardingView: React.FC = () => {
                   placeholder="••••••••"
                   style={{
                     width: '100%',
-                    height: '46px',
-                    padding: '0 14px',
+                    height: '50px',
+                    padding: '0 16px',
                     borderRadius: 'var(--fl-radius-md)',
                     backgroundColor: 'var(--fl-bg-card)',
                     border: '1px solid var(--fl-border)',
                     color: 'var(--fl-text-primary)',
-                    fontSize: '15px',
+                    fontSize: '16px',
                     outline: 'none'
                   }}
                 />
@@ -501,7 +504,7 @@ export const AuthOnboardingView: React.FC = () => {
                 type="submit"
                 id="btn-submit-signin"
                 className="fl-btn fl-btn-primary"
-                style={{ width: '100%', marginTop: '6px' }}
+                style={{ width: '100%', marginTop: '6px', minHeight: '50px', fontSize: '16px' }}
               >
                 <span>Sign In</span>
                 <ArrowRight size={18} />
@@ -510,7 +513,7 @@ export const AuthOnboardingView: React.FC = () => {
           </div>
         ) : (
           /* ================= ONBOARDING STEP-BY-STEP ================= */
-          <div className="animate-pop-in" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div className="animate-pop-in" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Progress dots */}
             <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
               {[1, 2, 3, 4, 5].map((i) => (
@@ -518,7 +521,7 @@ export const AuthOnboardingView: React.FC = () => {
                   key={i}
                   style={{
                     flex: 1,
-                    height: '4px',
+                    height: '5px',
                     borderRadius: '999px',
                     backgroundColor: i <= step ? 'var(--fl-teal-light)' : 'rgba(255, 255, 255, 0.1)'
                   }}
@@ -528,13 +531,13 @@ export const AuthOnboardingView: React.FC = () => {
 
             {/* STEP 1: Name, Email & Google Sign-In */}
             {step === 1 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <div>
                   <span className="fl-badge fl-badge-teal">Personalization · 1 of 5</span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
+                  <h2 style={{ fontSize: '26px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
                     Create your profile
                   </h2>
-                  <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
+                  <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
                     Sign up with Google or enter your details to personalize your journey.
                   </p>
                 </div>
@@ -551,6 +554,7 @@ export const AuthOnboardingView: React.FC = () => {
                     justifyContent: 'center',
                     gap: '12px',
                     padding: '14px',
+                    minHeight: '50px',
                     backgroundColor: '#FFFFFF',
                     borderRadius: 'var(--fl-radius-md)',
                     border: 'none',
@@ -558,26 +562,26 @@ export const AuthOnboardingView: React.FC = () => {
                     width: '100%'
                   }}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24">
+                  <svg width="22" height="22" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
                     <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z" />
                     <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15Z" />
                     <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
                   </svg>
-                  <span style={{ fontSize: '15px', fontWeight: 700, color: '#1F2937' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 700, color: '#1F2937' }}>
                     Sign up with Google
                   </span>
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--fl-border)' }} />
-                  <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)', fontWeight: 600 }}>OR ENTER DETAILS</span>
+                  <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)', fontWeight: 600 }}>OR ENTER DETAILS</span>
                   <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--fl-border)' }} />
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
                       Your Full Name
                     </label>
                     <input
@@ -588,7 +592,7 @@ export const AuthOnboardingView: React.FC = () => {
                       placeholder="e.g. Jordan Miller"
                       style={{
                         width: '100%',
-                        height: '48px',
+                        height: '50px',
                         padding: '0 16px',
                         borderRadius: 'var(--fl-radius-md)',
                         backgroundColor: 'var(--fl-bg-card)',
@@ -601,7 +605,7 @@ export const AuthOnboardingView: React.FC = () => {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-secondary)', marginBottom: '6px', display: 'block' }}>
                       Email Address
                     </label>
                     <input
@@ -612,7 +616,7 @@ export const AuthOnboardingView: React.FC = () => {
                       placeholder="e.g. jordan@example.com"
                       style={{
                         width: '100%',
-                        height: '48px',
+                        height: '50px',
                         padding: '0 16px',
                         borderRadius: 'var(--fl-radius-md)',
                         backgroundColor: 'var(--fl-bg-card)',
@@ -629,18 +633,18 @@ export const AuthOnboardingView: React.FC = () => {
 
             {/* STEP 2: Language Selection */}
             {step === 2 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <span className="fl-badge fl-badge-teal">Language · 2 of 5</span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
+                  <h2 style={{ fontSize: '26px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
                     Choose language to master
                   </h2>
-                  <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
+                  <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
                     Your curriculum, audio player, voice analysis, and roleplays will adapt to this language.
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {AVAILABLE_LANGUAGES.map((lang) => {
                     const isSelected = selectedLang.id === lang.id;
                     return (
@@ -654,22 +658,22 @@ export const AuthOnboardingView: React.FC = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '14px 16px',
+                          padding: '16px 18px',
                           textAlign: 'left'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                          <span style={{ fontSize: '28px' }}>{lang.flag}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <span style={{ fontSize: '32px' }}>{lang.flag}</span>
                           <div>
-                            <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                            <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                               {lang.name}
                             </span>
-                            <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)', display: 'block' }}>
+                            <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '2px' }}>
                               {lang.tagline}
                             </span>
                           </div>
                         </div>
-                        {isSelected && <Check size={20} color="var(--fl-teal-light)" />}
+                        {isSelected && <Check size={22} color="var(--fl-teal-light)" />}
                       </button>
                     );
                   })}
@@ -679,18 +683,18 @@ export const AuthOnboardingView: React.FC = () => {
 
             {/* STEP 3: Learning Motivation */}
             {step === 3 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <span className="fl-badge fl-badge-teal">Goal · 3 of 5</span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
+                  <h2 style={{ fontSize: '26px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
                     Why are you learning {selectedLang.name}?
                   </h2>
-                  <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
+                  <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
                     We will tailor your AI conversation scenarios and vocabulary recommendations.
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {LEARNING_GOALS.map((goal) => {
                     const isSelected = selectedGoal === goal.id;
                     return (
@@ -704,19 +708,19 @@ export const AuthOnboardingView: React.FC = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '14px 16px',
+                          padding: '16px 18px',
                           textAlign: 'left'
                         }}
                       >
                         <div>
-                          <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                          <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                             {goal.title}
                           </span>
-                          <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '2px' }}>
+                          <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '3px' }}>
                             {goal.desc}
                           </span>
                         </div>
-                        {isSelected && <Check size={20} color="var(--fl-teal-light)" />}
+                        {isSelected && <Check size={22} color="var(--fl-teal-light)" />}
                       </button>
                     );
                   })}
@@ -726,18 +730,18 @@ export const AuthOnboardingView: React.FC = () => {
 
             {/* STEP 4: Starting Point */}
             {step === 4 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <span className="fl-badge fl-badge-teal">Placement · 4 of 5</span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
+                  <h2 style={{ fontSize: '26px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
                     What is your starting point?
                   </h2>
-                  <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
+                  <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
                     We will unlock curriculum units matching your experience.
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {STARTING_LEVELS.map((lvl) => {
                     const isSelected = selectedLevel.id === lvl.id;
                     return (
@@ -751,19 +755,19 @@ export const AuthOnboardingView: React.FC = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '16px',
+                          padding: '16px 18px',
                           textAlign: 'left'
                         }}
                       >
                         <div>
-                          <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                          <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                             {lvl.title}
                           </span>
-                          <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '2px' }}>
+                          <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '3px' }}>
                             {lvl.desc}
                           </span>
                         </div>
-                        {isSelected && <Check size={20} color="var(--fl-teal-light)" />}
+                        {isSelected && <Check size={22} color="var(--fl-teal-light)" />}
                       </button>
                     );
                   })}
@@ -773,18 +777,18 @@ export const AuthOnboardingView: React.FC = () => {
 
             {/* STEP 5: Daily Commitment */}
             {step === 5 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 <div>
                   <span className="fl-badge fl-badge-teal">Habit · 5 of 5</span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
+                  <h2 style={{ fontSize: '26px', fontWeight: 800, marginTop: '8px', color: 'var(--fl-text-primary)' }}>
                     Set your daily practice target
                   </h2>
-                  <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
+                  <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
                     This sets your daily XP goal on your dashboard.
                   </p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   {COMMITMENTS.map((c) => {
                     const isSelected = selectedCommitment.id === c.id;
                     return (
@@ -794,15 +798,15 @@ export const AuthOnboardingView: React.FC = () => {
                         id={`commit-choice-${c.id}`}
                         onClick={() => setSelectedCommitment(c)}
                         className={`fl-card fl-card-interactive ${isSelected ? 'fl-card-active' : ''}`}
-                        style={{ padding: '16px', textAlign: 'center' }}
+                        style={{ padding: '18px 14px', textAlign: 'center' }}
                       >
-                        <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--fl-text-primary)', display: 'block' }}>
+                        <span style={{ fontSize: '17px', fontWeight: 800, color: 'var(--fl-text-primary)', display: 'block' }}>
                           {c.label}
                         </span>
-                        <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)', marginTop: '2px', display: 'block' }}>
+                        <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px', display: 'block' }}>
                           {c.time}
                         </span>
-                        <span className="fl-badge fl-badge-gold" style={{ marginTop: '8px', fontSize: '11px', padding: '2px 8px' }}>
+                        <span className="fl-badge fl-badge-gold" style={{ marginTop: '10px', fontSize: '13px', padding: '3px 10px' }}>
                           +{c.xp} XP / day
                         </span>
                       </button>
@@ -817,15 +821,15 @@ export const AuthOnboardingView: React.FC = () => {
 
       {/* Persistent Bottom Controls for Onboarding */}
       {mode === 'onboard' && (
-        <div style={{ display: 'flex', gap: '10px', marginTop: '24px', paddingTop: '12px', borderTop: '1px solid var(--fl-border)' }}>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--fl-border)' }}>
           {step > 1 && (
             <button
               type="button"
               className="fl-btn fl-btn-secondary"
               onClick={() => setStep(prev => prev - 1)}
-              style={{ flex: 1 }}
+              style={{ flex: 1, minHeight: '50px', fontSize: '16px' }}
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={18} />
               <span>Back</span>
             </button>
           )}
@@ -841,10 +845,10 @@ export const AuthOnboardingView: React.FC = () => {
                 }
                 setStep(prev => prev + 1);
               }}
-              style={{ flex: step === 1 ? 1 : 1.5 }}
+              style={{ flex: step === 1 ? 1 : 1.5, minHeight: '50px', fontSize: '16px' }}
             >
               <span>Continue</span>
-              <ArrowRight size={16} />
+              <ArrowRight size={18} />
             </button>
           ) : (
             <button
@@ -852,9 +856,9 @@ export const AuthOnboardingView: React.FC = () => {
               id="btn-onboard-finish"
               className="fl-btn fl-btn-primary"
               onClick={handleFinishOnboarding}
-              style={{ flex: 1.5 }}
+              style={{ flex: 1.5, minHeight: '50px', fontSize: '16px' }}
             >
-              <Sparkles size={16} />
+              <Sparkles size={18} />
               <span>Start Learning {selectedLang.name}</span>
             </button>
           )}

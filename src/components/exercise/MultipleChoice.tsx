@@ -23,14 +23,14 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Exercise Prompt & Model Audio */}
       <div>
-        <h3 style={{ fontSize: '19px', fontWeight: 700, marginBottom: '8px' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
           {exercise.prompt}
         </h3>
         {exercise.audioText && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
             <AudioControls text={exercise.audioText} />
             {exercise.targetText && (
-              <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--fl-teal-light)' }}>
+              <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--fl-teal-light)' }}>
                 {exercise.targetText}
               </span>
             )}
@@ -76,6 +76,7 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '16px 18px',
+                minHeight: '54px',
                 borderColor: cardBorder,
                 backgroundColor: cardBg,
                 textAlign: 'left',
@@ -84,11 +85,11 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
               disabled={isChecked}
             >
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--fl-text-primary)' }}>
+                <span style={{ fontSize: '17px', fontWeight: 600, color: 'var(--fl-text-primary)' }}>
                   {option.text}
                 </span>
                 {option.translation && (
-                  <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                     {option.translation}
                   </span>
                 )}

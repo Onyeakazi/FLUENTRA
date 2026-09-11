@@ -52,9 +52,9 @@ export const TopBar: React.FC = () => {
         <div
           className="fl-badge fl-badge-flame"
           title={`${profile.streak.currentStreak} day streak`}
-          style={{ cursor: 'pointer', padding: '4px 8px' }}
+          style={{ cursor: 'pointer', padding: '5px 10px', fontSize: '13px' }}
         >
-          <Flame size={14} color="var(--fl-coral-flame)" fill="var(--fl-coral-flame)" />
+          <Flame size={15} color="var(--fl-coral-flame)" fill="var(--fl-coral-flame)" />
           <span>{profile.streak.currentStreak}</span>
         </div>
 
@@ -62,9 +62,9 @@ export const TopBar: React.FC = () => {
         <div
           className="fl-badge fl-badge-gold"
           title={`${profile.dailyGoal.currentXp} / ${profile.dailyGoal.targetXp} Daily XP`}
-          style={{ cursor: 'pointer', padding: '4px 8px' }}
+          style={{ cursor: 'pointer', padding: '5px 10px', fontSize: '13px' }}
         >
-          <Zap size={13} color="var(--fl-gold-star)" fill="var(--fl-gold-star)" />
+          <Zap size={14} color="var(--fl-gold-star)" fill="var(--fl-gold-star)" />
           <span>{profile.dailyGoal.currentXp}</span>
         </div>
 
@@ -72,9 +72,9 @@ export const TopBar: React.FC = () => {
         <div
           className="fl-badge fl-badge-teal"
           title={`Currently on Level ${activeLevel}`}
-          style={{ padding: '4px 8px' }}
+          style={{ padding: '5px 10px', fontSize: '13px' }}
         >
-          <Award size={13} color="var(--fl-teal-light)" />
+          <Award size={14} color="var(--fl-teal-light)" />
           <span>L{activeLevel}</span>
         </div>
 
@@ -82,15 +82,15 @@ export const TopBar: React.FC = () => {
         <div
           title={profile.name ? `${profile.name} (${profile.email || 'Logged In'})` : 'Your Profile'}
           style={{
-            width: '28px',
-            height: '28px',
+            width: '32px',
+            height: '32px',
             borderRadius: '50%',
             backgroundColor: 'var(--fl-teal-subtle)',
             border: '1.5px solid var(--fl-teal-light)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '12px',
+            fontSize: '14px',
             fontWeight: 800,
             color: 'var(--fl-teal-light)'
           }}
