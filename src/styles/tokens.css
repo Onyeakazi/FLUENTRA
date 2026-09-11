@@ -1,0 +1,119 @@
+/* FLUENTRA Design Tokens */
+:root {
+  /* Brand Palette */
+  --fl-teal-primary: #00C48C;
+  --fl-teal-light: #00F5B4;
+  --fl-teal-dark: #00996D;
+  --fl-teal-subtle: rgba(0, 196, 140, 0.12);
+  --fl-teal-glow: rgba(0, 245, 180, 0.35);
+
+  --fl-indigo-primary: #6366F1;
+  --fl-indigo-light: #818CF8;
+  --fl-indigo-dark: #4338CA;
+  --fl-indigo-subtle: rgba(99, 102, 241, 0.14);
+
+  --fl-coral-flame: #FF6B4A;
+  --fl-coral-light: #FF8F73;
+  --fl-coral-subtle: rgba(255, 107, 74, 0.15);
+
+  --fl-gold-star: #FFB800;
+  --fl-gold-light: #FCD34D;
+  --fl-gold-subtle: rgba(255, 184, 0, 0.16);
+
+  --fl-blue-accent: #38BDF8;
+  --fl-purple-accent: #A855F7;
+
+  /* Surfaces & Dark Theme System */
+  --fl-bg-app: #0B0F19;
+  --fl-bg-card: #131B2E;
+  --fl-bg-card-hover: #1A253F;
+  --fl-bg-card-elevated: #1E2A47;
+  --fl-bg-input: #101728;
+  --fl-bg-nav: rgba(11, 15, 25, 0.88);
+  --fl-bg-nav-bottom: rgba(11, 15, 25, 0.92);
+  --fl-border: rgba(255, 255, 255, 0.08);
+  --fl-border-strong: rgba(255, 255, 255, 0.15);
+  --fl-border-focus: var(--fl-teal-light);
+
+  /* Typography Colors */
+  --fl-text-primary: #F8FAFC;
+  --fl-text-secondary: #94A3B8;
+  --fl-text-muted: #64748B;
+  --fl-text-inverse: #0B0F19;
+
+  /* Status Colors */
+  --fl-success: #10B981;
+  --fl-success-subtle: rgba(16, 185, 129, 0.15);
+  --fl-error: #EF4444;
+  --fl-error-subtle: rgba(239, 68, 68, 0.15);
+  --fl-warning: #F59E0B;
+  --fl-warning-subtle: rgba(245, 158, 11, 0.15);
+
+  /* Radii */
+  --fl-radius-xs: 6px;
+  --fl-radius-sm: 10px;
+  --fl-radius-md: 14px;
+  --fl-radius-lg: 20px;
+  --fl-radius-xl: 28px;
+  --fl-radius-full: 9999px;
+
+  /* Shadows & Elevations */
+  --fl-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --fl-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --fl-shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.55);
+  --fl-shadow-glow: 0 0 24px var(--fl-teal-glow);
+  --fl-shadow-mic: 0 0 32px rgba(255, 107, 74, 0.45);
+
+  /* Safe Area Dimensions (Mobile Notch & Home Bar) */
+  --fl-safe-top: env(safe-area-inset-top, 0px);
+  --fl-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --fl-safe-left: env(safe-area-inset-left, 0px);
+  --fl-safe-right: env(safe-area-inset-right, 0px);
+
+  /* Standard Nav Heights */
+  --fl-bottom-nav-height: 68px;
+  --fl-top-nav-height: 60px;
+
+  /* Transitions */
+  --fl-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --fl-transition-bounce: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --fl-transition-smooth: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   LIGHT THEME SYSTEM OVERRIDES
+   ========================================================================== */
+[data-theme="light"] {
+  /* Surfaces & Light Theme System */
+  --fl-bg-app: #F8FAFC;
+  --fl-bg-card: #FFFFFF;
+  --fl-bg-card-hover: #F1F5F9;
+  --fl-bg-card-elevated: #FFFFFF;
+  --fl-bg-input: #F1F5F9;
+  --fl-bg-nav: rgba(255, 255, 255, 0.88);
+  --fl-bg-nav-bottom: rgba(255, 255, 255, 0.94);
+  --fl-border: rgba(15, 23, 42, 0.08);
+  --fl-border-strong: rgba(15, 23, 42, 0.16);
+  --fl-border-focus: var(--fl-teal-dark);
+
+  /* Typography Colors */
+  --fl-text-primary: #0F172A;
+  --fl-text-secondary: #475569;
+  --fl-text-muted: #64748B;
+  --fl-text-inverse: #FFFFFF;
+
+  /* Accents & Brand fine-tuning for light backgrounds */
+  --fl-teal-primary: #059669;
+  --fl-teal-light: #10B981;
+  --fl-teal-subtle: rgba(16, 185, 129, 0.12);
+  --fl-indigo-subtle: rgba(99, 102, 241, 0.1);
+  --fl-coral-subtle: rgba(255, 107, 74, 0.1);
+  --fl-gold-subtle: rgba(245, 158, 11, 0.12);
+
+  /* Shadows */
+  --fl-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --fl-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --fl-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --fl-shadow-glow: 0 0 20px rgba(16, 185, 129, 0.25);
+  --fl-shadow-mic: 0 0 24px rgba(255, 107, 74, 0.35);
+}

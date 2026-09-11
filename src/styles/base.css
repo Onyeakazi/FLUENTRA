@@ -1,0 +1,146 @@
+/* FLUENTRA Base & Mobile Reset Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--fl-bg-app);
+  color: var(--fl-text-primary);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Explicit Form Elements Reset for Dark Theme Contrast */
+input, textarea, select, button {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--fl-text-primary);
+  background-color: transparent;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--fl-text-muted);
+}
+
+select option {
+  background-color: var(--fl-bg-card);
+  color: var(--fl-text-primary);
+}
+
+#root {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--fl-bg-app);
+  position: relative;
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--fl-text-primary);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--fl-teal-light) 0%, #38BDF8 50%, var(--fl-indigo-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #FFE082 0%, var(--fl-gold-star) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-flame {
+  background: linear-gradient(135deg, #FFA07A 0%, var(--fl-coral-flame) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Mobile-First Layout Containers */
+.app-container {
+  width: 100%;
+  max-width: 540px; /* Tablet & desktop centered mobile frame */
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--fl-bg-app);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 1024px) {
+  .app-container.desktop-expanded {
+    max-width: 1080px;
+  }
+}
+
+.content-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: calc(var(--fl-top-nav-height) + var(--fl-safe-top));
+  padding-bottom: calc(var(--fl-bottom-nav-height) + var(--fl-safe-bottom) + 24px);
+  padding-left: 16px;
+  padding-right: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.content-fullscreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--fl-safe-top);
+  padding-bottom: var(--fl-safe-bottom);
+  overflow-y: auto;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Accessibility Focus States */
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid var(--fl-teal-light);
+  outline-offset: 2px;
+}
+
+/* Utilities */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

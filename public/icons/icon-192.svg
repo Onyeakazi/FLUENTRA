@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F19" />
+      <stop offset="100%" stop-color="#151D2E" />
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5B4" />
+      <stop offset="100%" stop-color="#00A876" />
+    </linearGradient>
+    <linearGradient id="indigoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5B4" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#4F46E5" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <circle cx="256" cy="256" r="200" fill="url(#glowGrad)" />
+  <rect x="140" y="216" width="32" height="80" rx="16" fill="url(#tealGrad)" />
+  <rect x="196" y="156" width="32" height="200" rx="16" fill="url(#tealGrad)" />
+  <rect x="252" y="116" width="32" height="280" rx="16" fill="#FFFFFF" />
+  <rect x="308" y="176" width="32" height="160" rx="16" fill="url(#indigoGrad)" />
+  <rect x="364" y="226" width="32" height="60" rx="16" fill="url(#indigoGrad)" />
+  <circle cx="268" cy="256" r="14" fill="#00F5B4" />
+</svg>
