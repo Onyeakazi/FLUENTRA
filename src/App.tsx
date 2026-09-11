@@ -6,6 +6,7 @@ import { FluentraSplash } from './components/brand/FluentraSplash';
 import { TopBar } from './components/navigation/TopBar';
 import { BottomNav, NavTab } from './components/navigation/BottomNav';
 import { AuthOnboardingView } from './views/AuthOnboardingView';
+import { AccountSetupView } from './views/AccountSetupView';
 import { HomeView } from './views/HomeView';
 import { LearnView } from './views/LearnView';
 import { PracticeView } from './views/PracticeView';
@@ -71,13 +72,18 @@ const FluentraApp: React.FC = () => {
         <FluentraSplash onDismiss={() => setShowSplash(false)} />
       )}
 
-      {/* 2. Authentication & Personalized Onboarding (If not logged in) */}
+      {/* 2. Authentication (Sign In / Register) */}
       {!showSplash && !isAuthenticated && (
         <AuthOnboardingView />
       )}
 
-      {/* 3. Fullscreen Active Lesson Runner */}
-      {isAuthenticated && activeLessonContext && (
+      {/* 3. Dedicated Account Setup (Post-Registration Setup) */}
+      {!showSplash && isAuthenticated && !profile.isSetupCompleted && (
+        <AccountSetupView />
+      )}
+
+      {/* 4. Fullscreen Active Lesson Runner */}
+      {isAuthenticated && profile.isSetupCompleted && activeLessonContext && (
         <ExerciseRunner
           unitId={activeLessonContext.unitId}
           lesson={activeLessonContext.lesson}
@@ -85,16 +91,16 @@ const FluentraApp: React.FC = () => {
         />
       )}
 
-      {/* 4. Fullscreen Active AI Roleplay Conversation */}
-      {isAuthenticated && !activeLessonContext && activeScenario && (
+      {/* 5. Fullscreen Active AI Roleplay Conversation */}
+      {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && activeScenario && (
         <ConversationRoleplayView
           scenario={activeScenario}
           onExit={() => setActiveScenario(null)}
         />
       )}
 
-      {/* 5. Main Authenticated App Views */}
-      {isAuthenticated && !activeLessonContext && !activeScenario && (
+      {/* 6. Main Authenticated App Views */}
+      {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && !activeScenario && (
         <>
           <TopBar />
 

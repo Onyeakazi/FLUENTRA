@@ -13,6 +13,7 @@ interface UserContextType {
   setTheme: (theme: 'dark' | 'light') => void;
   login: (email: string, password?: string) => boolean;
   register: (customData: Partial<UserProfile>) => void;
+  completeAccountSetup: (data: Partial<UserProfile>) => void;
   logout: () => void;
   addXp: (amount: number) => void;
   incrementStreak: () => void;
@@ -61,7 +62,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...existing,
       email: email,
       name: existing.name || email.split('@')[0],
-      isAuthenticated: true
+      isAuthenticated: true,
+      isSetupCompleted: existing.isSetupCompleted ?? true
     };
     storageService.saveProfile(updated);
     setProfile(updated);
@@ -78,8 +80,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: customData.email || '',
       avatarUrl: customData.avatarUrl || '',
       isAuthenticated: true,
-      currentLanguage: customData.currentLanguage || 'French',
-      targetLanguage: customData.targetLanguage || 'fr-FR',
+      authProvider: customData.authProvider || 'email',
+      isSetupCompleted: customData.isSetupCompleted ?? false,
+      currentLanguage: customData.currentLanguage || 'Chinese Mandarin',
+      targetLanguage: customData.targetLanguage || 'zh-CN',
       learningGoal: customData.learningGoal || 'travel',
       experienceLevel: customData.experienceLevel || 'beginner',
       dailyCommitmentMinutes: customData.dailyCommitmentMinutes || 20,
@@ -114,6 +118,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(newProfile);
     soundService.playLevelUnlock();
     firebaseService.syncUserProfileToCloud(newProfile);
+  };
+
+  const completeAccountSetup = (data: Partial<UserProfile>) => {
+    setProfile((prev) => {
+      const updated: UserProfile = {
+        ...prev,
+        ...data,
+        isSetupCompleted: true
+      };
+      storageService.saveProfile(updated);
+      soundService.playLevelUnlock();
+      firebaseService.syncUserProfileToCloud(updated);
+      return updated;
+    });
   };
 
   const logout = () => {
@@ -188,6 +206,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTheme,
         login,
         register,
+        completeAccountSetup,
         logout,
         addXp,
         incrementStreak,

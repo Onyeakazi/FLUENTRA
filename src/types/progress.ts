@@ -66,4 +66,5 @@ export interface UserProfile {
   hapticsEnabled: boolean;
   slowAudioDefault: boolean;
   theme?: 'dark' | 'light';
+  isSetupCompleted?: boolean;
 }

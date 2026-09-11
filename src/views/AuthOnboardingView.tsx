@@ -1,28 +1,17 @@
-// FLUENTRA Streamlined Authentication View (No Multi-Step Wizard)
+// FLUENTRA Authentication View (Pure Login & Sign-Up, No Inline Steps)
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Check, Shield, X, Sun, Moon, Lock, Mail, User as UserIcon, Globe } from 'lucide-react';
+import { ArrowRight, Check, Shield, X, Sun, Moon, Lock, Mail, User as UserIcon } from 'lucide-react';
 import { FluentraLogo } from '../components/brand/FluentraLogo';
 import { useUser } from '../context/UserContext';
-import { useProgression } from '../context/ProgressionContext';
 import { firebaseService } from '../services/firebase';
-
-const AVAILABLE_LANGUAGES = [
-  { id: 'Chinese Mandarin', code: 'zh-CN', name: 'Chinese Mandarin', flag: '🇨🇳' },
-  { id: 'French', code: 'fr-FR', name: 'French', flag: '🇫🇷' },
-  { id: 'Spanish', code: 'es-ES', name: 'Spanish', flag: '🇪🇸' },
-  { id: 'German', code: 'de-DE', name: 'German', flag: '🇩🇪' },
-  { id: 'Japanese', code: 'ja-JP', name: 'Japanese', flag: '🇯🇵' },
-  { id: 'Italian', code: 'it-IT', name: 'Italian', flag: '🇮🇹' }
-];
 
 export const AuthOnboardingView: React.FC = () => {
   const { login, register, theme, toggleTheme } = useUser();
-  const { setActiveLevel } = useProgression();
 
   const [mode, setMode] = useState<'signup' | 'signin'>('signup');
   const [showGoogleModal, setShowGoogleModal] = useState(false);
 
-  // Real Google Sign-In state
+  // Google Sign-In Modal State
   const [googleEmail, setGoogleEmail] = useState('');
   const [googleName, setGoogleName] = useState('');
   const [useAnotherGoogleAccount, setUseAnotherGoogleAccount] = useState(false);
@@ -36,11 +25,10 @@ export const AuthOnboardingView: React.FC = () => {
     }
   })();
 
-  // Form State
+  // Email/Password Form State
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedLang, setSelectedLang] = useState(AVAILABLE_LANGUAGES[0]); // Chinese Mandarin default
 
   const handleTriggerGoogleAuth = async () => {
     if (firebaseService.isReady()) {
@@ -65,7 +53,6 @@ export const AuthOnboardingView: React.FC = () => {
     const formattedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
     const userAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(formattedName)}&backgroundColor=00C48C`;
 
-    // Persist real account locally for seamless subsequent one-click sign-in
     try {
       localStorage.setItem('fluentra_saved_google_account', JSON.stringify({
         name: formattedName,
@@ -86,20 +73,8 @@ export const AuthOnboardingView: React.FC = () => {
         email: cleanEmail,
         avatarUrl: userAvatar,
         authProvider: 'google',
-        currentLanguage: selectedLang.name,
-        targetLanguage: selectedLang.code,
-        learningGoal: 'travel',
-        experienceLevel: 'beginner',
-        dailyCommitmentMinutes: 20,
-        currentLevelNumber: 1,
-        currentUnitId: 'u1',
-        dailyGoal: {
-          targetXp: 35,
-          currentXp: 0,
-          completed: false
-        }
+        isSetupCompleted: false
       });
-      setActiveLevel(1);
     }
   };
 
@@ -118,7 +93,6 @@ export const AuthOnboardingView: React.FC = () => {
       }
       login(cleanEmail, password);
     } else {
-      // Direct instant Sign Up (No 5-step wizard)
       const cleanName = name.trim() || cleanEmail.split('@')[0] || 'Learner';
       const userAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=00C48C`;
 
@@ -135,20 +109,8 @@ export const AuthOnboardingView: React.FC = () => {
         email: cleanEmail,
         avatarUrl: userAvatar,
         authProvider: 'email',
-        currentLanguage: selectedLang.name,
-        targetLanguage: selectedLang.code,
-        learningGoal: 'travel',
-        experienceLevel: 'beginner',
-        dailyCommitmentMinutes: 20,
-        currentLevelNumber: 1,
-        currentUnitId: 'u1',
-        dailyGoal: {
-          targetXp: 35,
-          currentXp: 0,
-          completed: false
-        }
+        isSetupCompleted: false
       });
-      setActiveLevel(1);
     }
   };
 
@@ -158,20 +120,8 @@ export const AuthOnboardingView: React.FC = () => {
       email: 'guest@fluentra.app',
       avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=Guest&backgroundColor=00C48C`,
       authProvider: 'guest',
-      currentLanguage: selectedLang.name,
-      targetLanguage: selectedLang.code,
-      learningGoal: 'travel',
-      experienceLevel: 'beginner',
-      dailyCommitmentMinutes: 20,
-      currentLevelNumber: 1,
-      currentUnitId: 'u1',
-      dailyGoal: {
-        targetXp: 35,
-        currentXp: 0,
-        completed: false
-      }
+      isSetupCompleted: true // Guests bypass setup directly to explore
     });
-    setActiveLevel(1);
   };
 
   return (
@@ -184,7 +134,7 @@ export const AuthOnboardingView: React.FC = () => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         minHeight: '100vh',
-        maxWidth: '480px',
+        maxWidth: '460px',
         margin: '0 auto',
         position: 'relative'
       }}
@@ -380,16 +330,16 @@ export const AuthOnboardingView: React.FC = () => {
         </button>
       </div>
 
-      {/* Main Auth Container */}
+      {/* Main Auth Form Container */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '20px' }}>
         {/* Title Header */}
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--fl-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-            {mode === 'signup' ? 'Start speaking from Day 1' : 'Welcome back'}
+            {mode === 'signup' ? 'Create your account' : 'Welcome back'}
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginTop: '6px' }}>
             {mode === 'signup' 
-              ? 'Join FLUENTRA and unlock dynamic AI-powered language mastery.'
+              ? 'Join FLUENTRA to master languages with dynamic AI conversation.'
               : 'Sign in to resume your learning streak and pronunciation practice.'}
           </p>
         </div>
@@ -472,7 +422,7 @@ export const AuthOnboardingView: React.FC = () => {
             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
           </svg>
           <span style={{ fontSize: '16px', fontWeight: 700, color: '#1F2937' }}>
-            {mode === 'signup' ? 'Continue with Google' : 'Sign in with Google'}
+            {mode === 'signup' ? 'Sign up with Google' : 'Sign in with Google'}
           </span>
         </button>
 
@@ -483,12 +433,12 @@ export const AuthOnboardingView: React.FC = () => {
           <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--fl-border)' }} />
         </div>
 
-        {/* Email Form */}
+        {/* Email/Password Form */}
         <form onSubmit={handleEmailAuth} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {mode === 'signup' && (
             <div>
               <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                Your Name
+                Full Name
               </label>
               <div style={{ position: 'relative' }}>
                 <UserIcon size={18} style={{ position: 'absolute', left: '14px', top: '16px', color: 'var(--fl-text-muted)' }} />
@@ -570,50 +520,6 @@ export const AuthOnboardingView: React.FC = () => {
             </div>
           </div>
 
-          {/* Language Selector (Instant choice on sign up) */}
-          {mode === 'signup' && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--fl-text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Globe size={15} color="var(--fl-teal-light)" />
-                  Target Language
-                </label>
-                <span style={{ fontSize: '13px', color: 'var(--fl-teal-light)', fontWeight: 600 }}>
-                  {selectedLang.name}
-                </span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {AVAILABLE_LANGUAGES.map((lang) => {
-                  const isSelected = selectedLang.id === lang.id;
-                  return (
-                    <button
-                      key={lang.id}
-                      type="button"
-                      onClick={() => setSelectedLang(lang)}
-                      className={`fl-card ${isSelected ? 'fl-card-active' : ''}`}
-                      style={{
-                        padding: '10px 8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        border: isSelected ? '1.5px solid var(--fl-teal-primary)' : '1px solid var(--fl-border)',
-                        backgroundColor: isSelected ? 'var(--fl-bg-card-hover)' : 'var(--fl-bg-card)',
-                        cursor: 'pointer',
-                        borderRadius: 'var(--fl-radius-md)'
-                      }}
-                    >
-                      <span style={{ fontSize: '18px' }}>{lang.flag}</span>
-                      <span style={{ fontSize: '13px', fontWeight: isSelected ? 700 : 500, color: 'var(--fl-text-primary)' }}>
-                        {lang.name.split(' ')[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           {/* Action Submit Button */}
           <button
             type="submit"
@@ -628,8 +534,8 @@ export const AuthOnboardingView: React.FC = () => {
           >
             {mode === 'signup' ? (
               <>
-                <Sparkles size={18} />
-                <span>Start Learning {selectedLang.name}</span>
+                <span>Create Account</span>
+                <ArrowRight size={18} />
               </>
             ) : (
               <>
@@ -657,7 +563,7 @@ export const AuthOnboardingView: React.FC = () => {
             textDecoration: 'underline'
           }}
         >
-          Want to test first? <strong>Explore as Guest</strong>
+          Want to explore first? <strong>Continue as Guest</strong>
         </button>
       </div>
     </div>
