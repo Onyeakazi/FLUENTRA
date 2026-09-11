@@ -28,7 +28,8 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || ''
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ''
 };
 
 // Check if Firebase credentials are fully configured
@@ -50,6 +51,17 @@ if (isFirebaseConfigured) {
     db = getFirestore(app);
     googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    // Safely initialize analytics in browser environment
+    if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+      import('firebase/analytics').then(({ getAnalytics, isSupported }) => {
+        isSupported().then(supported => {
+          if (supported && app) {
+            getAnalytics(app);
+          }
+        }).catch(() => {});
+      }).catch(() => {});
+    }
   } catch (err) {
     console.warn('Firebase initialization error:', err);
   }
