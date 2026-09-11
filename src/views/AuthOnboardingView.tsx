@@ -114,16 +114,6 @@ export const AuthOnboardingView: React.FC = () => {
     }
   };
 
-  const handleGuestEntry = () => {
-    register({
-      name: 'Guest Learner',
-      email: 'guest@fluentra.app',
-      avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=Guest&backgroundColor=00C48C`,
-      authProvider: 'guest',
-      isSetupCompleted: true // Guests bypass setup directly to explore
-    });
-  };
-
   return (
     <div
       className="content-fullscreen"
@@ -545,26 +535,6 @@ export const AuthOnboardingView: React.FC = () => {
             )}
           </button>
         </form>
-      </div>
-
-      {/* Guest / Direct Entry Shortcut */}
-      <div style={{ marginTop: '20px', textAlign: 'center', paddingTop: '16px', borderTop: '1px solid var(--fl-border)' }}>
-        <button
-          type="button"
-          id="btn-guest-entry"
-          onClick={handleGuestEntry}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--fl-text-secondary)',
-            fontSize: '14px',
-            cursor: 'pointer',
-            padding: '8px 12px',
-            textDecoration: 'underline'
-          }}
-        >
-          Want to explore first? <strong>Continue as Guest</strong>
-        </button>
       </div>
     </div>
   );

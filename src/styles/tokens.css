@@ -40,6 +40,8 @@
   --fl-text-secondary: #94A3B8;
   --fl-text-muted: #64748B;
   --fl-text-inverse: #0B0F19;
+  --fl-logo-color: #FFFFFF;
+  --fl-logo-bg: #131B2E;
 
   /* Status Colors */
   --fl-success: #10B981;
@@ -101,6 +103,8 @@
   --fl-text-secondary: #475569;
   --fl-text-muted: #64748B;
   --fl-text-inverse: #FFFFFF;
+  --fl-logo-color: #000000;
+  --fl-logo-bg: #000000;
 
   /* Accents & Brand fine-tuning for light backgrounds */
   --fl-teal-primary: #059669;

@@ -13,8 +13,8 @@ export const FluentraLogo: React.FC<FluentraLogoProps> = ({
   showTagline = false
 }) => {
   const sizeMap = {
-    sm: { icon: 28, text: '18px', sub: '10px', gap: '8px' },
-    md: { icon: 38, text: '22px', sub: '11px', gap: '10px' },
+    sm: { icon: 28, text: '18px', sub: '11px', gap: '8px' },
+    md: { icon: 38, text: '22px', sub: '12px', gap: '10px' },
     lg: { icon: 52, text: '30px', sub: '13px', gap: '14px' }
   };
 
@@ -30,7 +30,7 @@ export const FluentraLogo: React.FC<FluentraLogoProps> = ({
         xmlns="http://www.w3.org/2000/svg"
         style={{ flexShrink: 0 }}
       >
-        <rect width="64" height="64" rx="18" fill="#131B2E" />
+        <rect width="64" height="64" rx="18" fill="var(--fl-logo-bg, #000000)" />
         <rect x="13" y="27" width="5" height="10" rx="2.5" fill="#00C48C" />
         <rect x="22" y="19" width="5" height="26" rx="2.5" fill="#00F5B4" />
         <rect x="31" y="12" width="5" height="40" rx="2.5" fill="#FFFFFF" />
@@ -43,11 +43,11 @@ export const FluentraLogo: React.FC<FluentraLogoProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
           <span
             style={{
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif",
               fontWeight: 800,
               fontSize: dim.text,
               letterSpacing: '0.04em',
-              color: '#F8FAFC'
+              color: 'var(--fl-logo-color, #000000)'
             }}
           >
             FLUENTRA
@@ -55,10 +55,10 @@ export const FluentraLogo: React.FC<FluentraLogoProps> = ({
           {showTagline && (
             <span
               style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', sans-serif",
                 fontSize: dim.sub,
                 fontWeight: 600,
-                color: 'var(--fl-teal-light)',
+                color: 'var(--fl-teal-primary)',
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
                 marginTop: '2px'
