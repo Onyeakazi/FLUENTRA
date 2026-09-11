@@ -63,31 +63,6 @@ export const FluentraSplash: React.FC<FluentraSplashProps> = ({ onDismiss }) => 
           ))}
         </div>
       </div>
-
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 'calc(32px + var(--fl-safe-bottom))',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          color: 'var(--fl-text-muted)',
-          fontSize: '13px',
-          fontWeight: 600,
-          letterSpacing: '0.05em'
-        }}
-      >
-        <span>INITIALIZING CURRICULUM</span>
-        <div
-          style={{
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--fl-teal-light)',
-            animation: 'pulseGlow 1s infinite'
-          }}
-        />
-      </div>
     </div>
   );
 };
