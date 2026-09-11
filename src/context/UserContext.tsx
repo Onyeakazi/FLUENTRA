@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types/progress';
 import { storageService, INITIAL_UNAUTHENTICATED_PROFILE } from '../services/storageService';
 import { soundService } from '../services/soundService';
+import { firebaseService } from '../services/firebase';
 
 interface UserContextType {
   profile: UserProfile;
@@ -65,6 +66,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     storageService.saveProfile(updated);
     setProfile(updated);
     soundService.playCorrect();
+    firebaseService.syncUserProfileToCloud(updated);
     return true;
   };
 
@@ -111,10 +113,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     storageService.saveProfile(newProfile);
     setProfile(newProfile);
     soundService.playLevelUnlock();
+    firebaseService.syncUserProfileToCloud(newProfile);
   };
 
   const logout = () => {
     storageService.logout();
+    firebaseService.signOut();
     setProfile((prev) => ({ ...prev, isAuthenticated: false }));
   };
 

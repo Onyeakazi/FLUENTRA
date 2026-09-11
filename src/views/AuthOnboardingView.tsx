@@ -4,6 +4,7 @@ import { Sparkles, ArrowRight, ArrowLeft, Check, Shield, User, Globe, Target, Cl
 import { FluentraLogo } from '../components/brand/FluentraLogo';
 import { useUser } from '../context/UserContext';
 import { useProgression } from '../context/ProgressionContext';
+import { firebaseService } from '../services/firebase';
 
 const AVAILABLE_LANGUAGES = [
   { id: 'Chinese Mandarin', code: 'zh-CN', name: 'Chinese Mandarin', flag: '🇨🇳', tagline: 'Nǐ hǎo! Hanzi, tones & rich culture' },
@@ -67,6 +68,21 @@ export const AuthOnboardingView: React.FC = () => {
   const [selectedGoal, setSelectedGoal] = useState<'travel' | 'career' | 'daily' | 'brain'>('travel');
   const [selectedLevel, setSelectedLevel] = useState(STARTING_LEVELS[0]);
   const [selectedCommitment, setSelectedCommitment] = useState(COMMITMENTS[1]);
+
+  const handleTriggerGoogleAuth = async () => {
+    if (firebaseService.isReady()) {
+      try {
+        const res = await firebaseService.signInWithGoogle();
+        if (res && res.user) {
+          handleGoogleSubmit(res.user.email || '', res.user.displayName || '');
+          return;
+        }
+      } catch (err) {
+        console.warn('Firebase Google Sign-In fallback:', err);
+      }
+    }
+    setShowGoogleModal(true);
+  };
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
@@ -384,7 +400,7 @@ export const AuthOnboardingView: React.FC = () => {
               type="button"
               id="btn-google-signin"
               className="fl-card fl-card-interactive"
-              onClick={() => setShowGoogleModal(true)}
+              onClick={handleTriggerGoogleAuth}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -513,7 +529,7 @@ export const AuthOnboardingView: React.FC = () => {
                   type="button"
                   id="btn-google-signup"
                   className="fl-card fl-card-interactive"
-                  onClick={() => setShowGoogleModal(true)}
+                  onClick={handleTriggerGoogleAuth}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
