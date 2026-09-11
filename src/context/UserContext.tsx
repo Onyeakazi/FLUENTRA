@@ -55,6 +55,42 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.setMuted(!profile.soundEnabled);
   }, [profile.soundEnabled]);
 
+  // Sync Firebase authentication state across page reloads
+  useEffect(() => {
+    if (!firebaseService.isReady()) return;
+
+    const unsubscribe = firebaseService.onAuthStateChanged(async (fbUser) => {
+      if (fbUser && fbUser.email) {
+        const existing = storageService.getProfile();
+        if (existing.isAuthenticated && existing.email === fbUser.email) {
+          return;
+        }
+
+        const cloudProfile = await firebaseService.fetchUserProfileFromCloud(fbUser.uid);
+        if (cloudProfile && cloudProfile.isAuthenticated) {
+          storageService.saveProfile(cloudProfile);
+          setProfile(cloudProfile);
+        } else {
+          const name = fbUser.displayName || fbUser.email.split('@')[0] || 'Learner';
+          const updated: UserProfile = {
+            ...existing,
+            id: fbUser.uid,
+            name: existing.name || name,
+            email: fbUser.email,
+            avatarUrl: existing.avatarUrl || fbUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=00C48C`,
+            isAuthenticated: true,
+            authProvider: 'google',
+            isSetupCompleted: existing.isSetupCompleted ?? false
+          };
+          storageService.saveProfile(updated);
+          setProfile(updated);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const login = (email: string, _password?: string): boolean => {
     const existing = storageService.getProfile();
     // If existing profile matches or create session

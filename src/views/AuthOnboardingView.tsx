@@ -1,6 +1,6 @@
-// FLUENTRA Authentication View (Pure Login & Sign-Up, No Inline Steps)
+// FLUENTRA Pure Authentication View (Google OAuth & Email Auth)
 import React, { useState } from 'react';
-import { ArrowRight, Check, Shield, X, Sun, Moon, Lock, Mail, User as UserIcon } from 'lucide-react';
+import { ArrowRight, Sun, Moon, Lock, Mail, User as UserIcon, AlertCircle, Loader2 } from 'lucide-react';
 import { FluentraLogo } from '../components/brand/FluentraLogo';
 import { useUser } from '../context/UserContext';
 import { firebaseService } from '../services/firebase';
@@ -9,108 +9,127 @@ export const AuthOnboardingView: React.FC = () => {
   const { login, register, theme, toggleTheme } = useUser();
 
   const [mode, setMode] = useState<'signup' | 'signin'>('signup');
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-
-  // Google Sign-In Modal State
-  const [googleEmail, setGoogleEmail] = useState('');
-  const [googleName, setGoogleName] = useState('');
-  const [useAnotherGoogleAccount, setUseAnotherGoogleAccount] = useState(false);
-
-  const savedGoogleAccount = (() => {
-    try {
-      const raw = localStorage.getItem('fluentra_saved_google_account');
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  })();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Email/Password Form State
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleTriggerGoogleAuth = async () => {
-    if (firebaseService.isReady()) {
-      try {
-        const res = await firebaseService.signInWithGoogle();
-        if (res && res.user) {
-          handleGoogleSubmit(res.user.email || '', res.user.displayName || '');
-          return;
-        }
-      } catch (err) {
-        console.warn('Firebase Google Sign-In notice:', err);
-      }
-    }
-    setShowGoogleModal(true);
-  };
-
-  const handleGoogleSubmit = (emailToAuth: string, nameToAuth?: string) => {
-    const cleanEmail = emailToAuth.trim();
-    if (!cleanEmail) return;
-
-    const derivedName = nameToAuth?.trim() || cleanEmail.split('@')[0].replace(/[._]/g, ' ');
-    const formattedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
-    const userAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(formattedName)}&backgroundColor=00C48C`;
+  const handleGoogleAuth = async () => {
+    setAuthError(null);
+    setIsGoogleLoading(true);
 
     try {
-      localStorage.setItem('fluentra_saved_google_account', JSON.stringify({
-        name: formattedName,
-        email: cleanEmail,
-        avatar: userAvatar
-      }));
-    } catch {
-      // Safe ignore
-    }
+      if (!firebaseService.isReady()) {
+        throw new Error('Firebase is not initialized. Please verify your environment variables.');
+      }
 
-    setShowGoogleModal(false);
+      const res = await firebaseService.signInWithGoogle();
+      if (res && res.user) {
+        const fbUser = res.user;
+        const cleanEmail = fbUser.email || '';
+        const cleanName = fbUser.displayName || cleanEmail.split('@')[0] || 'Learner';
+        const avatar = fbUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=00C48C`;
 
-    if (mode === 'signin') {
-      login(cleanEmail);
-    } else {
-      register({
-        name: formattedName,
-        email: cleanEmail,
-        avatarUrl: userAvatar,
-        authProvider: 'google',
-        isSetupCompleted: false
-      });
+        if (mode === 'signin' && !res.isNewUser) {
+          login(cleanEmail);
+        } else {
+          register({
+            id: fbUser.uid,
+            name: cleanName,
+            email: cleanEmail,
+            avatarUrl: avatar,
+            authProvider: 'google',
+            isSetupCompleted: false
+          });
+        }
+      }
+    } catch (err: any) {
+      console.error('Google Sign-In Error:', err);
+      const code = err?.code || '';
+      const msg = err?.message || '';
+
+      if (code === 'auth/operation-not-allowed' || msg.includes('operation-not-allowed') || code === 'auth/configuration-not-found') {
+        setAuthError(
+          'Google Sign-In is not enabled in your Firebase Console yet. Go to Firebase Console > Authentication > Sign-in method, click Google, and enable it.'
+        );
+      } else if (code === 'auth/popup-blocked') {
+        setAuthError('The sign-in popup was blocked by your browser. Please allow popups for localhost:5173 and try again.');
+      } else if (code === 'auth/popup-closed-by-user') {
+        setAuthError('Sign-in was cancelled before completion.');
+      } else if (code === 'auth/unauthorized-domain') {
+        setAuthError('This domain is not authorized in Firebase. Add "localhost" under Authentication > Settings > Authorized domains in Firebase Console.');
+      } else {
+        setAuthError(msg || 'An error occurred during Google sign in. Please try again.');
+      }
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
     const cleanEmail = email.trim();
     if (!cleanEmail) return;
 
-    if (mode === 'signin') {
-      if (firebaseService.isReady() && password) {
-        try {
-          await firebaseService.signInWithEmail(cleanEmail, password);
-        } catch (err) {
-          console.warn('Firebase sign in notice:', err);
-        }
-      }
-      login(cleanEmail, password);
-    } else {
-      const cleanName = name.trim() || cleanEmail.split('@')[0] || 'Learner';
-      const userAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=00C48C`;
+    setIsEmailLoading(true);
 
-      if (firebaseService.isReady() && password) {
-        try {
-          await firebaseService.registerWithEmail(cleanEmail, password);
-        } catch (err) {
-          console.warn('Firebase registration notice:', err);
+    try {
+      if (mode === 'signin') {
+        if (firebaseService.isReady() && password) {
+          try {
+            await firebaseService.signInWithEmail(cleanEmail, password);
+          } catch (err: any) {
+            console.warn('Firebase email sign-in:', err);
+            if (err?.code === 'auth/user-not-found' || err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+              setAuthError('Invalid email or password. Please check your credentials.');
+              setIsEmailLoading(false);
+              return;
+            }
+          }
         }
-      }
+        login(cleanEmail, password);
+      } else {
+        const cleanName = name.trim() || cleanEmail.split('@')[0] || 'Learner';
+        let firebaseUid = '';
 
-      register({
-        name: cleanName,
-        email: cleanEmail,
-        avatarUrl: userAvatar,
-        authProvider: 'email',
-        isSetupCompleted: false
-      });
+        if (firebaseService.isReady() && password) {
+          try {
+            const user = await firebaseService.registerWithEmail(cleanEmail, password);
+            if (user) firebaseUid = user.uid;
+          } catch (err: any) {
+            console.warn('Firebase registration notice:', err);
+            if (err?.code === 'auth/email-already-in-use') {
+              setAuthError('An account with this email already exists. Please switch to Sign In.');
+              setIsEmailLoading(false);
+              return;
+            } else if (err?.code === 'auth/weak-password') {
+              setAuthError('Password is too weak. Please use at least 6 characters.');
+              setIsEmailLoading(false);
+              return;
+            }
+          }
+        }
+
+        const userAvatar = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=00C48C`;
+
+        register({
+          id: firebaseUid || `learner_${Date.now()}`,
+          name: cleanName,
+          email: cleanEmail,
+          avatarUrl: userAvatar,
+          authProvider: 'email',
+          isSetupCompleted: false
+        });
+      }
+    } catch (err: any) {
+      setAuthError(err?.message || 'Authentication error. Please try again.');
+    } finally {
+      setIsEmailLoading(false);
     }
   };
 
@@ -129,177 +148,6 @@ export const AuthOnboardingView: React.FC = () => {
         position: 'relative'
       }}
     >
-      {/* Google Authentication Dialog Modal */}
-      {showGoogleModal && (
-        <div className="fl-overlay" onClick={() => setShowGoogleModal(false)}>
-          <div
-            className="fl-modal-content animate-pop-in"
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '420px', padding: '24px', backgroundColor: 'var(--fl-bg-card)', border: '1px solid var(--fl-border-strong)' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
-                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z" />
-                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15Z" />
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
-                </svg>
-                <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>Sign in with Google</span>
-              </div>
-              <button
-                type="button"
-                className="fl-btn-icon"
-                onClick={() => setShowGoogleModal(false)}
-                style={{ width: '32px', height: '32px' }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {savedGoogleAccount && !useAnotherGoogleAccount ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
-                  Continue to <strong>FLUENTRA</strong> with your saved account:
-                </p>
-
-                <button
-                  type="button"
-                  id="btn-google-saved-acc"
-                  onClick={() => handleGoogleSubmit(savedGoogleAccount.email, savedGoogleAccount.name)}
-                  className="fl-card fl-card-interactive"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '14px 16px',
-                    textAlign: 'left',
-                    border: '1.5px solid var(--fl-teal-primary)',
-                    backgroundColor: 'var(--fl-bg-card-hover)'
-                  }}
-                >
-                  <img
-                    src={savedGoogleAccount.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(savedGoogleAccount.name)}`}
-                    alt={savedGoogleAccount.name}
-                    style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>{savedGoogleAccount.name}</span>
-                    <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>{savedGoogleAccount.email}</span>
-                  </div>
-                  <Check size={18} color="var(--fl-teal-light)" />
-                </button>
-
-                <button
-                  type="button"
-                  id="btn-google-use-another"
-                  onClick={() => setUseAnotherGoogleAccount(true)}
-                  className="fl-btn fl-btn-outline"
-                  style={{ padding: '10px', fontSize: '14px', color: 'var(--fl-text-muted)' }}
-                >
-                  Use another Google account
-                </button>
-              </div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleGoogleSubmit(googleEmail, googleName);
-                }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
-              >
-                <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', lineHeight: 1.5 }}>
-                  Enter your Google Account email to authenticate your profile:
-                </p>
-
-                <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fl-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                    Google Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    id="input-real-google-email"
-                    placeholder="yourname@gmail.com"
-                    value={googleEmail}
-                    onChange={(e) => setGoogleEmail(e.target.value)}
-                    style={{
-                      width: '100%',
-                      height: '48px',
-                      padding: '0 14px',
-                      borderRadius: 'var(--fl-radius-md)',
-                      backgroundColor: 'var(--fl-bg-input)',
-                      border: '1px solid var(--fl-border-strong)',
-                      color: 'var(--fl-text-primary)',
-                      fontSize: '16px'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fl-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                    Display Name (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    id="input-real-google-name"
-                    placeholder="e.g. Alex"
-                    value={googleName}
-                    onChange={(e) => setGoogleName(e.target.value)}
-                    style={{
-                      width: '100%',
-                      height: '48px',
-                      padding: '0 14px',
-                      borderRadius: 'var(--fl-radius-md)',
-                      backgroundColor: 'var(--fl-bg-input)',
-                      border: '1px solid var(--fl-border-strong)',
-                      color: 'var(--fl-text-primary)',
-                      fontSize: '16px'
-                    }}
-                  />
-                </div>
-
-                <div style={{ padding: '10px 12px', borderRadius: '8px', backgroundColor: 'rgba(66, 133, 244, 0.08)', border: '1px solid rgba(66, 133, 244, 0.2)', fontSize: '13px', color: 'var(--fl-text-secondary)', lineHeight: 1.45 }}>
-                  <Shield size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />
-                  Google will securely authenticate your profile with FLUENTRA.
-                </div>
-
-                <button
-                  type="submit"
-                  id="btn-submit-google-auth"
-                  className="fl-btn"
-                  style={{
-                    backgroundColor: '#4285F4',
-                    color: '#FFFFFF',
-                    fontWeight: 700,
-                    fontSize: '16px',
-                    minHeight: '48px',
-                    boxShadow: '0 2px 10px rgba(66, 133, 244, 0.4)',
-                    padding: '12px'
-                  }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="#FFFFFF" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
-                  </svg>
-                  <span>Continue with Google</span>
-                </button>
-
-                {savedGoogleAccount && (
-                  <button
-                    type="button"
-                    onClick={() => setUseAnotherGoogleAccount(false)}
-                    className="fl-btn fl-btn-outline"
-                    style={{ padding: '8px', fontSize: '14px', color: 'var(--fl-text-muted)' }}
-                  >
-                    Back to saved account
-                  </button>
-                )}
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Top Header: Brand & Theme Toggle */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <FluentraLogo size="sm" showWordmark={true} showTagline={false} />
@@ -334,6 +182,27 @@ export const AuthOnboardingView: React.FC = () => {
           </p>
         </div>
 
+        {/* Error Alert Box (if any) */}
+        {authError && (
+          <div
+            className="animate-fade-in"
+            style={{
+              padding: '14px 16px',
+              borderRadius: 'var(--fl-radius-md)',
+              backgroundColor: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px'
+            }}
+          >
+            <AlertCircle size={20} color="var(--fl-error)" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ fontSize: '14px', color: 'var(--fl-text-primary)', lineHeight: 1.5 }}>
+              {authError}
+            </div>
+          </div>
+        )}
+
         {/* Mode Selector Segmented Pill */}
         <div 
           style={{
@@ -346,7 +215,7 @@ export const AuthOnboardingView: React.FC = () => {
         >
           <button
             type="button"
-            onClick={() => setMode('signup')}
+            onClick={() => { setMode('signup'); setAuthError(null); }}
             style={{
               flex: 1,
               padding: '10px 0',
@@ -365,7 +234,7 @@ export const AuthOnboardingView: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => setMode('signin')}
+            onClick={() => { setMode('signin'); setAuthError(null); }}
             style={{
               flex: 1,
               padding: '10px 0',
@@ -384,12 +253,13 @@ export const AuthOnboardingView: React.FC = () => {
           </button>
         </div>
 
-        {/* Google 1-Click Auth */}
+        {/* Real Google OAuth 1-Click Button */}
         <button
           type="button"
           id="btn-google-auth-action"
           className="fl-card fl-card-interactive"
-          onClick={handleTriggerGoogleAuth}
+          onClick={handleGoogleAuth}
+          disabled={isGoogleLoading}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -401,18 +271,27 @@ export const AuthOnboardingView: React.FC = () => {
             borderRadius: 'var(--fl-radius-md)',
             boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
             border: 'none',
-            cursor: 'pointer',
-            width: '100%'
+            cursor: isGoogleLoading ? 'not-allowed' : 'pointer',
+            width: '100%',
+            opacity: isGoogleLoading ? 0.75 : 1
           }}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z" />
-            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15Z" />
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
-          </svg>
+          {isGoogleLoading ? (
+            <Loader2 size={20} className="animate-spin" color="#1F2937" />
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z" />
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15Z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z" />
+            </svg>
+          )}
           <span style={{ fontSize: '16px', fontWeight: 700, color: '#1F2937' }}>
-            {mode === 'signup' ? 'Sign up with Google' : 'Sign in with Google'}
+            {isGoogleLoading
+              ? 'Opening Google Sign-In...'
+              : mode === 'signup'
+              ? 'Sign up with Google'
+              : 'Sign in with Google'}
           </span>
         </button>
 
@@ -514,15 +393,19 @@ export const AuthOnboardingView: React.FC = () => {
           <button
             type="submit"
             id="btn-auth-submit"
+            disabled={isEmailLoading}
             className="fl-btn fl-btn-primary"
             style={{
               minHeight: '50px',
               fontSize: '16px',
               marginTop: '6px',
-              boxShadow: '0 4px 16px rgba(0, 196, 140, 0.25)'
+              boxShadow: '0 4px 16px rgba(0, 196, 140, 0.25)',
+              opacity: isEmailLoading ? 0.75 : 1
             }}
           >
-            {mode === 'signup' ? (
+            {isEmailLoading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : mode === 'signup' ? (
               <>
                 <span>Create Account</span>
                 <ArrowRight size={18} />
@@ -536,6 +419,8 @@ export const AuthOnboardingView: React.FC = () => {
           </button>
         </form>
       </div>
+
+      <div style={{ height: '24px' }} />
     </div>
   );
 };
