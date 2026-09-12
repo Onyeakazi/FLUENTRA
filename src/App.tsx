@@ -7,23 +7,23 @@ import { TopBar } from './components/navigation/TopBar';
 import { BottomNav, NavTab } from './components/navigation/BottomNav';
 import { AuthOnboardingView } from './views/AuthOnboardingView';
 import { AccountSetupView } from './views/AccountSetupView';
-import { HomeView } from './views/HomeView';
 import { LearnView } from './views/LearnView';
+import { PhoneticsLabView } from './views/PhoneticsLabView';
 import { PracticeView } from './views/PracticeView';
 import { SpeakView } from './views/SpeakView';
+import { LeaderboardView } from './views/LeaderboardView';
 import { ProfileView } from './views/ProfileView';
 import { ExerciseRunner } from './components/exercise/ExerciseRunner';
 import { ConversationRoleplayView } from './views/ConversationRoleplayView';
 import { getLessonsForUnit } from './data/curriculumContent';
 import { aiCurriculumGenerator } from './services/aiCurriculumGenerator';
-import { CONVERSATION_SCENARIOS } from './data/conversationScenarios';
 import { Lesson } from './types/curriculum';
 import { ConversationScenario } from './types/conversation';
 
 const FluentraApp: React.FC = () => {
   const { isAuthenticated, profile } = useUser();
   const [showSplash, setShowSplash] = useState(true);
-  const [activeTab, setActiveTab] = useState<NavTab>('home');
+  const [activeTab, setActiveTab] = useState<NavTab>('learn'); // Learn (Path) is default home screen
   const [activeLessonContext, setActiveLessonContext] = useState<{ unitId: string; lesson: Lesson } | null>(null);
   const [activeScenario, setActiveScenario] = useState<ConversationScenario | null>(null);
 
@@ -105,29 +105,22 @@ const FluentraApp: React.FC = () => {
           <TopBar />
 
           <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {activeTab === 'home' && (
-              <HomeView
-                onContinueCourse={() => handleStartLesson('u1')}
-                onOpenSpeak={() => setActiveTab('speak')}
-                onOpenPractice={() => setActiveTab('practice')}
-                onOpenConversation={() => setActiveScenario(CONVERSATION_SCENARIOS[0])}
-              />
-            )}
-
             {activeTab === 'learn' && (
               <LearnView
                 onStartLesson={(unitId, lessonId, customLesson) => handleStartLesson(unitId, lessonId, customLesson)}
               />
             )}
 
+            {activeTab === 'sounds' && (
+              <PhoneticsLabView />
+            )}
+
             {activeTab === 'practice' && (
               <PracticeView />
             )}
 
-            {activeTab === 'speak' && (
-              <SpeakView
-                onStartScenario={(scenario) => handleStartScenario(scenario)}
-              />
+            {activeTab === 'leaderboard' && (
+              <LeaderboardView />
             )}
 
             {activeTab === 'profile' && (
@@ -142,7 +135,7 @@ const FluentraApp: React.FC = () => {
   );
 };
 
-export default function App() {
+export const App: React.FC = () => {
   return (
     <UserProvider>
       <ProgressionProvider>
@@ -150,4 +143,5 @@ export default function App() {
       </ProgressionProvider>
     </UserProvider>
   );
-}
+};
+export default App;

@@ -18,10 +18,24 @@
 
   --fl-gold-star: #FFB800;
   --fl-gold-light: #FCD34D;
-  --fl-gold-subtle: rgba(255, 184, 0, 0.16);
-
   --fl-blue-accent: #38BDF8;
   --fl-purple-accent: #A855F7;
+
+  /* Duolingo Gamified 3D Tokens */
+  --duo-green: #58CC02;
+  --duo-green-shadow: #46A302;
+  --duo-blue: #1CB0F6;
+  --duo-blue-shadow: #1899D6;
+  --duo-gold: #FFC800;
+  --duo-gold-shadow: #E5A500;
+  --duo-red: #FF4B4B;
+  --duo-red-shadow: #EA2B2B;
+  --duo-purple: #CE82FF;
+  --duo-purple-shadow: #A855F7;
+  --duo-gray: #E5E5E5;
+  --duo-gray-shadow: #AFAFAF;
+  --duo-slate-card: #192734;
+  --duo-slate-shadow: #0F172A;
 
   /* Surfaces & Dark Theme System */
   --fl-bg-app: #0B0F19;

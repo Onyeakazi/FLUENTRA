@@ -80,7 +80,6 @@ export const LearningPath: React.FC<LearningPathProps> = ({
         // Should a bonus chest appear after this unit?
         const showMidChest = index === 4; // After unit 5
         const showEndChest = index === units.length - 1; // After unit 10
-
         // Determine button visual styles
         let bgStyle = 'var(--fl-bg-card-subtle)';
         let shadowColor = 'var(--fl-border-strong)';
@@ -88,18 +87,22 @@ export const LearningPath: React.FC<LearningPathProps> = ({
         let borderGlow = 'none';
 
         if (isMastered) {
-          bgStyle = 'linear-gradient(135deg, #FFB800 0%, #F59E0B 100%)';
-          shadowColor = '#B45309';
+          bgStyle = 'linear-gradient(135deg, #FFC800 0%, #FFB800 100%)';
+          shadowColor = '#E5A500';
           iconColor = '#FFFFFF';
         } else if (isCompleted) {
-          bgStyle = 'linear-gradient(135deg, #00F5B4 0%, #00C48C 100%)';
-          shadowColor = '#008761';
-          iconColor = '#002B1F';
+          bgStyle = 'linear-gradient(135deg, #58CC02 0%, #46A302 100%)';
+          shadowColor = '#388401';
+          iconColor = '#FFFFFF';
         } else if (isInProgress || isAvailable) {
-          bgStyle = 'linear-gradient(135deg, #00F5B4 0%, #00C48C 100%)';
-          shadowColor = '#008761';
-          iconColor = '#002B1F';
-          borderGlow = '0 0 20px rgba(0, 245, 180, 0.4)';
+          bgStyle = 'linear-gradient(135deg, #58CC02 0%, #4BB900 100%)';
+          shadowColor = '#388401';
+          iconColor = '#FFFFFF';
+          borderGlow = '0 0 24px rgba(88, 204, 2, 0.45)';
+        } else {
+          bgStyle = 'var(--fl-bg-card-elevated)';
+          shadowColor = 'var(--fl-border-strong)';
+          iconColor = 'var(--fl-text-muted)';
         }
 
         return (
@@ -145,11 +148,11 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                       fontSize: '12px',
                       letterSpacing: '0.04em',
                       boxShadow: '0 8px 18px rgba(0, 0, 0, 0.25)',
-                      border: '2px solid #00F5B4',
+                      border: '2px solid #58CC02',
                       textTransform: 'uppercase'
                     }}
                   >
-                    <Sparkles size={13} color="#00C48C" />
+                    <Sparkles size={13} color="#58CC02" />
                     <span>{isInProgress ? 'Continue' : 'Start'}</span>
                   </div>
                   {/* Pointed Speech-Bubble Tail */}
@@ -179,8 +182,8 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                 }}
                 className={isFocusUnit ? 'animate-duo-pulse' : ''}
                 style={{
-                  width: '68px',
-                  height: '68px',
+                  width: '72px',
+                  height: '72px',
                   borderRadius: '50%',
                   background: bgStyle,
                   border: isLocked
