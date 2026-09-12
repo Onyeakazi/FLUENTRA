@@ -7,7 +7,7 @@ import { PronunciationScoreCard } from '../components/speech/PronunciationScoreC
 import { speechService } from '../services/speechService';
 import { pronunciationEngine } from '../services/pronunciationService';
 import { soundService } from '../services/soundService';
-import { CONVERSATION_SCENARIOS } from '../data/conversationScenarios';
+import { getScenariosForLanguage } from '../data/conversationScenarios';
 import { ConversationScenario } from '../types/conversation';
 import { useProgression } from '../context/ProgressionContext';
 import { useUser } from '../context/UserContext';
@@ -244,12 +244,12 @@ export const SpeakView: React.FC<SpeakViewProps> = ({ onStartScenario }) => {
             </p>
           </div>
           <span className="fl-badge fl-badge-teal" style={{ fontSize: '13px' }}>
-            {CONVERSATION_SCENARIOS.length} Scenarios
+            {getScenariosForLanguage(profile.currentLanguage || 'French').length} Scenarios
           </span>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {CONVERSATION_SCENARIOS.map((scenario) => {
+          {getScenariosForLanguage(profile.currentLanguage || 'French').map((scenario) => {
             const isLocked = scenario.minLevelNumber > activeLevel;
 
             return (

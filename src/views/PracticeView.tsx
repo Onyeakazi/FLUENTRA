@@ -1,4 +1,4 @@
-// FLUENTRA Practice & Recall Drills View
+// FLUENTRA Practice & Recall Drills View (Dynamic Across All Languages)
 import React, { useState } from 'react';
 import { Sparkles, CheckCircle2, RotateCcw, Volume2, ArrowRight } from 'lucide-react';
 import { MatchPairs } from '../components/exercise/MatchPairs';
@@ -6,21 +6,23 @@ import { SentenceOrder } from '../components/exercise/SentenceOrder';
 import { AudioControls } from '../components/speech/AudioControls';
 import { soundService } from '../services/soundService';
 import { useUser } from '../context/UserContext';
-
-const PRACTICE_PAIRS = [
-  { id: 'p1', left: 'Bonjour', right: 'Good morning' },
-  { id: 'p2', left: 'S’il vous plaît', right: 'Please' },
-  { id: 'p3', left: 'L’addition', right: 'The bill / check' },
-  { id: 'p4', left: 'Enchanté', right: 'Nice to meet you' },
-  { id: 'p5', left: 'Bonsoir', right: 'Good evening' }
-];
+import { LANGUAGE_PACKS } from '../data/curriculumContent';
 
 export const PracticeView: React.FC = () => {
   const [activeDrill, setActiveDrill] = useState<'pairs' | 'sentence' | 'listening'>('pairs');
   const [drillCompleted, setDrillCompleted] = useState(false);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [isChecked, setIsChecked] = useState(false);
-  const { addXp } = useUser();
+  const { profile, addXp } = useUser();
+
+  const currentLang = profile.currentLanguage || 'French';
+  const pack = LANGUAGE_PACKS[currentLang] || LANGUAGE_PACKS.French;
+
+  const practicePairs = pack.pairs.map((p, idx) => ({
+    id: `p${idx + 1}`,
+    left: p.left,
+    right: p.right
+  }));
 
   const handleFinishDrill = () => {
     setDrillCompleted(true);
@@ -37,14 +39,19 @@ export const PracticeView: React.FC = () => {
   return (
     <div className="content-scrollable" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
-        <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-indigo-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Interactive Practice
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-indigo-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Interactive Practice
+          </span>
+          <span className="fl-badge fl-badge-teal" style={{ padding: '2px 8px', fontSize: '11px', fontWeight: 700 }}>
+            {pack.flag} {pack.name}
+          </span>
+        </div>
         <h1 style={{ fontSize: '26px', fontWeight: 800, marginTop: '2px' }}>
           Active Recall Drills
         </h1>
         <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)' }}>
-          Strengthen vocabulary memory and sentence construction reflexes.
+          Strengthen vocabulary retention and sentence reflexes for {pack.name}.
         </p>
       </div>
 
@@ -102,7 +109,7 @@ export const PracticeView: React.FC = () => {
             <div>
               <h3 style={{ fontSize: '20px', fontWeight: 800 }}>Drill Completed!</h3>
               <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px' }}>
-                You earned <strong style={{ color: 'var(--fl-gold-star)' }}>+15 XP</strong> for your active practice.
+                You earned <strong style={{ color: 'var(--fl-gold-star)' }}>+15 XP</strong> for practicing {pack.name}.
               </p>
             </div>
 
@@ -120,7 +127,7 @@ export const PracticeView: React.FC = () => {
           <>
             {activeDrill === 'pairs' && (
               <MatchPairs
-                pairs={PRACTICE_PAIRS}
+                pairs={practicePairs}
                 onComplete={handleFinishDrill}
               />
             )}
@@ -131,23 +138,17 @@ export const PracticeView: React.FC = () => {
                   exercise={{
                     id: 'drill-sentence-1',
                     type: 'sentence_order',
-                    prompt: 'Arrange the sentence: “I would like a table for two please”',
-                    translation: 'Je voudrais une table pour deux s’il vous plaît',
-                    correctOrder: ['Je', 'voudrais', 'une table', 'pour deux', 's’il vous plaît'],
-                    options: [
-                      { id: 'w1', text: 'voudrais' },
-                      { id: 'w2', text: 'Je' },
-                      { id: 'w3', text: 'pour deux' },
-                      { id: 'w4', text: 'une table' },
-                      { id: 'w5', text: 's’il vous plaît' }
-                    ],
+                    prompt: pack.orderSentence.prompt,
+                    translation: pack.orderSentence.trans,
+                    correctOrder: pack.orderSentence.words,
+                    options: [...pack.orderSentence.words, ...pack.orderSentence.distractors].map((w, idx) => ({ id: `w${idx}`, text: w })),
                     xpReward: 15
                   }}
                   selectedWords={selectedWords}
                   onAddWord={(word) => setSelectedWords(prev => [...prev, word])}
                   onRemoveWord={(idx) => setSelectedWords(prev => prev.filter((_, i) => i !== idx))}
                   isChecked={isChecked}
-                  isCorrect={selectedWords.join(' ') === 'Je voudrais une table pour deux s’il vous plaît'}
+                  isCorrect={selectedWords.join(' ') === pack.orderSentence.target}
                 />
 
                 <div style={{ marginTop: '14px' }}>
@@ -157,7 +158,7 @@ export const PracticeView: React.FC = () => {
                     onClick={() => {
                       if (!isChecked) {
                         setIsChecked(true);
-                        if (selectedWords.join(' ') === 'Je voudrais une table pour deux s’il vous plaît') {
+                        if (selectedWords.join(' ') === pack.orderSentence.target) {
                           soundService.playCorrect();
                         } else {
                           soundService.playIncorrect();
@@ -179,26 +180,29 @@ export const PracticeView: React.FC = () => {
             {activeDrill === 'listening' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', textAlign: 'center', padding: '16px 0' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 800 }}>
-                  Listen & Identify Phrase
+                  Listen & Identify Phrase in {pack.name}
                 </h3>
 
-                <AudioControls text="Enchanté de faire votre connaissance" size="lg" />
+                <AudioControls text={pack.greetingFormal.target} lang={profile.targetLanguage || pack.code} size="lg" />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
                   {[
-                    { id: 'opt1', text: 'Enchanté de faire votre connaissance', correct: true },
-                    { id: 'opt2', text: 'Comment vous appelez-vous ?', correct: false },
-                    { id: 'opt3', text: 'Où se trouve la gare centrale ?', correct: false }
+                    { id: 'opt1', text: pack.greetingFormal.target, translation: pack.greetingFormal.trans, correct: true },
+                    { id: 'opt2', text: pack.goodbye.target, translation: pack.goodbye.trans, correct: false },
+                    { id: 'opt3', text: pack.thankYou.target, translation: pack.thankYou.trans, correct: false }
                   ].map((opt) => (
                     <button
                       key={opt.id}
                       type="button"
                       className="fl-card fl-card-interactive"
                       onClick={handleFinishDrill}
-                      style={{ padding: '16px 18px', minHeight: '52px', textAlign: 'left' }}
+                      style={{ padding: '16px 18px', minHeight: '52px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                     >
                       <span style={{ fontSize: '17px', fontWeight: 600 }}>
                         {opt.text}
+                      </span>
+                      <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
+                        {opt.translation}
                       </span>
                     </button>
                   ))}

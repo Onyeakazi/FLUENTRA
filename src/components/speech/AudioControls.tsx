@@ -1,7 +1,7 @@
-// FLUENTRA Audio Controls (TTS with Normal & Slow Playback)
 import React, { useState } from 'react';
 import { Volume2, Snail } from 'lucide-react';
 import { ttsService } from '../../services/ttsService';
+import { useUser } from '../../context/UserContext';
 
 interface AudioControlsProps {
   text: string;
@@ -12,17 +12,19 @@ interface AudioControlsProps {
 
 export const AudioControls: React.FC<AudioControlsProps> = ({
   text,
-  lang = 'fr-FR',
+  lang,
   size = 'md',
   showSlowToggle = true
 }) => {
+  const { profile } = useUser();
+  const effectiveLang = lang || profile?.targetLanguage || 'zh-CN';
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPlayingSlow, setIsPlayingSlow] = useState(false);
 
   const handlePlayNormal = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsPlaying(true);
-    ttsService.speak(text, lang, false, () => {
+    ttsService.speak(text, effectiveLang, false, () => {
       setIsPlaying(false);
     });
   };
@@ -30,7 +32,7 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
   const handlePlaySlow = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsPlayingSlow(true);
-    ttsService.speak(text, lang, true, () => {
+    ttsService.speak(text, effectiveLang, true, () => {
       setIsPlayingSlow(false);
     });
   };
