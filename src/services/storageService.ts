@@ -1,5 +1,4 @@
-// FLUENTRA Local Persistence & Authentication Service
-import { UserProfile, UnitProgress } from '../types/progress';
+import { UserProfile, UnitProgress, CourseProgress } from '../types/progress';
 
 const STORAGE_KEYS = {
   PROFILE: 'fluentra_user_profile',
@@ -97,6 +96,82 @@ class StorageService {
     }
   }
 
+  public getCourseProgress(languageId: string, languageCode = 'zh-CN', flag = '🇨🇳'): CourseProgress {
+    const key = `fluentra_course_progress_${languageId}`;
+    try {
+      const data = localStorage.getItem(key);
+      if (data) {
+        return JSON.parse(data);
+      }
+    } catch (e) {
+      console.warn('Course progress read error', e);
+    }
+
+    // Backward compatibility: If legacy progress exists, migrate it
+    const legacy = this.getProgress();
+    const initialCourse: CourseProgress = {
+      languageId,
+      languageCode,
+      flag,
+      activeLevel: 1,
+      activeStage: 1,
+      currentUnitId: 'u1',
+      courseXp: 0,
+      unitsMastered: 0,
+      lessonsCompleted: 0,
+      unitProgress: legacy,
+      lastPracticed: new Date().toISOString()
+    };
+    this.saveCourseProgress(initialCourse);
+    return initialCourse;
+  }
+
+  public saveCourseProgress(course: CourseProgress): void {
+    const key = `fluentra_course_progress_${course.languageId}`;
+    try {
+      localStorage.setItem(key, JSON.stringify(course));
+    } catch (e) {
+      console.warn('Course progress save error', e);
+    }
+  }
+
+  public getEnrolledCourseIds(): string[] {
+    try {
+      const data = localStorage.getItem('fluentra_enrolled_courses');
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.warn('Enrolled courses read error', e);
+    }
+    const current = this.getProfile().currentLanguage || 'French';
+    const fallback = [current];
+    this.saveEnrolledCourseIds(fallback);
+    return fallback;
+  }
+
+  public saveEnrolledCourseIds(ids: string[]): void {
+    try {
+      localStorage.setItem('fluentra_enrolled_courses', JSON.stringify(ids));
+    } catch (e) {
+      console.warn('Enrolled courses save error', e);
+    }
+  }
+
+  public enrollInCourse(languageId: string, languageCode?: string, flag?: string): CourseProgress {
+    const existingIds = this.getEnrolledCourseIds();
+    if (!existingIds.includes(languageId)) {
+      this.saveEnrolledCourseIds([...existingIds, languageId]);
+    }
+    return this.getCourseProgress(languageId, languageCode, flag);
+  }
+
+  public getAllEnrolledCourses(): CourseProgress[] {
+    const ids = this.getEnrolledCourseIds();
+    return ids.map(id => this.getCourseProgress(id));
+  }
+
   public logout(): void {
     const current = this.getProfile();
     const loggedOut = { ...current, isAuthenticated: false };
@@ -106,6 +181,15 @@ class StorageService {
   public resetAll(): void {
     localStorage.removeItem(STORAGE_KEYS.PROFILE);
     localStorage.removeItem(STORAGE_KEYS.PROGRESSION);
+    try {
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('fluentra_course_progress_')) {
+          localStorage.removeItem(k);
+        }
+      });
+    } catch {
+      // Safe
+    }
   }
 }
 

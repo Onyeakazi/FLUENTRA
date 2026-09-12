@@ -1,20 +1,24 @@
-// FLUENTRA Curriculum Map View (8 Levels, 80 Stages, 800 Units)
 import React, { useState } from 'react';
+import { Route, List, Sparkles } from 'lucide-react';
 import { CURRICULUM_DATA } from '../data/curriculumRegistry';
 import { UnitMetadata } from '../types/curriculum';
 import { UnitNode } from '../components/curriculum/UnitNode';
+import { LearningPath } from '../components/curriculum/LearningPath';
 import { UnitDetailSheet } from '../components/curriculum/UnitDetailSheet';
 import { LockedGateModal } from '../components/curriculum/LockedGateModal';
 import { useProgression } from '../context/ProgressionContext';
+import { useUser } from '../context/UserContext';
 
 interface LearnViewProps {
   onStartLesson: (unitId: string, lessonId: string, customLesson?: any) => void;
 }
 
 export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
-  const { activeLevel, setActiveLevel, activeStage, setActiveStage, progressMap } = useProgression();
+  const { activeLevel, setActiveLevel, activeStage, setActiveStage, progressMap, activeCourse } = useProgression();
+  const { profile } = useUser();
   const [selectedUnit, setSelectedUnit] = useState<UnitMetadata | null>(null);
   const [lockedModalUnit, setLockedModalUnit] = useState<UnitMetadata | null>(null);
+  const [viewMode, setViewMode] = useState<'path' | 'list'>('path');
 
   const currentLevel = CURRICULUM_DATA.levels.find(l => l.number === activeLevel) || CURRICULUM_DATA.levels[0];
   const currentStage = currentLevel.stages.find(s => s.number === activeStage) || currentLevel.stages[0];
@@ -152,32 +156,120 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
         </div>
       </div>
 
-      {/* Current Stage Headline */}
-      <div style={{ padding: '4px 0' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 800 }}>
-          Stage {currentStage.number}: {currentStage.title}
-        </h3>
-        <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
-          {currentStage.description} · Units {currentStage.unitRange[0]} to {currentStage.unitRange[1]}
-        </p>
+      {/* Current Stage Headline & View Mode Toggle */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '12px',
+          padding: '4px 0'
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>
+              Stage {currentStage.number}: {currentStage.title}
+            </h3>
+            <span
+              className="fl-badge fl-badge-teal"
+              style={{ padding: '2px 8px', fontSize: '11px', fontWeight: 800 }}
+            >
+              {activeCourse.flag || '🌐'} {activeCourse.languageId}
+            </span>
+          </div>
+          <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', margin: '4px 0 0' }}>
+            {currentStage.description} · Units {currentStage.unitRange[0]} to {currentStage.unitRange[1]}
+          </p>
+        </div>
+
+        {/* Path / List Toggle */}
+        <div
+          style={{
+            display: 'flex',
+            backgroundColor: 'var(--fl-bg-card-subtle)',
+            borderRadius: '12px',
+            padding: '3px',
+            border: '1px solid var(--fl-border)',
+            flexShrink: 0
+          }}
+        >
+          <button
+            type="button"
+            id="btn-viewmode-path"
+            onClick={() => setViewMode('path')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '5px 10px',
+              borderRadius: '9px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 700,
+              backgroundColor: viewMode === 'path' ? 'var(--fl-teal-primary)' : 'transparent',
+              color: viewMode === 'path' ? '#000000' : 'var(--fl-text-secondary)',
+              transition: 'all 0.15s ease'
+            }}
+            title="Duolingo Serpentine Path View"
+          >
+            <Route size={14} />
+            <span>Path</span>
+          </button>
+
+          <button
+            type="button"
+            id="btn-viewmode-list"
+            onClick={() => setViewMode('list')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '5px 10px',
+              borderRadius: '9px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 700,
+              backgroundColor: viewMode === 'list' ? 'var(--fl-teal-primary)' : 'transparent',
+              color: viewMode === 'list' ? '#000000' : 'var(--fl-text-secondary)',
+              transition: 'all 0.15s ease'
+            }}
+            title="Compact Unit List View"
+          >
+            <List size={14} />
+            <span>List</span>
+          </button>
+        </div>
       </div>
 
-      {/* Units List for Active Stage (10 Units) */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {currentStage.unitIds.map((unitId) => {
-          const unit = CURRICULUM_DATA.unitsById[unitId];
-          if (!unit) return null;
+      {/* Render Curriculum Content: Serpentine Path OR Compact List */}
+      {viewMode === 'path' ? (
+        <LearningPath
+          units={currentStage.unitIds
+            .map((id) => CURRICULUM_DATA.unitsById[id])
+            .filter((u): u is UnitMetadata => !!u)}
+          onOpenUnit={(unit) => setSelectedUnit(unit)}
+          onShowLockedModal={(unit) => setLockedModalUnit(unit)}
+        />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {currentStage.unitIds.map((unitId) => {
+            const unit = CURRICULUM_DATA.unitsById[unitId];
+            if (!unit) return null;
 
-          return (
-            <UnitNode
-              key={unit.id}
-              unit={unit}
-              onOpenUnit={() => setSelectedUnit(unit)}
-              onShowLockedModal={(lockedUnit) => setLockedModalUnit(lockedUnit)}
-            />
-          );
-        })}
-      </div>
+            return (
+              <UnitNode
+                key={unit.id}
+                unit={unit}
+                onOpenUnit={() => setSelectedUnit(unit)}
+                onShowLockedModal={(lockedUnit) => setLockedModalUnit(lockedUnit)}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {/* Interactive Sheet for Unlocked Unit */}
       <UnitDetailSheet

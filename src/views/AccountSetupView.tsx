@@ -5,22 +5,7 @@ import { FluentraLogo } from '../components/brand/FluentraLogo';
 import { useUser } from '../context/UserContext';
 import { useProgression } from '../context/ProgressionContext';
 
-interface LanguageOption {
-  id: string;
-  code: string;
-  name: string;
-  flag: string;
-  tagline: string;
-}
-
-const AVAILABLE_LANGUAGES: LanguageOption[] = [
-  { id: 'Chinese Mandarin', code: 'zh-CN', name: 'Chinese Mandarin', flag: '🇨🇳', tagline: 'Nǐ hǎo! Hanzi, tones & rich culture' },
-  { id: 'French', code: 'fr-FR', name: 'French', flag: '🇫🇷', tagline: 'Bonjour, l’amour & la culture' },
-  { id: 'Spanish', code: 'es-ES', name: 'Spanish', flag: '🇪🇸', tagline: '¡Hola! Passion & global reach' },
-  { id: 'German', code: 'de-DE', name: 'German', flag: '🇩🇪', tagline: 'Guten Tag! Engineering & precision' },
-  { id: 'Japanese', code: 'ja-JP', name: 'Japanese', flag: '🇯🇵', tagline: 'Konnichiwa! Tradition & nuance' },
-  { id: 'Italian', code: 'it-IT', name: 'Italian', flag: '🇮🇹', tagline: 'Ciao! Art, cuisine & melody' }
-];
+import { AVAILABLE_LANGUAGES, LanguageOption } from '../data/languages';
 
 const LEARNING_GOALS = [
   { id: 'travel', title: 'Travel & Exploration ✈️', desc: 'Order dining, ask directions, navigate airports & immerse in culture' },

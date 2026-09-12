@@ -1,34 +1,48 @@
-// FLUENTRA Top Bar Header with Personalized Learner Details
-import React from 'react';
-import { Flame, Zap, Award, Sun, Moon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Flame, Zap, Award, Sun, Moon, ChevronDown } from 'lucide-react';
 import { FluentraLogo } from '../brand/FluentraLogo';
 import { useUser } from '../../context/UserContext';
 import { useProgression } from '../../context/ProgressionContext';
-
-const LANG_FLAGS: Record<string, string> = {
-  'Chinese Mandarin': '🇨🇳',
-  French: '🇫🇷',
-  Spanish: '🇪🇸',
-  German: '🇩🇪',
-  Japanese: '🇯🇵',
-  Italian: '🇮🇹'
-};
+import { LANG_FLAGS } from '../../data/languages';
+import { CourseSwitcherModal } from './CourseSwitcherModal';
 
 export const TopBar: React.FC = () => {
   const { profile, theme, toggleTheme } = useUser();
   const { activeLevel } = useProgression();
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
 
   const flag = LANG_FLAGS[profile.currentLanguage] || '🇫🇷';
   const initial = (profile.name || 'L').charAt(0).toUpperCase();
 
   return (
-    <header className="fl-top-bar" role="banner">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <FluentraLogo size="sm" showWordmark={true} showTagline={false} />
-        <span style={{ fontSize: '18px' }} title={`Learning ${profile.currentLanguage}`}>
-          {flag}
-        </span>
-      </div>
+    <>
+      <header className="fl-top-bar" role="banner">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FluentraLogo size="sm" showWordmark={true} showTagline={false} />
+          {/* Interactive Course Switcher Flag Badge */}
+          <button
+            type="button"
+            id="btn-open-course-switcher"
+            onClick={() => setIsCourseModalOpen(true)}
+            className="fl-badge fl-badge-locked"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '4px 8px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              border: '1px solid var(--fl-border-strong)',
+              backgroundColor: 'var(--fl-bg-card-subtle)',
+              transition: 'all 0.15s ease'
+            }}
+            title={`Learning ${profile.currentLanguage} — Click to switch course`}
+            aria-label={`Learning ${profile.currentLanguage} — Click to switch course`}
+          >
+            <span style={{ fontSize: '18px', lineHeight: 1 }}>{flag}</span>
+            <ChevronDown size={13} color="var(--fl-text-secondary)" />
+          </button>
+        </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         {/* Theme Toggle Button */}
@@ -99,5 +113,11 @@ export const TopBar: React.FC = () => {
         </div>
       </div>
     </header>
+
+      <CourseSwitcherModal
+        isOpen={isCourseModalOpen}
+        onClose={() => setIsCourseModalOpen(false)}
+      />
+    </>
   );
 };

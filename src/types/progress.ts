@@ -67,4 +67,20 @@ export interface UserProfile {
   slowAudioDefault: boolean;
   theme?: 'dark' | 'light';
   isSetupCompleted?: boolean;
+  enrolledLanguages?: string[];
+  courses?: Record<string, CourseProgress>;
+}
+
+export interface CourseProgress {
+  languageId: string; // e.g. "Chinese Mandarin", "French", "Spanish"
+  languageCode: string; // "zh-CN", "fr-FR", etc.
+  flag: string;
+  activeLevel: number;
+  activeStage: number;
+  currentUnitId: string;
+  courseXp: number;
+  unitsMastered: number;
+  lessonsCompleted: number;
+  unitProgress: Record<string, UnitProgress>;
+  lastPracticed: string;
 }

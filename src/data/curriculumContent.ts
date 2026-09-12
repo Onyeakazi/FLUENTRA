@@ -276,27 +276,233 @@ export function getLessonsForUnit(
   const pack = LANGUAGE_PACKS[languageName] || LANGUAGE_PACKS.French;
   const meta = CURRICULUM_DATA.unitsById[unitId] || CURRICULUM_DATA.units[0];
 
-  // For Unit 1: Provide high-fidelity multi-step interactive lesson pack in chosen language
+  // Unit 1: Absolute Ground-Zero Ear-Training, Phonetics & Sound Architecture
   if (unitId === 'u1') {
+    if (languageName === 'Chinese Mandarin') {
+      return [
+        {
+          id: 'u1-l1',
+          title: 'Mandarin Ground-Zero: The 4 Tones & Pitch Curves',
+          description: 'Ear training on the 4 Mandarin tones: mā (high flat), má (rising), mǎ (dipping), and mà (falling).',
+          order: 1,
+          xpReward: 15,
+          exercises: [
+            {
+              id: 'u1-l1-e1',
+              type: 'multiple_choice',
+              prompt: 'Tone 1 (High & Flat — 55 pitch): Which syllable stays high and steady like singing a note?',
+              targetText: 'mā (妈 - Mother)',
+              audioText: 'mā',
+              translation: 'Tone 1: High & Flat (mā)',
+              options: [
+                { id: 't1', text: 'mā (High & Flat ˉ)', translation: 'Tone 1: mā' },
+                { id: 't2', text: 'má (Rising ˊ)', translation: 'Tone 2: má' },
+                { id: 't4', text: 'mà (Falling ˋ)', translation: 'Tone 4: mà' }
+              ],
+              correctOptionId: 't1',
+              explanation: 'The 1st tone (mā) is held high and steady, like a sustained musical note. It means "mother" (妈).',
+              xpReward: 5
+            },
+            {
+              id: 'u1-l1-e2',
+              type: 'speaking',
+              prompt: 'Pronounce Tone 1 (mā) steadily in a high pitch:',
+              targetText: 'mā',
+              audioText: 'mā',
+              phoneticHint: 'High, steady pitch (like singing: ahhh)',
+              translation: 'High-flat 1st tone',
+              explanation: 'Keep your vocal pitch even without dipping or dropping.',
+              xpReward: 10
+            },
+            {
+              id: 'u1-l1-e3',
+              type: 'match_pairs',
+              prompt: 'Match each tone number with its vocal pitch curve:',
+              matchPairs: [
+                { id: 'm1', left: 'Tone 1 (mā)', right: 'High & Flat ˉ (55)' },
+                { id: 'm2', left: 'Tone 2 (má)', right: 'Rising upward ˊ (35)' },
+                { id: 'm3', left: 'Tone 3 (mǎ)', right: 'Dipping then rising ˇ (214)' },
+                { id: 'm4', left: 'Tone 4 (mà)', right: 'Sharp falling drop ˋ (51)' }
+              ],
+              explanation: 'Mastering the 4 tones prevents confusing "mother" (mā 妈) with "horse" (mǎ 马) or "scold" (mà 骂)!',
+              xpReward: 10
+            },
+            {
+              id: 'u1-l1-e4',
+              type: 'listening',
+              prompt: 'Listen to the audio. Which tone curve did you hear?',
+              audioText: 'mǎ',
+              targetText: 'mǎ (Tone 3)',
+              translation: 'Tone 3: Dipping (mǎ - Horse)',
+              options: [
+                { id: 'opt-t3', text: 'mǎ (Tone 3 - Dipping)', translation: 'Tone 3' },
+                { id: 'opt-t1', text: 'mā (Tone 1 - High Flat)', translation: 'Tone 1' },
+                { id: 'opt-t4', text: 'mà (Tone 4 - Sharp Drop)', translation: 'Tone 4' }
+              ],
+              correctOptionId: 'opt-t3',
+              explanation: 'Tone 3 dips down into your lower chest register before curling back up.',
+              xpReward: 10
+            }
+          ]
+        },
+        {
+          id: 'u1-l2',
+          title: 'Mandarin Ground-Zero: Tone Sandhi & First Greeting',
+          description: 'Learn how Tone 3 + Tone 3 transforms naturally when saying “Nǐ hǎo” (你好)!',
+          order: 2,
+          xpReward: 20,
+          exercises: [
+            {
+              id: 'u1-l2-e1',
+              type: 'multiple_choice',
+              prompt: 'Tone Rule: When two 3rd tones meet (Nǐ + hǎo), the first tone naturally changes to:',
+              targetText: '2nd Tone (Rising): Ní hǎo',
+              audioText: '你好',
+              translation: 'Nǐ hǎo -> pronounced Ní hǎo',
+              options: [
+                { id: 'c1', text: '2nd Tone (Rising: Ní hǎo)', translation: 'Tone Sandhi rule' },
+                { id: 'c2', text: '4th Tone (Falling: Nì hǎo)', translation: 'Incorrect' },
+                { id: 'c3', text: 'Flat Tone (Mā hǎo)', translation: 'Incorrect' }
+              ],
+              correctOptionId: 'c1',
+              explanation: 'Tone Sandhi: Two consecutive 3rd tones are awkward to say, so native speakers always pronounce "nǐ hǎo" as "ní hǎo" (Tone 2 + Tone 3).',
+              xpReward: 5
+            },
+            {
+              id: 'u1-l2-e2',
+              type: 'speaking',
+              prompt: 'Speak your first authentic Mandarin greeting with proper tone flow:',
+              targetText: '你好',
+              audioText: '你好',
+              phoneticHint: 'Nǐ hǎo (sounds like: Ní hǎo)',
+              translation: 'Hello / Hi',
+              explanation: 'Congratulations! You just mastered your first tone sandhi pair in native Mandarin.',
+              xpReward: 15
+            }
+          ]
+        }
+      ];
+    }
+
+    if (languageName === 'French') {
+      return [
+        {
+          id: 'u1-l1',
+          title: 'French Ground-Zero: Ear Training & Nasal Vowels',
+          description: 'Train your ear to recognize the signature French nasal vowels (on, an, in) and silent letters.',
+          order: 1,
+          xpReward: 15,
+          exercises: [
+            {
+              id: 'u1-l1-e1',
+              type: 'multiple_choice',
+              prompt: 'Silent Letter Rule: In French, final consonants (s, t, d, x) are usually silent. In "Salut" (Hi), which letter is NOT pronounced?',
+              targetText: 'The final letter "t"',
+              audioText: 'Salut',
+              translation: 'Salut is pronounced /sa.ly/',
+              options: [
+                { id: 'opt-t', text: 'The letter "t" is silent (/sa-ly/)', translation: 'Correct French phonetics' },
+                { id: 'opt-s', text: 'The letter "s" is silent', translation: 'Incorrect' },
+                { id: 'opt-all', text: 'All letters are pronounced', translation: 'Incorrect' }
+              ],
+              correctOptionId: 'opt-t',
+              explanation: 'In French words like "Salut" and "Comment", final consonants are silent unless linked to a following vowel.',
+              xpReward: 5
+            },
+            {
+              id: 'u1-l1-e2',
+              type: 'speaking',
+              prompt: 'Pronounce "Salut" naturally without voicing the final "t":',
+              targetText: 'Salut',
+              audioText: 'Salut',
+              phoneticHint: '/sa.ly/ (rhymes with "sea-view")',
+              translation: 'Hi / Hey (Casual)',
+              explanation: 'Great! You just unlocked the golden rule of French silent endings.',
+              xpReward: 10
+            },
+            {
+              id: 'u1-l1-e3',
+              type: 'match_pairs',
+              prompt: 'Match each French word with its silent consonant rule:',
+              matchPairs: [
+                { id: 'm1', left: 'Salut', right: 'Silent "t" at the end' },
+                { id: 'm2', left: 'Vous', right: 'Silent "s" at the end' },
+                { id: 'm3', left: 'Bonjour', right: 'Nasal "on" sound' },
+                { id: 'm4', left: 'Merci', right: 'Crisp soft "ci" ending' }
+              ],
+              explanation: 'Recognizing silent endings makes reading French intuitive from day one.',
+              xpReward: 10
+            },
+            {
+              id: 'u1-l1-e4',
+              type: 'sentence_order',
+              prompt: 'Arrange the French greetings from informal to formal:',
+              targetText: 'Salut Bonjour',
+              correctOrder: ['Salut', 'Bonjour'],
+              options: [{ id: 'w1', text: 'Salut' }, { id: 'w2', text: 'Bonjour' }, { id: 'w3', text: 'Au revoir' }],
+              explanation: '"Salut" is used with peers; "Bonjour" is the universal polite daytime greeting.',
+              xpReward: 10
+            }
+          ]
+        },
+        {
+          id: 'u1-l2',
+          title: 'French Ground-Zero: Nasal Vowels & "Bonjour"',
+          description: 'Produce the resonant nasal sound "on" in "Bonjour" and polite gratitude.',
+          order: 2,
+          xpReward: 20,
+          exercises: [
+            {
+              id: 'u1-l2-e1',
+              type: 'listening',
+              prompt: 'Listen to the native audio and identify the greeting:',
+              audioText: 'Bonjour',
+              targetText: 'Bonjour',
+              translation: 'Good morning / Hello',
+              options: [
+                { id: 'o1', text: 'Bonjour', translation: 'Hello (Polite)' },
+                { id: 'o2', text: 'Au revoir', translation: 'Goodbye' }
+              ],
+              correctOptionId: 'o1',
+              explanation: '"Bonjour" blends the nasal "on" with the soft French "j".',
+              xpReward: 5
+            },
+            {
+              id: 'u1-l2-e2',
+              type: 'speaking',
+              prompt: 'Speak "Bonjour" with warm native French resonance:',
+              targetText: 'Bonjour',
+              audioText: 'Bonjour',
+              phoneticHint: '/bɔ̃.ʒuʁ/',
+              translation: 'Hello / Good morning',
+              explanation: 'Magnifique! Your ear and voice are now attuned to French phonetics.',
+              xpReward: 15
+            }
+          ]
+        }
+      ];
+    }
+
+    // Default ground-zero pack for other languages
     return [
       {
         id: 'u1-l1',
-        title: `${pack.name} Greetings & Sound Foundations`,
-        description: `Learn primary greetings: ${pack.greetingFormal.target}, ${pack.greetingInformal.target}, and ${pack.thankYou.target} with native audio.`,
+        title: `${pack.name} Ground-Zero: Sound & Greeting Foundations`,
+        description: `Learn primary sounds and greetings: ${pack.greetingFormal.target}, ${pack.greetingInformal.target}, and ${pack.thankYou.target}.`,
         order: 1,
         xpReward: 15,
         exercises: [
           {
             id: 'u1-l1-e1',
             type: 'multiple_choice',
-            prompt: `Select the most polite greeting in ${pack.name}:`,
+            prompt: `Select the polite standard greeting in ${pack.name}:`,
             targetText: pack.greetingFormal.target,
             audioText: pack.greetingFormal.target,
             translation: pack.greetingFormal.trans,
             options: [
-              { id: 'opt-1', text: pack.greetingFormal.target, translation: pack.greetingFormal.trans, audioText: pack.greetingFormal.target },
-              { id: 'opt-2', text: pack.goodbye.target, translation: pack.goodbye.trans, audioText: pack.goodbye.target },
-              { id: 'opt-3', text: pack.thankYou.target, translation: pack.thankYou.trans, audioText: pack.thankYou.target }
+              { id: 'opt-1', text: pack.greetingFormal.target, translation: pack.greetingFormal.trans },
+              { id: 'opt-2', text: pack.goodbye.target, translation: pack.goodbye.trans },
+              { id: 'opt-3', text: pack.thankYou.target, translation: pack.thankYou.trans }
             ],
             correctOptionId: 'opt-1',
             explanation: pack.greetingFormal.exp,
@@ -320,51 +526,6 @@ export function getLessonsForUnit(
             matchPairs: pack.pairs.map((p, idx) => ({ id: `m${idx + 1}`, left: p.left, right: p.right })),
             explanation: `Notice how formal and casual greetings differ in ${pack.name}.`,
             xpReward: 10
-          },
-          {
-            id: 'u1-l1-e4',
-            type: 'sentence_order',
-            prompt: pack.orderSentence.prompt,
-            targetText: pack.orderSentence.target,
-            correctOrder: pack.orderSentence.words,
-            options: [...pack.orderSentence.words, ...pack.orderSentence.distractors].map((w, idx) => ({ id: `w${idx}`, text: w })),
-            explanation: 'Polite words are often combined for courteous expression.',
-            xpReward: 10
-          }
-        ]
-      },
-      {
-        id: 'u1-l2',
-        title: `${pack.name} Inquiries & Responses`,
-        description: `Master asking how someone is doing: “${pack.howAreYou.target}” and replying naturally.`,
-        order: 2,
-        xpReward: 20,
-        exercises: [
-          {
-            id: 'u1-l2-e1',
-            type: 'listening',
-            prompt: `Listen to the audio and select what the speaker asks:`,
-            audioText: pack.howAreYou.target,
-            targetText: pack.howAreYou.target,
-            translation: pack.howAreYou.trans,
-            options: [
-              { id: 'o1', text: pack.howAreYou.target, translation: pack.howAreYou.trans },
-              { id: 'o2', text: pack.goodbye.target, translation: pack.goodbye.trans }
-            ],
-            correctOptionId: 'o1',
-            explanation: pack.howAreYou.exp,
-            xpReward: 5
-          },
-          {
-            id: 'u1-l2-e2',
-            type: 'speaking',
-            prompt: `Speak the natural reply: “${pack.fineThanks.target}”`,
-            targetText: pack.fineThanks.target,
-            audioText: pack.fineThanks.target,
-            phoneticHint: pack.fineThanks.hint,
-            translation: pack.fineThanks.trans,
-            explanation: pack.fineThanks.exp,
-            xpReward: 15
           }
         ]
       }

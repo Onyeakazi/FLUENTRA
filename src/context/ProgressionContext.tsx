@@ -1,11 +1,12 @@
-// FLUENTRA Curriculum Progression & Locking Context
-import React, { createContext, useContext, useState } from 'react';
+// FLUENTRA Curriculum Progression & Multi-Language Course Context
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import { UnitStatus } from '../types/curriculum';
-import { UnitProgress } from '../types/progress';
+import { UnitProgress, CourseProgress } from '../types/progress';
 import { CURRICULUM_DATA } from '../data/curriculumRegistry';
 import { storageService } from '../services/storageService';
 import { soundService } from '../services/soundService';
+import { AVAILABLE_LANGUAGES, getLanguageOption } from '../data/languages';
 import { useUser } from './UserContext';
 
 interface ProgressionContextType {
@@ -18,20 +19,116 @@ interface ProgressionContextType {
   setActiveLevel: (level: number) => void;
   activeStage: number;
   setActiveStage: (stage: number) => void;
+  // Multi-Course Support
+  activeCourse: CourseProgress;
+  enrolledCourses: CourseProgress[];
+  switchCourse: (languageId: string, languageCode?: string, flag?: string) => void;
+  enrollInNewCourse: (languageId: string) => void;
 }
 
 const ProgressionContext = createContext<ProgressionContextType | null>(null);
 
 export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [progressMap, setProgressMap] = useState<Record<string, UnitProgress>>(() =>
-    storageService.getProgress()
+  const { profile, updateSettings, addXp, incrementStreak } = useUser();
+
+  const currentLang = profile.currentLanguage || 'French';
+  const langOpt = getLanguageOption(currentLang);
+
+  const [activeCourse, setActiveCourse] = useState<CourseProgress>(() =>
+    storageService.getCourseProgress(langOpt.id, langOpt.code, langOpt.flag)
   );
-  const [activeLevel, setActiveLevel] = useState<number>(1);
-  const [activeStage, setActiveStage] = useState<number>(1);
-  const { addXp, incrementStreak } = useUser();
+
+  const [progressMap, setProgressMap] = useState<Record<string, UnitProgress>>(() =>
+    activeCourse.unitProgress || storageService.getProgress()
+  );
+
+  const [activeLevel, setActiveLevelState] = useState<number>(() => activeCourse.activeLevel || 1);
+  const [activeStage, setActiveStageState] = useState<number>(() => activeCourse.activeStage || 1);
+
+  const [enrolledCourses, setEnrolledCourses] = useState<CourseProgress[]>(() =>
+    storageService.getAllEnrolledCourses()
+  );
+
+  // Sync state if user's language changes from another view (e.g. AccountSetup)
+  useEffect(() => {
+    if (profile.currentLanguage && profile.currentLanguage !== activeCourse.languageId) {
+      const opt = getLanguageOption(profile.currentLanguage);
+      const course = storageService.getCourseProgress(opt.id, opt.code, opt.flag);
+      setActiveCourse(course);
+      setProgressMap(course.unitProgress || {});
+      setActiveLevelState(course.activeLevel || 1);
+      setActiveStageState(course.activeStage || 1);
+      setEnrolledCourses(storageService.getAllEnrolledCourses());
+    }
+  }, [profile.currentLanguage]);
+
+  const setActiveLevel = (level: number) => {
+    setActiveLevelState(level);
+    setActiveCourse((prev) => {
+      const updated = { ...prev, activeLevel: level, lastPracticed: new Date().toISOString() };
+      storageService.saveCourseProgress(updated);
+      return updated;
+    });
+  };
+
+  const setActiveStage = (stage: number) => {
+    setActiveStageState(stage);
+    setActiveCourse((prev) => {
+      const updated = { ...prev, activeStage: stage, lastPracticed: new Date().toISOString() };
+      storageService.saveCourseProgress(updated);
+      return updated;
+    });
+  };
+
+  const switchCourse = useCallback((languageId: string, languageCode?: string, flag?: string) => {
+    const opt = getLanguageOption(languageId);
+    const targetCode = languageCode || opt.code;
+    const targetFlag = flag || opt.flag;
+
+    // 1. Save current course state before switching
+    setActiveCourse((currentCourse) => {
+      const savedCourse: CourseProgress = {
+        ...currentCourse,
+        activeLevel,
+        activeStage,
+        unitProgress: progressMap,
+        lastPracticed: new Date().toISOString()
+      };
+      storageService.saveCourseProgress(savedCourse);
+      return savedCourse;
+    });
+
+    // 2. Ensure target language is registered in enrolled courses
+    storageService.enrollInCourse(opt.id, targetCode, targetFlag);
+
+    // 3. Load target course progress
+    const nextCourse = storageService.getCourseProgress(opt.id, targetCode, targetFlag);
+    setActiveCourse(nextCourse);
+    setProgressMap(nextCourse.unitProgress || {});
+    setActiveLevelState(nextCourse.activeLevel || 1);
+    setActiveStageState(nextCourse.activeStage || 1);
+
+    // 4. Update user profile to active course
+    updateSettings({
+      currentLanguage: opt.id,
+      targetLanguage: targetCode,
+      currentLevelNumber: nextCourse.activeLevel || 1,
+      currentUnitId: nextCourse.currentUnitId || 'u1'
+    });
+
+    // 5. Refresh enrolled list
+    setEnrolledCourses(storageService.getAllEnrolledCourses());
+    soundService.playLevelUnlock();
+  }, [activeLevel, activeStage, progressMap, updateSettings]);
+
+  const enrollInNewCourse = useCallback((languageId: string) => {
+    const opt = getLanguageOption(languageId);
+    storageService.enrollInCourse(opt.id, opt.code, opt.flag);
+    switchCourse(opt.id, opt.code, opt.flag);
+  }, [switchCourse]);
 
   const getUnitStatus = (unitId: string): UnitStatus => {
-    // Unit 1 is always available/in-progress by default
+    // Unit 1 is always available by default in every course
     if (unitId === 'u1') {
       return progressMap['u1']?.status || 'available';
     }
@@ -79,15 +176,29 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
           bestScore: 0
         }
       };
+
+      // Persist to current course
+      setActiveCourse((curr) => {
+        const updatedCourse: CourseProgress = {
+          ...curr,
+          currentUnitId: nextUnitId,
+          unitProgress: updated,
+          lastPracticed: new Date().toISOString()
+        };
+        storageService.saveCourseProgress(updatedCourse);
+        return updatedCourse;
+      });
+
       storageService.saveProgress(updated);
+      setEnrolledCourses(storageService.getAllEnrolledCourses());
       return updated;
     });
 
     // Trigger celebration fanfare & confetti
     soundService.playLevelUnlock();
     confetti({
-      particleCount: 60,
-      spread: 70,
+      particleCount: 65,
+      spread: 75,
       origin: { y: 0.7 },
       colors: ['#00F5B4', '#00C48C', '#818CF8', '#FFB800', '#FF6B4A']
     });
@@ -129,7 +240,27 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
       };
 
+      // Persist to active course
+      setActiveCourse((curr) => {
+        const completedCount = Object.values(updated).filter(
+          u => u.status === 'completed' || u.status === 'mastered'
+        ).length;
+        const masteredCount = Object.values(updated).filter(u => u.status === 'mastered').length;
+
+        const updatedCourse: CourseProgress = {
+          ...curr,
+          courseXp: (curr.courseXp || 0) + xpReward,
+          lessonsCompleted: (curr.lessonsCompleted || 0) + 1,
+          unitsMastered: masteredCount,
+          unitProgress: updated,
+          lastPracticed: new Date().toISOString()
+        };
+        storageService.saveCourseProgress(updatedCourse);
+        return updatedCourse;
+      });
+
       storageService.saveProgress(updated);
+      setEnrolledCourses(storageService.getAllEnrolledCourses());
 
       if (isAllLessonsDone) {
         unlockNextUnit(unitId);
@@ -150,7 +281,11 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         activeLevel,
         setActiveLevel,
         activeStage,
-        setActiveStage
+        setActiveStage,
+        activeCourse,
+        enrolledCourses,
+        switchCourse,
+        enrollInNewCourse
       }}
     >
       {children}

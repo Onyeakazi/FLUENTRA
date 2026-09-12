@@ -88,6 +88,32 @@
   animation: lockShake 350ms ease;
 }
 
+@keyframes duoBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes duoActivePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 245, 180, 0.4), 0 7px 0 var(--fl-teal-shadow, #00986B);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 245, 180, 0), 0 7px 0 var(--fl-teal-shadow, #00986B);
+  }
+}
+
+.animate-duo-bounce {
+  animation: duoBounce 1.6s ease-in-out infinite;
+}
+
+.animate-duo-pulse {
+  animation: duoActivePulse 2.2s infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
