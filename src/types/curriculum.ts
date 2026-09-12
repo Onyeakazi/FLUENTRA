@@ -80,6 +80,7 @@ export interface Level {
   tagline: string;
   description: string;
   color: string;
+  cefr?: string;
   totalUnits: number; // 100
   stages: Stage[];
 }

@@ -13,8 +13,8 @@ interface LearningPathProps {
   onShowLockedModal: (unit: UnitMetadata) => void;
 }
 
-// Alternating serpentine horizontal offsets in pixels
-const X_OFFSETS = [0, 52, 78, 48, 0, -48, -78, -52, 0, 48];
+// Alternating serpentine horizontal offsets in pixels (tuned for all mobile screen widths)
+const X_OFFSETS = [0, 44, 66, 40, 0, -40, -66, -44, 0, 44];
 
 export const LearningPath: React.FC<LearningPathProps> = ({
   units,
@@ -54,11 +54,12 @@ export const LearningPath: React.FC<LearningPathProps> = ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '30px 10px 60px',
+        padding: '52px 8px 60px',
         width: '100%',
-        maxWidth: '460px',
+        maxWidth: '440px',
         margin: '0 auto',
-        userSelect: 'none'
+        userSelect: 'none',
+        overflow: 'visible'
       }}
     >
       {units.map((unit, index) => {

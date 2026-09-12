@@ -49,7 +49,7 @@ export const LeaderboardView: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
-        padding: '16px 16px 80px',
+        padding: '16px 16px calc(var(--fl-bottom-nav-height) + var(--fl-safe-bottom) + 24px)',
         maxWidth: '520px',
         margin: '0 auto',
         width: '100%'

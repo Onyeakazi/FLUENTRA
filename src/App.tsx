@@ -11,7 +11,6 @@ import { LearnView } from './views/LearnView';
 import { PhoneticsLabView } from './views/PhoneticsLabView';
 import { PracticeView } from './views/PracticeView';
 import { SpeakView } from './views/SpeakView';
-import { LeaderboardView } from './views/LeaderboardView';
 import { ProfileView } from './views/ProfileView';
 import { ExerciseRunner } from './components/exercise/ExerciseRunner';
 import { ConversationRoleplayView } from './views/ConversationRoleplayView';
@@ -104,7 +103,7 @@ const FluentraApp: React.FC = () => {
         <>
           <TopBar />
 
-          <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', position: 'relative' }}>
             {activeTab === 'learn' && (
               <LearnView
                 onStartLesson={(unitId, lessonId, customLesson) => handleStartLesson(unitId, lessonId, customLesson)}
@@ -117,10 +116,6 @@ const FluentraApp: React.FC = () => {
 
             {activeTab === 'practice' && (
               <PracticeView />
-            )}
-
-            {activeTab === 'leaderboard' && (
-              <LeaderboardView />
             )}
 
             {activeTab === 'profile' && (

@@ -9,6 +9,8 @@ import { MatchPairs } from './MatchPairs';
 import { SpeakingChallenge } from './SpeakingChallenge';
 import { soundService } from '../../services/soundService';
 import { useProgression } from '../../context/ProgressionContext';
+import { useUser } from '../../context/UserContext';
+import { mistakeService } from '../../services/mistakeService';
 
 interface ExerciseRunnerProps {
   unitId: string;
@@ -30,6 +32,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
 
   const { completeLesson } = useProgression();
+  const { profile } = useUser();
 
   const exercises = lesson.exercises;
   const currentExercise: Exercise = exercises[currentIndex];
@@ -53,6 +56,12 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
       setCorrectCount(prev => prev + 1);
     } else {
       soundService.playIncorrect();
+      mistakeService.addMistake({
+        unitId,
+        language: profile.currentLanguage || 'French',
+        exercise: currentExercise,
+        userAnswer: selectedOptionId || selectedWords.join(' ')
+      });
     }
   };
 
@@ -200,17 +209,11 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
 
       {/* Main Interactive Exercise Body */}
       <div style={{ flex: 1, padding: '24px 20px', overflowY: 'auto' }}>
-        {/* Dynamic AI Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span className="fl-badge fl-badge-teal" style={{ fontSize: '11px', padding: '2px 8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Sparkles size={12} color="var(--fl-teal-light)" />
-              AI Dynamic Session
-            </span>
-            <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)', fontWeight: 600 }}>
-              {lesson.title}
-            </span>
-          </div>
+        {/* Lesson Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 700 }}>
+            {lesson.title}
+          </span>
           <span style={{ fontSize: '12px', color: 'var(--fl-gold-star)', fontWeight: 700 }}>
             +{currentExercise.xpReward || 5} XP
           </span>

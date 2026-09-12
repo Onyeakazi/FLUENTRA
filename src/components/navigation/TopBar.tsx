@@ -14,25 +14,10 @@ export const TopBar: React.FC = () => {
 
   return (
     <>
-      <header
-        className="fl-top-bar"
-        role="banner"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px',
-          height: '56px',
-          backgroundColor: 'var(--fl-bg-nav)',
-          borderBottom: '1px solid var(--fl-border)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100
-        }}
-      >
-        {/* Left: Brand Wordmark & Course Switcher Flag */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <FluentraLogo size="sm" showWordmark={true} showTagline={false} />
+      <header className="fl-top-bar" role="banner">
+        {/* Left: Brand Image Logo & Course Switcher Flag */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FluentraLogo size="sm" showWordmark={false} showTagline={false} />
 
           {/* Interactive Duolingo Course Switcher Flag Pill */}
           <button
@@ -59,7 +44,7 @@ export const TopBar: React.FC = () => {
         </div>
 
         {/* Right: Duolingo-Signature Clean Status Trackers */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {/* Streak Flame Pill */}
           <div
             title={`${profile.streak.currentStreak} Day Streak`}

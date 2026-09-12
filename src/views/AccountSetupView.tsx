@@ -86,7 +86,7 @@ export const AccountSetupView: React.FC = () => {
       {/* Top Navigation & Status */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <FluentraLogo size="sm" showWordmark={true} showTagline={false} />
+          <FluentraLogo size="sm" showWordmark={false} showTagline={false} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <button
               type="button"

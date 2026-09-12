@@ -9,13 +9,13 @@ interface FluentraLogoProps {
 
 export const FluentraLogo: React.FC<FluentraLogoProps> = ({
   size = 'md',
-  showWordmark = true,
+  showWordmark = false,
   showTagline = false
 }) => {
   const sizeMap = {
-    sm: { icon: 28, text: '18px', sub: '11px', gap: '8px' },
-    md: { icon: 38, text: '22px', sub: '12px', gap: '10px' },
-    lg: { icon: 52, text: '30px', sub: '13px', gap: '14px' }
+    sm: { icon: 32, text: '18px', sub: '11px', gap: '8px' },
+    md: { icon: 40, text: '22px', sub: '12px', gap: '10px' },
+    lg: { icon: 56, text: '30px', sub: '13px', gap: '14px' }
   };
 
   const dim = sizeMap[size];

@@ -871,6 +871,7 @@ export function buildCurriculumRegistry(): {
       tagline: blueprint.tagline,
       description: blueprint.description,
       color: blueprint.color,
+      cefr: blueprint.cefr,
       totalUnits: 100,
       stages
     });

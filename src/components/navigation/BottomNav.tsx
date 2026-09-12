@@ -1,8 +1,8 @@
 // FLUENTRA Duolingo-Style 5-Tab Navigation Bar
 import React from 'react';
-import { Home, Headphones, Target, Shield, User } from 'lucide-react';
+import { Home, Headphones, Target, User } from 'lucide-react';
 
-export type NavTab = 'learn' | 'sounds' | 'practice' | 'leaderboard' | 'profile';
+export type NavTab = 'learn' | 'sounds' | 'practice' | 'profile';
 
 interface BottomNavProps {
   activeTab: NavTab;
@@ -12,9 +12,8 @@ interface BottomNavProps {
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onChangeTab }) => {
   const tabs: { id: NavTab; label: string; icon: React.FC<{ size: number; color?: string }> }[] = [
     { id: 'learn', label: 'Learn', icon: Home },
-    { id: 'sounds', label: 'Sounds', icon: Headphones },
+    { id: 'sounds', label: 'Audio', icon: Headphones },
     { id: 'practice', label: 'Practice', icon: Target },
-    { id: 'leaderboard', label: 'Leagues', icon: Shield },
     { id: 'profile', label: 'Profile', icon: User }
   ];
 
@@ -23,21 +22,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onChangeTab }) 
       className="fl-bottom-nav"
       role="navigation"
       aria-label="Main Navigation"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        height: '64px',
-        backgroundColor: 'var(--fl-bg-nav-bottom)',
-        borderTop: '1px solid var(--fl-border)',
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)'
-      }}
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;

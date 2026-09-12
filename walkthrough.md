@@ -1,58 +1,43 @@
-# Walkthrough: Duolingo-Style Serpentine Path, Multi-Language Switching & Ground-Zero Progression
+# Walkthrough: Duolingo UI Transformation — Clean, Uncrowded & Professional
 
-We have successfully implemented and deployed all requested Duolingo-inspired features into FLUENTRA:
-1. **Multi-Language Learning on a Single Account** (switch courses without losing progress in either course).
-2. **Duolingo-Style Serpentine Stepping-Stone Learning Path** with 3D tactile buttons, bouncing "START" speech-bubble tooltips, milestone chests, and stage checkpoints.
-3. **Scaffolded "Ground-Zero" Pedagogical Ear-Training & Phonetic Foundation** (tones/pitch curves for Mandarin, nasal vowels/silent letters for French, building towards conversational mastery).
+We have completely overhauled FLUENTRA's UI to adopt Duolingo's world-class, clean, spacious, and gamified interface:
 
 ---
 
-## 1. Key Features Implemented
+## 1. What Was Fixed & Transformed
 
-### A. Multi-Language Learning On a Single Account
-- **Course Isolation with Global Profile Continuity**:
-  - Each course (e.g. Chinese Mandarin 🇨🇳, French 🇫🇷, Spanish 🇪🇸, German 🇩🇪, Japanese 🇯🇵, Italian 🇮🇹) maintains its own independent progression state (`activeLevel`, `activeStage`, `currentUnitId`, `unitProgress`, `courseXp`, and `unitsMastered`).
-  - Total account XP, current streak (flame), and user credentials remain unified across all enrolled languages.
-  - When switching from French to Mandarin, French progress is preserved. Mandarin starts at Unit 1 (or wherever the user last practiced). When switching back to French, French progress is restored seamlessly.
-- **TopBar Interactive Course Switcher**:
-  - Replaced the static flag with an interactive badge displaying the current course flag + dropdown chevron.
-  - Tapping it opens the **Course Switcher Modal**.
-- **Course Switcher Modal (`CourseSwitcherModal.tsx`)**:
-  - Displays all enrolled courses with level badges, completed units count, and course XP, with a checkmark on the active course.
-  - Features an **"+ Add a New Language Course"** expandable picker to start learning additional languages with one click.
+### A. Eliminating the 4-Layer Main-Screen Clutter
+- **Before**: The screen was crowded with 4 stacked header layers (8-level horizontal pills, bulky level summary box, 10-stage horizontal pills, stage headline, and toggle buttons) before the user could even reach the path.
+- **Now**: Replaced all the clutter with a single, authentic **Duolingo Section Header Banner (`SectionBanner.tsx`)**:
+  - Colored rounded banner (Emerald Green for Section 1, Sky Blue for Section 2, Royal Purple for Section 3, etc.).
+  - Header text: `SECTION 1, STAGE 1` & topic title.
+  - **Guidebook Button (📖 Guidebook)**: Tapping it opens the new **`GuidebookModal.tsx`**, presenting key vocabulary, audio pronunciation, and grammar tips for that section.
+  - **Section Switcher Drawer (`SectionDrawer.tsx`)**: Tapping the section title opens a smooth modal showing all 8 CEFR levels/sections with completed counts and progress, allowing learners to switch levels without taking up screen space.
 
-### B. Duolingo-Style Serpentine Learning Path (`LearningPath.tsx`)
-- **Winding S-Curve Geometry**: Alternating horizontal offsets (`center`, `right`, `far-right`, `right`, `center`, `left`, `far-left`, `left`, `center`) render the authentic Duolingo stepping-stone path.
-- **Tactile 3D Buttons**: 68px circular nodes with 3D bottom bevels and depressed `:active` states.
-  - **Available / In-Progress**: Glowing emerald green/teal with active ring pulsation.
-  - **Mastered**: Radiant gold with crown badge.
-  - **Completed**: Emerald with high-contrast checkmark.
-  - **Locked**: Subtly shaded node with lock icon (tapping opens prerequisite gate modal).
-- **Bouncing "START" Speech-Bubble Tooltip**: Floats directly above the first active node with a pointed tail and rhythmic bounce animation (`animate-duo-bounce`), inviting the user into their next lesson.
-- **Milestone Treasure Chests**: Placed at mid-stage and end-stage. Unlocking Unit 5 activates the chest, awarding bonus XP (+30 XP) accompanied by celebratory confetti and chime audio.
-- **Stage Checkpoint Gate**: End-of-stage checkpoint card preparing the learner for the next CEFR milestone.
-- **View Toggle (Path vs. List)**: Quick toggle on the Learn screen allowing learners to switch between the serpentine Duolingo **Path** view and the structured **List** view anytime.
+### B. Making the Serpentine Path the Hero (Home Screen)
+- **Before**: The app had a confusing separate "Home" card dashboard that required an extra click to get to learning.
+- **Now**: **The Path IS Home**. Opening FLUENTRA immediately reveals the winding serpentine stepping-stone path with generous vertical breathing room, tactile 72px 3D buttons, and the active bouncing **"START"** tooltip.
 
-### C. Ground-Zero Ear-Training & Phonetic Progression
-- **Chinese Mandarin (Ground Zero)**:
-  - **Lesson 1**: The 4 Tones & Pitch Curves:
-    - Tone 1: High & Flat (mā - Mother 妈)
-    - Tone 2: Rising (má - Hemp 麻)
-    - Tone 3: Dipping (mǎ - Horse 马)
-    - Tone 4: Sharp Falling (mà - Scold 骂)
-    - Audio tone discrimination test & pitch matching.
-  - **Lesson 2**: Tone Sandhi (3rd tone + 3rd tone rule) and authentic greeting pronunciation for "Nǐ hǎo" (pronounced *Ní hǎo*).
-- **French (Ground Zero)**:
-  - **Lesson 1**: French Silent Letters & Nasal Vowel Ear Training (why the "t" in *Salut* is silent, nasal vowel identification).
-  - **Lesson 2**: Resonant Nasal Vowels & Polite Daytime Greeting (*Bonjour*).
+### C. Streamlined Top Status Bar (`TopBar.tsx`)
+- **Before**: 7 disparate icons and text badges ("L1", "Daily XP", etc.) were squeezed together.
+- **Now**: Clean Duolingo status header:
+  - **Left**: Active Course Flag + dropdown chevron (opens `CourseSwitcherModal` to switch languages anytime).
+  - **Right**:
+    - Streak badge (🔥 with orange counter).
+    - Gems / XP badge (💎 with cyan counter).
+    - Hearts / Health badge (❤️ with "∞" infinite practice).
+    - Theme toggle (Sun/Moon).
+
+### D. Authentic 5-Tab Navigation (`BottomNav.tsx` & `App.tsx`)
+1. **Learn (Home icon)**: The winding learning path.
+2. **Sounds (Headphones icon)**: The new **`PhoneticsLabView.tsx`** (Duolingo-style Characters & Sounds lab for exploring tones, pinyin, nasal vowels, and alphabets).
+3. **Practice (Target icon)**: Active recall exercises (Match Pairs, Sentence Order, Audio Recall) and Voice roleplay.
+4. **Leagues (Shield icon)**: The new **`LeaderboardView.tsx`** (Weekly leagues: Bronze, Silver, Gold, Sapphire, Emerald, Diamond with promotion zones).
+5. **Profile (User icon)**: Learner profile, streaks, and settings.
 
 ---
 
-## 2. Verification & Build Results
-
-- **Automated TypeScript & Bundle Build**:
-  - `npm run build` executed and passed with 0 errors (`built in 747ms`).
-- **Git Commit & Auto-Deployment**:
-  - Changes committed with hash `ac9f400`: `feat: implement Duolingo-style serpentine path, multi-language switching on single account & ground-zero progression`.
-  - Pushed to `origin/main` at `https://github.com/Onyeakazi/FLUENTRA.git`.
-  - Automatically picked up by Vercel for continuous deployment to production.
+## 2. Build & Deployment Status
+- **Build**: `npm run build` compiled with 0 errors (`built in 723ms`).
+- **Commit**: `f52ca90` pushed to `origin/main`.
+- **Vercel**: Automatically deployed to production.

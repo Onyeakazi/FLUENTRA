@@ -34,9 +34,9 @@ export const SectionBanner: React.FC = () => {
       <div
         style={{
           position: 'sticky',
-          top: '56px',
-          zIndex: 40,
-          padding: '12px 16px 8px',
+          top: 0,
+          zIndex: 30,
+          padding: '8px 12px 6px',
           backgroundColor: 'var(--fl-bg-app)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)'
@@ -47,7 +47,7 @@ export const SectionBanner: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '16px 20px',
+            padding: '14px 16px',
             borderRadius: '20px',
             backgroundColor: colorScheme.bg,
             color: colorScheme.text,

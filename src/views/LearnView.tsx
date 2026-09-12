@@ -29,9 +29,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
       className="content-scrollable"
       style={{
         display: 'flex',
-        flexDirection: 'column',
-        padding: '0 0 80px',
-        overflowX: 'hidden'
+        flexDirection: 'column'
       }}
     >
       {/* 1. Duolingo Signature Unit & Section Banner (Sticky with Guidebook) */}

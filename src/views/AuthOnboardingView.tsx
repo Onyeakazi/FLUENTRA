@@ -150,7 +150,7 @@ export const AuthOnboardingView: React.FC = () => {
     >
       {/* Top Header: Brand & Theme Toggle */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <FluentraLogo size="sm" showWordmark={true} showTagline={false} />
+        <FluentraLogo size="md" showWordmark={false} showTagline={false} />
         <button
           type="button"
           id="btn-auth-theme-toggle"
