@@ -120,28 +120,98 @@ export const ResumeHeroCard: React.FC<ResumeHeroCardProps> = ({ onResume }) => {
           </p>
         </div>
 
-        <button
-          type="button"
-          id="btn-resume-learning"
-          className="fl-btn fl-btn-primary"
-          onClick={handleResumeClick}
-          style={{
-            width: '100%',
-            minHeight: '48px',
-            fontSize: '15px',
-            fontWeight: 800,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            borderRadius: '14px',
-            boxShadow: '0 4px 0 #46A302'
-          }}
-        >
-          <Play size={16} fill="#FFFFFF" />
-          <span>{isMidLesson ? 'Resume From Where You Left Off' : 'Start Learning This Unit'}</span>
-          <ArrowRight size={16} />
-        </button>
+        {isMidLesson && checkpoint && (
+          <div style={{ marginTop: '2px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                fontSize: '12px',
+                fontWeight: 800,
+                color: '#58CC02',
+                marginBottom: '6px'
+              }}
+            >
+              <span>Step {checkpoint.exerciseIndex + 1} of {checkpoint.totalExercises || 10}</span>
+              <span>{Math.round(((checkpoint.exerciseIndex + 1) / (checkpoint.totalExercises || 10)) * 100)}% Complete</span>
+            </div>
+            <div
+              style={{
+                width: '100%',
+                height: '8px',
+                backgroundColor: 'rgba(88, 204, 2, 0.2)',
+                borderRadius: '999px',
+                overflow: 'hidden'
+              }}
+            >
+              <div
+                style={{
+                  width: `${Math.round(((checkpoint.exerciseIndex + 1) / (checkpoint.totalExercises || 10)) * 100)}%`,
+                  height: '100%',
+                  backgroundColor: '#58CC02',
+                  borderRadius: '999px',
+                  transition: 'width 0.4s ease'
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            type="button"
+            id="btn-resume-learning"
+            className="fl-btn fl-btn-primary"
+            onClick={handleResumeClick}
+            style={{
+              flex: 1,
+              minHeight: '48px',
+              fontSize: '15px',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              borderRadius: '14px',
+              boxShadow: '0 4px 0 #46A302'
+            }}
+          >
+            <Play size={16} fill="#FFFFFF" />
+            <span>{isMidLesson ? 'Resume From Where You Left Off' : 'Start Learning This Unit'}</span>
+            <ArrowRight size={16} />
+          </button>
+
+          {isMidLesson && (
+            <button
+              type="button"
+              id="btn-restart-unit-hero"
+              onClick={() => {
+                storageService.clearResumeCheckpoint(lang);
+                onResume(activeUnit!.id, `${activeUnit!.id}-l1`);
+              }}
+              title="Restart from beginning"
+              style={{
+                height: '48px',
+                padding: '0 14px',
+                borderRadius: '14px',
+                backgroundColor: 'var(--fl-bg-card-subtle)',
+                border: '1.5px solid var(--fl-border-strong)',
+                color: 'var(--fl-text-secondary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '13px',
+                fontWeight: 800,
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <RotateCcw size={15} />
+              <span>Restart</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -130,6 +130,37 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
     }
   };
 
+  // Real-time Checkpoint Auto-Save: Persist exact step whenever currentIndex changes
+  React.useEffect(() => {
+    if (!isCompleted && exercises.length > 0) {
+      storageService.saveResumeCheckpoint({
+        unitId,
+        lessonId: lesson.id,
+        exerciseIndex: currentIndex,
+        totalExercises: exercises.length,
+        unitTitle: currentUnitMeta?.title || lesson.title,
+        languageId: lang,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [currentIndex, unitId, lesson.id, isCompleted, exercises.length, currentUnitMeta?.title, lesson.title, lang]);
+
+  // Safe exit handler that guarantees checkpoint persistence before closing
+  const handleExit = () => {
+    if (!isCompleted && exercises.length > 0) {
+      storageService.saveResumeCheckpoint({
+        unitId,
+        lessonId: lesson.id,
+        exerciseIndex: currentIndex,
+        totalExercises: exercises.length,
+        unitTitle: currentUnitMeta?.title || lesson.title,
+        languageId: lang,
+        timestamp: new Date().toISOString()
+      });
+    }
+    onExit();
+  };
+
   // Enforce retry on failure: Reset attempt so the learner must repeat until they get it right
   const handleRetry = () => {
     setIsChecked(false);
@@ -339,7 +370,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
           type="button"
           id="btn-exit-exercise"
           className="fl-btn-icon"
-          onClick={onExit}
+          onClick={handleExit}
           style={{ width: '38px', height: '38px', flexShrink: 0 }}
           aria-label="Exit Lesson"
         >

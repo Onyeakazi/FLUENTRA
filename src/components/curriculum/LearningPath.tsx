@@ -24,6 +24,17 @@ export const LearningPath: React.FC<LearningPathProps> = ({
   const { getUnitStatus, activeStage, activeLevel } = useProgression();
   const { addXp } = useUser();
   const [openedChests, setOpenedChests] = useState<Record<string, boolean>>({});
+  const activeNodeRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll seamlessly to where learner left off
+  React.useEffect(() => {
+    if (activeNodeRef.current) {
+      const timer = setTimeout(() => {
+        activeNodeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [activeStage, activeLevel]);
 
   // Find the first available or in-progress unit to highlight with the bouncing START speech bubble
   let activeUnitFound = false;
@@ -110,6 +121,7 @@ export const LearningPath: React.FC<LearningPathProps> = ({
           <React.Fragment key={unit.id}>
             {/* Serpentine Stepping Stone Node */}
             <div
+              ref={isFocusUnit ? activeNodeRef : undefined}
               style={{
                 position: 'relative',
                 display: 'flex',
