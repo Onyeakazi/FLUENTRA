@@ -4,6 +4,7 @@ import { CURRICULUM_DATA } from '../data/curriculumRegistry';
 import { UnitMetadata } from '../types/curriculum';
 import { LearningPath } from '../components/curriculum/LearningPath';
 import { SectionBanner } from '../components/curriculum/SectionBanner';
+import { ResumeHeroCard } from '../components/curriculum/ResumeHeroCard';
 import { UnitDetailSheet } from '../components/curriculum/UnitDetailSheet';
 import { LockedGateModal } from '../components/curriculum/LockedGateModal';
 import { useProgression } from '../context/ProgressionContext';
@@ -35,7 +36,14 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
       {/* 1. Duolingo Signature Unit & Section Banner (Sticky with Guidebook) */}
       <SectionBanner />
 
-      {/* 2. Duolingo Serpentine Stepping-Stone Path */}
+      {/* 2. Start from Where You Left Off Quick-Resume Card */}
+      <ResumeHeroCard
+        onResume={(unitId, lessonId) => {
+          onStartLesson(unitId, lessonId || `${unitId}-l1`);
+        }}
+      />
+
+      {/* 3. Duolingo Serpentine Stepping-Stone Path */}
       <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto' }}>
         <LearningPath
           units={stageUnits}

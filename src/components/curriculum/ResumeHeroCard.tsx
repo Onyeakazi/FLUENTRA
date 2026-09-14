@@ -1,0 +1,148 @@
+// FLUENTRA "Start from where you left off" Hero Resume Card
+import React from 'react';
+import { Play, Sparkles, BookOpen, Compass, ArrowRight, RotateCcw } from 'lucide-react';
+import { UnitMetadata } from '../../types/curriculum';
+import { useProgression } from '../../context/ProgressionContext';
+import { useUser } from '../../context/UserContext';
+import { CURRICULUM_DATA } from '../../data/curriculumRegistry';
+import { storageService, ResumeCheckpoint } from '../../services/storageService';
+
+interface ResumeHeroCardProps {
+  onResume: (unitId: string, lessonId?: string) => void;
+}
+
+export const ResumeHeroCard: React.FC<ResumeHeroCardProps> = ({ onResume }) => {
+  const { progressMap, activeLevel, activeStage, setActiveLevel, setActiveStage, getUnitStatus } = useProgression();
+  const { profile } = useUser();
+
+  const lang = profile?.currentLanguage || 'French';
+  const checkpoint: ResumeCheckpoint | null = storageService.getResumeCheckpoint(lang);
+
+  // 1. Identify the exact unit where the learner left off
+  let activeUnit: UnitMetadata | null = null;
+  let isMidLesson = false;
+
+  if (checkpoint && checkpoint.unitId) {
+    const meta = CURRICULUM_DATA.unitsById[checkpoint.unitId];
+    if (meta) {
+      activeUnit = meta;
+      isMidLesson = checkpoint.exerciseIndex > 0;
+    }
+  }
+
+  // If no in-lesson checkpoint, find the first in-progress or available unit
+  if (!activeUnit) {
+    for (const unit of CURRICULUM_DATA.units) {
+      const status = getUnitStatus(unit.id);
+      if (status === 'in_progress' || status === 'available') {
+        activeUnit = unit;
+        break;
+      }
+    }
+  }
+
+  // Fallback to Unit 1
+  if (!activeUnit) {
+    activeUnit = CURRICULUM_DATA.units[0];
+  }
+
+  const handleResumeClick = () => {
+    if (!activeUnit) return;
+
+    // Automatically synchronize level & stage to match the active unit
+    if (activeUnit.levelNumber !== activeLevel) {
+      setActiveLevel(activeUnit.levelNumber);
+    }
+    if (activeUnit.stageNumber !== activeStage) {
+      setActiveStage(activeUnit.stageNumber);
+    }
+
+    onResume(activeUnit.id, checkpoint?.lessonId);
+  };
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        maxWidth: '480px',
+        margin: '12px auto 6px',
+        padding: '0 16px'
+      }}
+    >
+      <div
+        className="fl-card animate-pop-in"
+        style={{
+          padding: '16px 18px',
+          background: 'linear-gradient(135deg, rgba(88, 204, 2, 0.14) 0%, rgba(28, 176, 246, 0.08) 100%)',
+          border: '1.5px solid #58CC02',
+          borderRadius: '20px',
+          boxShadow: '0 6px 20px rgba(88, 204, 2, 0.12)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span
+              className="fl-badge"
+              style={{
+                backgroundColor: '#58CC02',
+                color: '#FFFFFF',
+                fontSize: '11px',
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                padding: '3px 10px',
+                borderRadius: '999px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <Sparkles size={12} />
+              {isMidLesson ? 'CONTINUE WHERE YOU LEFT OFF' : 'YOUR ACTIVE PATH'}
+            </span>
+          </div>
+
+          <span style={{ fontSize: '12px', color: 'var(--fl-text-muted)', fontWeight: 700 }}>
+            {activeUnit.cefrLevel}
+          </span>
+        </div>
+
+        <div>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--fl-text-primary)', margin: 0 }}>
+            Unit {activeUnit.number}: {activeUnit.title}
+          </h3>
+          <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', marginTop: '3px', margin: 0 }}>
+            {isMidLesson && checkpoint
+              ? `Step ${checkpoint.exerciseIndex + 1} of ${checkpoint.totalExercises || 10} in progress`
+              : activeUnit.practicalOutcome || activeUnit.subtitle}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          id="btn-resume-learning"
+          className="fl-btn fl-btn-primary"
+          onClick={handleResumeClick}
+          style={{
+            width: '100%',
+            minHeight: '48px',
+            fontSize: '15px',
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            borderRadius: '14px',
+            boxShadow: '0 4px 0 #46A302'
+          }}
+        >
+          <Play size={16} fill="#FFFFFF" />
+          <span>{isMidLesson ? 'Resume From Where You Left Off' : 'Start Learning This Unit'}</span>
+          <ArrowRight size={16} />
+        </button>
+      </div>
+    </div>
+  );
+};

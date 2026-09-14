@@ -2,6 +2,7 @@
 import { Lesson, Exercise } from '../types/curriculum';
 import { CURRICULUM_DATA } from '../data/curriculumRegistry';
 import { LANGUAGE_PACKS } from '../data/curriculumContent';
+import { UNIT_JOURNEYS, buildUnitLessonFromJourney } from '../data/unitJourneys';
 
 interface AIGenerationOptions {
   unitId: string;
@@ -44,6 +45,12 @@ class AICurriculumGenerator {
    */
   public async generateLesson(options: AIGenerationOptions): Promise<Lesson[]> {
     const { unitId, language, levelNumber, learningGoal = 'travel', forceRegenerate = false } = options;
+
+    // If unit has a structured 10-step pedagogical journey, prioritize it
+    if ((language === 'French' || !language) && UNIT_JOURNEYS[unitId]) {
+      return [buildUnitLessonFromJourney(UNIT_JOURNEYS[unitId])];
+    }
+
     const cacheKey = `${unitId}_${language}_${learningGoal}_lvl${levelNumber}`;
 
     if (!forceRegenerate) {

@@ -163,17 +163,17 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const nextUnitId = `u${nextUnitNum}`;
 
     setProgressMap((prev) => {
-      const updated = {
+      const updated: Record<string, UnitProgress> = {
         ...prev,
         [currentUnitId]: {
-          ...prev[currentUnitId],
+          ...(prev[currentUnitId] || { unitId: currentUnitId, completedLessonIds: [], bestScore: 0 }),
           status: 'completed' as UnitStatus
         },
         [nextUnitId]: {
           unitId: nextUnitId,
           status: 'available' as UnitStatus,
-          completedLessonIds: [],
-          bestScore: 0
+          completedLessonIds: prev[nextUnitId]?.completedLessonIds || [],
+          bestScore: prev[nextUnitId]?.bestScore || 0
         }
       };
 
@@ -213,6 +213,10 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     addXp(xpReward);
     incrementStreak();
 
+    const currentMeta = CURRICULUM_DATA.unitsById[unitId];
+    const nextUnitNum = currentMeta ? currentMeta.number + 1 : 2;
+    const nextUnitId = `u${nextUnitNum}`;
+
     setProgressMap((prev) => {
       const current = prev[unitId] || {
         unitId,
@@ -222,14 +226,14 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
       };
 
       const completedLessons = Array.from(new Set([...current.completedLessonIds, lessonId]));
-      const unitMeta = CURRICULUM_DATA.unitsById[unitId];
-      const isAllLessonsDone = unitMeta && completedLessons.length >= unitMeta.lessonCount;
+      // A unit is completed if all lessons are done, or if the unit journey was completed
+      const isAllLessonsDone = currentMeta ? completedLessons.length >= currentMeta.lessonCount : true;
 
       const newStatus: UnitStatus = isAllLessonsDone
         ? score >= 90 ? 'mastered' : 'completed'
         : 'in_progress';
 
-      const updated = {
+      const updated: Record<string, UnitProgress> = {
         ...prev,
         [unitId]: {
           ...current,
@@ -240,15 +244,26 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }
       };
 
+      // Atomically unlock the next unit if this unit is completed
+      if (isAllLessonsDone && nextUnitNum <= 800) {
+        const existingNext = prev[nextUnitId];
+        if (!existingNext || existingNext.status === 'locked') {
+          updated[nextUnitId] = {
+            unitId: nextUnitId,
+            status: 'available' as UnitStatus,
+            completedLessonIds: existingNext?.completedLessonIds || [],
+            bestScore: existingNext?.bestScore || 0
+          };
+        }
+      }
+
       // Persist to active course
       setActiveCourse((curr) => {
-        const completedCount = Object.values(updated).filter(
-          u => u.status === 'completed' || u.status === 'mastered'
-        ).length;
         const masteredCount = Object.values(updated).filter(u => u.status === 'mastered').length;
 
         const updatedCourse: CourseProgress = {
           ...curr,
+          currentUnitId: isAllLessonsDone ? nextUnitId : curr.currentUnitId,
           courseXp: (curr.courseXp || 0) + xpReward,
           lessonsCompleted: (curr.lessonsCompleted || 0) + 1,
           unitsMastered: masteredCount,
@@ -262,12 +277,10 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
       storageService.saveProgress(updated);
       setEnrolledCourses(storageService.getAllEnrolledCourses());
 
-      if (isAllLessonsDone) {
-        unlockNextUnit(unitId);
-      }
-
       return updated;
     });
+
+    soundService.playLevelUnlock();
   };
 
   return (

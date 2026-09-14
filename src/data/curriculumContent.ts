@@ -1,7 +1,7 @@
-// FLUENTRA Multi-Language & AI Dynamic Unit Content Provider
 import { Lesson, Exercise } from '../types/curriculum';
 import { CURRICULUM_DATA } from './curriculumRegistry';
 import { aiCurriculumGenerator } from '../services/aiCurriculumGenerator';
+import { UNIT_JOURNEYS, buildUnitLessonFromJourney } from './unitJourneys';
 
 export interface LanguagePack {
   code: string;
@@ -273,6 +273,11 @@ export function getLessonsForUnit(
   languageName: string = 'French',
   learningGoal: string = 'travel'
 ): Lesson[] {
+  // If unit has a structured 10-step pedagogical journey, return it
+  if ((languageName === 'French' || !languageName) && UNIT_JOURNEYS[unitId]) {
+    return [buildUnitLessonFromJourney(UNIT_JOURNEYS[unitId])];
+  }
+
   const pack = LANGUAGE_PACKS[languageName] || LANGUAGE_PACKS.French;
   const meta = CURRICULUM_DATA.unitsById[unitId] || CURRICULUM_DATA.units[0];
 

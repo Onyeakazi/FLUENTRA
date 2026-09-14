@@ -1,5 +1,5 @@
-// FLUENTRA Curriculum Registry — 8 Levels, 80 Stages, 800 Units Total
 import { Level, UnitMetadata, Stage } from '../types/curriculum';
+import { UNIT_JOURNEYS } from './unitJourneys';
 
 interface LevelBlueprint {
   name: string;
@@ -836,6 +836,8 @@ export function buildCurriculumRegistry(): {
 
         const requiredUnlockUnitId = unitNumber > 1 ? `u${unitNumber - 1}` : undefined;
 
+        const journey = UNIT_JOURNEYS[unitId];
+
         const unitMeta: UnitMetadata = {
           id: unitId,
           number: unitNumber,
@@ -845,9 +847,12 @@ export function buildCurriculumRegistry(): {
           subtitle: `Level ${levelNum} · Stage ${stageNum} · Unit ${topicIdx + 1}/10`,
           cefrLevel: blueprint.cefr,
           category: stageTheme.title,
-          lessonCount: 3, // Each unit has structured interactive lessons
+          lessonCount: journey ? 1 : 2, // 10-step journey or 2 multi-target lessons
           requiredXp: 30,
-          requiredUnlockUnitId
+          requiredUnlockUnitId,
+          pedagogyType: journey?.pedagogyType || (unitNumber === 1 ? 'pronunciation' : unitNumber % 2 === 0 ? 'vocabulary' : 'communication'),
+          practicalOutcome: journey?.practicalOutcome,
+          learningTargets: journey?.learningTargets
         };
 
         units.push(unitMeta);

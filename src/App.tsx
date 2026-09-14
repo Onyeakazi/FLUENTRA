@@ -87,6 +87,7 @@ const FluentraApp: React.FC = () => {
           unitId={activeLessonContext.unitId}
           lesson={activeLessonContext.lesson}
           onExit={() => setActiveLessonContext(null)}
+          onStartNextUnit={(nextUnitId) => handleStartLesson(nextUnitId)}
         />
       )}
 

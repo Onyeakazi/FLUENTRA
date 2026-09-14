@@ -2,7 +2,39 @@
 
 export type UnitStatus = 'locked' | 'available' | 'in_progress' | 'completed' | 'mastered';
 
+export type LearningStepType =
+  | 'discover'
+  | 'listen'
+  | 'understand'
+  | 'practice'
+  | 'speak'
+  | 'feedback'
+  | 'repeat'
+  | 'use'
+  | 'challenge'
+  | 'master';
+
+export type UnitPedagogyType =
+  | 'pronunciation'
+  | 'vocabulary'
+  | 'grammar'
+  | 'listening'
+  | 'communication'
+  | 'conversation';
+
+export interface LearningTarget {
+  id: string;
+  term: string;
+  translation: string;
+  phonetic?: string;
+  audioText?: string;
+  context?: string;
+  exampleUsage?: string;
+  exampleTranslation?: string;
+}
+
 export type ExerciseType = 
+  | 'target_discovery'
   | 'multiple_choice'
   | 'sentence_order'
   | 'match_pairs'
@@ -28,6 +60,7 @@ export interface MatchPair {
 export interface Exercise {
   id: string;
   type: ExerciseType;
+  stepType?: LearningStepType;
   prompt: string;
   targetText?: string;
   audioText?: string;
@@ -40,6 +73,7 @@ export interface Exercise {
   matchPairs?: MatchPair[];
   explanation?: string;
   xpReward: number;
+  targets?: LearningTarget[];
 }
 
 export interface Lesson {
@@ -48,6 +82,8 @@ export interface Lesson {
   description: string;
   order: number;
   xpReward: number;
+  stepType?: LearningStepType;
+  unitId?: string;
   exercises: Exercise[];
 }
 
@@ -63,6 +99,9 @@ export interface UnitMetadata {
   lessonCount: number;
   requiredXp: number;
   requiredUnlockUnitId?: string;
+  pedagogyType?: UnitPedagogyType;
+  practicalOutcome?: string;
+  learningTargets?: LearningTarget[];
 }
 
 export interface Stage {

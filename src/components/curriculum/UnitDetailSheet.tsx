@@ -94,10 +94,27 @@ export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '14px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
               <span className="fl-badge fl-badge-teal" style={{ fontSize: '13px', padding: '3px 10px' }}>
                 Unit {unit.number} · {unit.cefrLevel}
               </span>
+              {unit.pedagogyType && (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                    padding: '2px 8px',
+                    borderRadius: '6px',
+                    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                    color: 'var(--fl-indigo-light)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)'
+                  }}
+                >
+                  {unit.pedagogyType} Unit
+                </span>
+              )}
               <span style={{ fontSize: '13px', color: 'var(--fl-text-muted)' }}>
                 {unit.category}
               </span>
@@ -120,6 +137,56 @@ export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
             <X size={18} />
           </button>
         </div>
+
+        {/* Practical Outcome Card */}
+        {unit.practicalOutcome && (
+          <div
+            style={{
+              padding: '12px 14px',
+              borderRadius: 'var(--fl-radius-md)',
+              backgroundColor: 'rgba(88, 204, 2, 0.08)',
+              border: '1px solid rgba(88, 204, 2, 0.25)',
+              marginBottom: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }}
+          >
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#58CC02', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Practical Outcome
+            </span>
+            <p style={{ fontSize: '13px', color: 'var(--fl-text-primary)', margin: 0, lineHeight: 1.45, fontWeight: 600 }}>
+              🎯 {unit.practicalOutcome}
+            </p>
+          </div>
+        )}
+
+        {/* Learning Targets Preview Chips */}
+        {unit.learningTargets && unit.learningTargets.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--fl-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Learning Targets ({unit.learningTargets.length})
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+              {unit.learningTargets.map(t => (
+                <span
+                  key={t.id}
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    padding: '4px 10px',
+                    borderRadius: '999px',
+                    backgroundColor: 'var(--fl-bg-card-hover)',
+                    border: '1px solid var(--fl-border)',
+                    color: 'var(--fl-text-primary)'
+                  }}
+                >
+                  {t.term} <span style={{ color: 'var(--fl-text-muted)', fontWeight: 500 }}>· {t.translation}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Lessons List */}
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>

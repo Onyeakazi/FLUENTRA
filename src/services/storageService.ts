@@ -183,7 +183,7 @@ class StorageService {
     localStorage.removeItem(STORAGE_KEYS.PROGRESSION);
     try {
       Object.keys(localStorage).forEach(k => {
-        if (k.startsWith('fluentra_course_progress_')) {
+        if (k.startsWith('fluentra_course_progress_') || k.startsWith('fluentra_resume_')) {
           localStorage.removeItem(k);
         }
       });
@@ -191,6 +191,46 @@ class StorageService {
       // Safe
     }
   }
+
+  public getResumeCheckpoint(languageId = 'French'): ResumeCheckpoint | null {
+    try {
+      const key = `fluentra_resume_${languageId}`;
+      const data = localStorage.getItem(key);
+      if (data) return JSON.parse(data);
+    } catch {
+      // Safe
+    }
+    return null;
+  }
+
+  public saveResumeCheckpoint(checkpoint: ResumeCheckpoint): void {
+    try {
+      const key = `fluentra_resume_${checkpoint.languageId || 'French'}`;
+      localStorage.setItem(key, JSON.stringify(checkpoint));
+    } catch {
+      // Safe
+    }
+  }
+
+  public clearResumeCheckpoint(languageId = 'French'): void {
+    try {
+      const key = `fluentra_resume_${languageId}`;
+      localStorage.removeItem(key);
+    } catch {
+      // Safe
+    }
+  }
+}
+
+export interface ResumeCheckpoint {
+  unitId: string;
+  lessonId: string;
+  exerciseIndex: number;
+  totalExercises: number;
+  stepName?: string;
+  unitTitle: string;
+  languageId: string;
+  timestamp: string;
 }
 
 export const storageService = new StorageService();
