@@ -1,5 +1,5 @@
 // FLUENTRA Main Application Shell
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserProvider, useUser } from './context/UserContext';
 import { ProgressionProvider } from './context/ProgressionContext';
 import { FluentraSplash } from './components/brand/FluentraSplash';
@@ -14,8 +14,10 @@ import { SpeakView } from './views/SpeakView';
 import { ProfileView } from './views/ProfileView';
 import { ExerciseRunner } from './components/exercise/ExerciseRunner';
 import { ConversationRoleplayView } from './views/ConversationRoleplayView';
+import { WelcomeBackResumeModal } from './components/curriculum/WelcomeBackResumeModal';
 import { getLessonsForUnit } from './data/curriculumContent';
 import { aiCurriculumGenerator } from './services/aiCurriculumGenerator';
+import { storageService, ResumeCheckpoint } from './services/storageService';
 import { Lesson } from './types/curriculum';
 import { ConversationScenario } from './types/conversation';
 
@@ -25,6 +27,23 @@ const FluentraApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('learn'); // Learn (Path) is default home screen
   const [activeLessonContext, setActiveLessonContext] = useState<{ unitId: string; lesson: Lesson } | null>(null);
   const [activeScenario, setActiveScenario] = useState<ConversationScenario | null>(null);
+
+  // 1-Tap "Start From Where You Left Off" Launch Modal State
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [pendingCheckpoint, setPendingCheckpoint] = useState<ResumeCheckpoint | null>(null);
+  const hasPromptedResumeRef = useRef(false);
+
+  // Automatically prompt learner on app open if an active checkpoint exists
+  useEffect(() => {
+    if (!showSplash && isAuthenticated && profile.isSetupCompleted && !hasPromptedResumeRef.current) {
+      hasPromptedResumeRef.current = true;
+      const cp = storageService.getResumeCheckpoint(profile.currentLanguage || 'French');
+      if (cp && cp.unitId && cp.exerciseIndex > 0) {
+        setPendingCheckpoint(cp);
+        setIsResumeModalOpen(true);
+      }
+    }
+  }, [showSplash, isAuthenticated, profile.isSetupCompleted, profile.currentLanguage]);
 
   const handleStartLesson = async (unitId: string, lessonId?: string, customLesson?: Lesson) => {
     if (customLesson) {
@@ -127,6 +146,24 @@ const FluentraApp: React.FC = () => {
           <BottomNav activeTab={activeTab} onChangeTab={setActiveTab} />
         </>
       )}
+
+      {/* 7. 1-Tap "Start From Where You Left Off" Welcome Back Modal */}
+      <WelcomeBackResumeModal
+        isOpen={isResumeModalOpen}
+        checkpoint={pendingCheckpoint}
+        userName={profile.name || 'Learner'}
+        language={profile.currentLanguage || 'French'}
+        onClose={() => setIsResumeModalOpen(false)}
+        onResume={(unitId, lessonId) => {
+          handleStartLesson(unitId, lessonId);
+          setIsResumeModalOpen(false);
+        }}
+        onRestart={(unitId, lessonId) => {
+          storageService.clearResumeCheckpoint(profile.currentLanguage || 'French');
+          handleStartLesson(unitId, lessonId || `${unitId}-l1`);
+          setIsResumeModalOpen(false);
+        }}
+      />
     </div>
   );
 };
