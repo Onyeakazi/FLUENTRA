@@ -15,11 +15,11 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
   onContinue
 }) => {
   const score = result.overallScore;
-  const isPassed = result.isPassed;
+  const isPassed = result.isPassed && score >= 80;
 
-  const scoreColor = score >= 85
+  const scoreColor = isPassed
     ? 'var(--fl-teal-light)'
-    : score >= 70
+    : score >= 65
     ? 'var(--fl-gold-star)'
     : 'var(--fl-coral-flame)';
 
@@ -42,7 +42,7 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
           )}
           <div>
             <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>
-              {isPassed ? 'Pronunciation Verified' : 'Needs Another Try'}
+              {isPassed ? 'Pronunciation Verified! ✓' : 'Score Below 80% — Retry'}
             </h4>
             <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', display: 'block', marginTop: '2px' }}>
               {result.feedbackMessage}
@@ -131,28 +131,63 @@ export const PronunciationScoreCard: React.FC<PronunciationScoreCardProps> = ({
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div style={{ display: 'flex', gap: '10px', marginTop: '18px' }}>
-        <button
-          type="button"
-          className="fl-btn fl-btn-secondary"
-          onClick={onRetry}
-          style={{ flex: 1, padding: '12px 16px', fontSize: '15px', minHeight: '48px' }}
-        >
-          <RotateCcw size={16} />
-          <span>Practice Again</span>
-        </button>
+      {/* Action Buttons: Enforce 80%+ Score Requirement to Advance */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '18px' }}>
+        {!isPassed ? (
+          <>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                border: '1.5px solid rgba(239, 68, 68, 0.35)',
+                color: 'var(--fl-coral-flame)',
+                fontSize: '13px',
+                fontWeight: 700
+              }}
+            >
+              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <span>Score is {score}%. You need at least 80% to advance. Repeat to get it right!</span>
+            </div>
 
-        <button
-          type="button"
-          id="btn-pronunciation-continue"
-          className="fl-btn fl-btn-primary"
-          onClick={onContinue}
-          style={{ flex: 1.2, padding: '12px 16px', fontSize: '15px', minHeight: '48px' }}
-        >
-          <span>Continue</span>
-          <ArrowRight size={16} />
-        </button>
+            <button
+              type="button"
+              id="btn-pronunciation-retry"
+              className="fl-btn fl-btn-coral"
+              onClick={onRetry}
+              style={{ width: '100%', padding: '14px 16px', fontSize: '15px', minHeight: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <RotateCcw size={18} />
+              <span>Repeat Attempt (Target: 80%+)</span>
+            </button>
+          </>
+        ) : (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              className="fl-btn fl-btn-secondary"
+              onClick={onRetry}
+              style={{ flex: 1, padding: '12px 16px', fontSize: '15px', minHeight: '48px' }}
+            >
+              <RotateCcw size={16} />
+              <span>Practice Again</span>
+            </button>
+
+            <button
+              type="button"
+              id="btn-pronunciation-continue"
+              className="fl-btn fl-btn-primary"
+              onClick={onContinue}
+              style={{ flex: 1.2, padding: '12px 16px', fontSize: '15px', minHeight: '48px' }}
+            >
+              <span>Continue</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

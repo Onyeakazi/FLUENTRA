@@ -130,9 +130,17 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
                   </span>
                 </div>
 
-                {option.translation && (
-                  <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)' }}>
-                    {option.translation}
+                {isChecked && option.translation && (
+                  <span
+                    className="animate-fade-in"
+                    style={{
+                      fontSize: '13px',
+                      color: 'var(--fl-text-secondary)',
+                      marginTop: '3px',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    “{option.translation}”
                   </span>
                 )}
               </div>

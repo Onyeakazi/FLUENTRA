@@ -145,7 +145,11 @@ export const SpeakingChallenge: React.FC<SpeakingChallengeProps> = ({ exercise, 
             setEvalResult(null);
             setSpeechState('idle');
           }}
-          onContinue={() => onPass(evalResult.overallScore)}
+          onContinue={() => {
+            if (evalResult.overallScore >= 80) {
+              onPass(evalResult.overallScore);
+            }
+          }}
         />
       )}
     </div>

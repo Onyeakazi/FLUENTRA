@@ -28,9 +28,9 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
         <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px' }}>
           {exercise.prompt}
         </h3>
-        {exercise.translation && (
-          <p style={{ fontSize: '16px', color: 'var(--fl-text-secondary)', fontStyle: 'italic' }}>
-            “{exercise.translation}”
+        {isChecked && exercise.translation && (
+          <p className="animate-fade-in" style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', fontStyle: 'italic', marginTop: '4px' }}>
+            English Meaning: “{exercise.translation}”
           </p>
         )}
       </div>

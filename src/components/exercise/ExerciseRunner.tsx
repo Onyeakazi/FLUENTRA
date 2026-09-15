@@ -90,6 +90,18 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
   const [correctCount, setCorrectCount] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
+  // When switching to the next unit, guarantee complete state reset so it starts cleanly from Step 1
+  React.useEffect(() => {
+    setIsCompleted(false);
+    setIsChecked(false);
+    setIsCorrect(false);
+    setSelectedOptionId(null);
+    setSelectedWords([]);
+    setCorrectCount(0);
+    setCurrentIndex(0);
+    setResumedNotice(null);
+  }, [unitId, lesson.id]);
+
   const exercises = lesson.exercises;
   const currentExercise: Exercise = exercises[currentIndex];
   const progressPercent = Math.round(((currentIndex) / exercises.length) * 100);
@@ -325,7 +337,10 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
                 type="button"
                 id="btn-lesson-start-next-unit"
                 className="fl-btn fl-btn-primary"
-                onClick={() => onStartNextUnit(nextUnitId)}
+                onClick={() => {
+                  setIsCompleted(false);
+                  onStartNextUnit(nextUnitId);
+                }}
                 style={{ width: '100%', minHeight: '52px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 <span>Continue to Next Unit</span>
@@ -535,13 +550,20 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
                   <RotateCcw size={16} color="#FFFFFF" />
                 </div>
               )}
-              <div>
-                <p style={{ fontWeight: 800, fontSize: '17px', color: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)' }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontWeight: 800, fontSize: '17px', color: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)', margin: 0 }}>
                   {isCorrect ? 'Nicely done! ✓' : 'Not quite right — Try again:'}
                 </p>
-                <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
-                  {currentExercise.explanation || currentExercise.targetText}
-                </p>
+                {currentExercise.explanation && (
+                  <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '4px', margin: '4px 0 0' }}>
+                    {currentExercise.explanation}
+                  </p>
+                )}
+                {currentExercise.translation && (
+                  <p style={{ fontSize: '13px', color: 'var(--fl-text-primary)', marginTop: '4px', fontWeight: 600 }}>
+                    Meaning: “{currentExercise.translation}”
+                  </p>
+                )}
               </div>
             </div>
           )}

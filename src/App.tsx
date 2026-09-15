@@ -103,6 +103,7 @@ const FluentraApp: React.FC = () => {
       {/* 4. Fullscreen Active Lesson Runner */}
       {isAuthenticated && profile.isSetupCompleted && activeLessonContext && (
         <ExerciseRunner
+          key={`${activeLessonContext.unitId}-${activeLessonContext.lesson.id}`}
           unitId={activeLessonContext.unitId}
           lesson={activeLessonContext.lesson}
           onExit={() => setActiveLessonContext(null)}

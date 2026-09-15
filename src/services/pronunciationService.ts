@@ -92,7 +92,7 @@ class PronunciationEngine {
     });
 
     const averageScore = targetWords.length > 0 ? Math.round(totalScore / targetWords.length) : 0;
-    const isPassed = averageScore >= 70;
+    const isPassed = averageScore >= 80;
 
     let feedbackMessage = '';
     let phoneticAdvice = '';
@@ -100,15 +100,15 @@ class PronunciationEngine {
     if (averageScore >= 90) {
       feedbackMessage = 'Outstanding pronunciation! Clear, natural and confident.';
       phoneticAdvice = 'Your intonation was exceptionally close to native speakers.';
-    } else if (averageScore >= 75) {
-      feedbackMessage = 'Great effort! Your sentence was well understood.';
-      phoneticAdvice = 'Listen one more time to the model audio to sharpen the subtle vowel transitions.';
-    } else if (averageScore >= 50) {
-      feedbackMessage = 'Good attempt! You have the structure, but some vowels were blurred.';
-      phoneticAdvice = 'Tap the turtle icon for slower playback and repeat phrase by phrase.';
+    } else if (averageScore >= 80) {
+      feedbackMessage = 'Great job! Your pronunciation meets the 80%+ passing bar.';
+      phoneticAdvice = 'Accurate articulation and clear vowel shaping.';
+    } else if (averageScore >= 60) {
+      feedbackMessage = 'Almost there! You need at least 80% to advance (Score: ' + averageScore + '%).';
+      phoneticAdvice = 'Listen to the model pronunciation again and practice phrase by phrase.';
     } else {
-      feedbackMessage = 'Keep going! Speaking is a muscle memory skill.';
-      phoneticAdvice = 'Focus on breaking down the word sounds before saying the whole phrase.';
+      feedbackMessage = 'Needs practice! A score of 80%+ is required to pass.';
+      phoneticAdvice = 'Tap the turtle icon for slower playback, then speak clearly into your mic.';
     }
 
     return {
