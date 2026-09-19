@@ -2,6 +2,9 @@
 import React, { useMemo } from 'react';
 import { Check, X } from 'lucide-react';
 import { Exercise } from '../../types/curriculum';
+import { ttsService } from '../../services/ttsService';
+import { useUser } from '../../context/UserContext';
+import { getLanguageOption } from '../../data/languages';
 
 interface SentenceOrderProps {
   exercise: Exercise;
@@ -10,6 +13,7 @@ interface SentenceOrderProps {
   onRemoveWord: (index: number) => void;
   isChecked: boolean;
   isCorrect?: boolean;
+  targetLang?: string;
 }
 
 export const SentenceOrder: React.FC<SentenceOrderProps> = ({
@@ -18,8 +22,15 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
   onAddWord,
   onRemoveWord,
   isChecked,
-  isCorrect
+  isCorrect,
+  targetLang
 }) => {
+  const { profile } = useUser();
+  const effectiveLang =
+    targetLang ||
+    getLanguageOption(profile?.currentLanguage || 'French').code ||
+    profile?.targetLanguage ||
+    'fr-FR';
   // Randomly shuffle available chips so they are not pre-sorted
   const availableChips = useMemo(() => {
     const raw = exercise.options?.map(o => o.text) || [];
@@ -31,6 +42,15 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
     }
     return shuffled;
   }, [exercise.id, exercise.prompt]);
+
+  const handleAddChip = (chip: string) => {
+    if (isChecked) return;
+    const cleanAudio = chip.replace(/[.,/#!$%^&*;:{}=\-_`~()?"'’«»¿¡]/g, '').trim();
+    if (cleanAudio) {
+      ttsService.speak(cleanAudio, effectiveLang, profile?.slowAudioDefault || false);
+    }
+    onAddWord(chip);
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -121,7 +141,7 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
                 key={`${chip}-${idx}`}
                 type="button"
                 className="fl-btn fl-btn-secondary"
-                onClick={() => !isExhausted && !isChecked && onAddWord(chip)}
+                onClick={() => !isExhausted && !isChecked && handleAddChip(chip)}
                 disabled={isExhausted || isChecked}
                 style={{
                   padding: '10px 18px',

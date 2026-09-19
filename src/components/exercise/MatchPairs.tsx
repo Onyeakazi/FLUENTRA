@@ -1,13 +1,24 @@
 import React, { useState, useMemo } from 'react';
 import { MatchPair } from '../../types/curriculum';
 import { soundService } from '../../services/soundService';
+import { ttsService } from '../../services/ttsService';
+import { useUser } from '../../context/UserContext';
+import { getLanguageOption } from '../../data/languages';
 
 interface MatchPairsProps {
   pairs: MatchPair[];
+  targetLang?: string;
   onComplete: () => void;
 }
 
-export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, onComplete }) => {
+export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, targetLang, onComplete }) => {
+  const { profile } = useUser();
+  const effectiveLang =
+    targetLang ||
+    getLanguageOption(profile?.currentLanguage || 'French').code ||
+    profile?.targetLanguage ||
+    'fr-FR';
+
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [selectedRight, setSelectedRight] = useState<string | null>(null);
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
@@ -25,8 +36,14 @@ export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, onComplete }) => 
     return items;
   }, [pairs]);
 
-  const handleSelectLeft = (id: string) => {
+  const handleSelectLeft = (id: string, text: string) => {
+    // Play pronunciation of target language word
+    if (text) {
+      ttsService.speak(text, effectiveLang, profile?.slowAudioDefault || false);
+    }
+
     if (matchedIds.includes(id)) return;
+
     setSelectedLeft(id);
     if (selectedRight) {
       checkMatch(id, selectedRight);
@@ -88,19 +105,19 @@ export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, onComplete }) => 
                 key={`left-${item.id}`}
                 type="button"
                 className="fl-card fl-card-interactive"
-                onClick={() => handleSelectLeft(item.id)}
-                disabled={isMatched}
+                onClick={() => handleSelectLeft(item.id, item.text)}
                 style={{
                   padding: '14px 12px',
                   minHeight: '48px',
                   textAlign: 'center',
                   fontSize: '16px',
                   fontWeight: 600,
-                  opacity: isMatched ? 0.35 : 1,
+                  cursor: 'pointer',
+                  opacity: isMatched ? 0.45 : 1,
                   backgroundColor: isSelected ? 'var(--fl-teal-subtle)' : 'var(--fl-bg-card)',
                   borderColor: isSelected
                     ? mismatch ? 'var(--fl-coral-flame)' : 'var(--fl-teal-light)'
-                    : isMatched ? 'transparent' : 'var(--fl-border)'
+                    : isMatched ? 'var(--fl-teal-subtle)' : 'var(--fl-border)'
                 }}
               >
                 {item.text}
