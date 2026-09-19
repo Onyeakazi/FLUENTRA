@@ -31,13 +31,33 @@ class PronunciationEngine {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '') // remove diacritics for basic tolerance
-      .replace(/[.,/#!$%^&*;:{}=\-_`~()?"'’]/g, '')
+      .replace(/[^\p{L}\p{N}]/gu, '')
       .trim();
   }
 
   public evaluate(target: string, transcript: string): PronunciationResult {
-    const targetWords = target.split(/\s+/).filter(Boolean);
-    const spokenWords = transcript.split(/\s+/).filter(Boolean);
+    // 1. Extract pronounceable target words (ignoring standalone punctuation like '?', '!', etc.)
+    const rawTargetWords = target.split(/\s+/).filter(Boolean);
+    const targetWords: string[] = [];
+
+    for (const raw of rawTargetWords) {
+      // Strip outer punctuation so "Bonjour," becomes "Bonjour" and standalone "?" is excluded
+      const stripped = raw.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      if (this.cleanString(stripped).length > 0) {
+        targetWords.push(stripped);
+      }
+    }
+
+    // 2. Extract pronounceable spoken words from transcript
+    const rawSpokenWords = transcript.split(/\s+/).filter(Boolean);
+    const spokenWords: string[] = [];
+
+    for (const raw of rawSpokenWords) {
+      const stripped = raw.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      if (this.cleanString(stripped).length > 0) {
+        spokenWords.push(stripped);
+      }
+    }
 
     const evaluatedWords: WordPronunciation[] = [];
     let totalScore = 0;
@@ -53,15 +73,32 @@ class PronunciationEngine {
       if (searchWindow.length === 0) {
         bestMatchScore = 0;
       } else {
-        for (const candidate of searchWindow) {
+        for (let i = 0; i < searchWindow.length; i++) {
+          const candidate = searchWindow[i];
           const cleanCand = this.cleanString(candidate);
           const maxLen = Math.max(cleanTarget.length, cleanCand.length);
-          if (maxLen === 0) continue;
-          const dist = this.distance(cleanTarget, cleanCand);
-          const similarity = Math.max(0, Math.round(((maxLen - dist) / maxLen) * 100));
-          if (similarity > bestMatchScore) {
-            bestMatchScore = similarity;
-            closestSpoken = candidate;
+          if (maxLen > 0) {
+            const dist = this.distance(cleanTarget, cleanCand);
+            const similarity = Math.max(0, Math.round(((maxLen - dist) / maxLen) * 100));
+            if (similarity > bestMatchScore) {
+              bestMatchScore = similarity;
+              closestSpoken = candidate;
+            }
+          }
+
+          // Also check adjacent 2-word combo (e.g. spoken "allez vous" matching target "allez-vous")
+          if (i < searchWindow.length - 1) {
+            const pairCandidate = `${candidate} ${searchWindow[i + 1]}`;
+            const cleanPair = this.cleanString(pairCandidate);
+            const pairMaxLen = Math.max(cleanTarget.length, cleanPair.length);
+            if (pairMaxLen > 0) {
+              const pairDist = this.distance(cleanTarget, cleanPair);
+              const pairSim = Math.max(0, Math.round(((pairMaxLen - pairDist) / pairMaxLen) * 100));
+              if (pairSim > bestMatchScore) {
+                bestMatchScore = pairSim;
+                closestSpoken = pairCandidate;
+              }
+            }
           }
         }
       }
@@ -91,7 +128,7 @@ class PronunciationEngine {
       totalScore += bestMatchScore;
     });
 
-    const averageScore = targetWords.length > 0 ? Math.round(totalScore / targetWords.length) : 0;
+    const averageScore = targetWords.length > 0 ? Math.round(totalScore / targetWords.length) : 100;
     const isPassed = averageScore >= 80;
 
     let feedbackMessage = '';
