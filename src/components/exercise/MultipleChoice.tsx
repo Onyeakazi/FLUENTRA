@@ -30,37 +30,69 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
 
   const options = exercise.options || [];
 
-  // Helper to extract the actual target audio required (never long descriptive English instructions)
+  // Helper to extract the actual target audio required: ONLY TARGET LANGUAGE ANSWERS GET AUDIO READ BACK!
+  // Never English translations, English explanations, or English choices.
   const getOptionAudioText = (option: ExerciseOption): string | null => {
-    // 1. Explicit audioText takes top priority
-    if (option.audioText && option.audioText.trim()) {
-      return option.audioText.trim();
-    }
+    const rawText = (option.text || '').trim();
+    if (!rawText) return null;
 
-    // 2. Check if option text contains target phrase in quotes e.g. 'Negative: “Ce n’est pas bon”'
-    const quoteMatch = option.text.match(/[“"']([^"”']+)["”']/);
+    const currentLang = profile?.currentLanguage || 'French';
 
-    // 3. Detect if option is an English rule, explanation, or descriptive statement
-    const isEnglishExplanation =
-      /\b(tongue|teeth|lips|pronounced|sound|silent|rule|english|incorrect|structure|context|grammar|standard|speech|buzzing|transforms|clashing|consonant|vowel|liaison|because|with|friends|interview|officer|premature|polite|informal|formal|beats|meaning|letter)\b/i.test(
-        option.text
-      ) ||
-      /^[A-Z][a-z]+ (says|is|are|has|have|was|were|does|do|at|to|with|in|for)\b/i.test(option.text);
-
-    if (isEnglishExplanation) {
-      // If it quotes an authentic target language phrase, speak that phrase
-      if (
-        quoteMatch &&
-        quoteMatch[1] &&
-        !/\b(ee|silent|sound|k|oh-la|vee|wee|why|s|t|ch)\b/i.test(quoteMatch[1])
-      ) {
-        return quoteMatch[1].trim();
-      }
+    // 1. If the prompt is explicitly asking for English meaning or English translation,
+    // all options are English answers -> DO NOT play audio!
+    const isEnglishPrompt =
+      /\b(mean\b|meaning|translate .*to english|in english|what does .* mean|which english word|english equivalent)\b/i.test(
+        exercise.prompt || ''
+      );
+    if (isEnglishPrompt) {
       return null;
     }
 
-    // 4. If option text is in the target language (e.g. 'ici', 'Bonjour', 'Ce n’est pas bon')
-    const clean = option.text.replace(/\s*\([^)]*\)/g, '').trim();
+    // 2. Detect English grammar rules, explanations, or instructional statements
+    const isEnglishExplanation =
+      /\b(the letter|is silent|pronounced|sound|silent|rule|english|incorrect|correct|structure|grammar|standard|speech|consonant|vowel|liaison|because|statement|tone \d|pitch|curve|all letters|none of the above|true|false)\b/i.test(
+        rawText
+      ) ||
+      /^[A-Z][a-z]+ (says|is|are|has|have|was|were|does|do|at|to|with|in|for)\b/i.test(rawText);
+
+    if (isEnglishExplanation) {
+      return null;
+    }
+
+    // 3. Language-specific checks to ensure the text is actually the target language:
+    if (currentLang === 'Chinese Mandarin') {
+      const hasChineseChar = /[\u4e00-\u9fa5]/.test(rawText);
+      const hasToneMark = /[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/.test(rawText);
+      if (!hasChineseChar && !hasToneMark) {
+        return null;
+      }
+    } else if (currentLang === 'Japanese') {
+      const hasJapanese = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(rawText);
+      if (!hasJapanese) {
+        return null;
+      }
+    } else {
+      // European languages (French, Spanish, German, Italian):
+      // If the answer is an English word or translation phrase, do NOT play audio!
+      const isEnglishAnswer =
+        /^(hello|goodbye|hi|good morning|good evening|good night|please|thank you|thanks|welcome|how are you|fine|delighted|water|coffee|bread|tea|bill|check|menu|table|restaurant|family|friend|friends|house|hotel|train|station|airport|day|night|morning|yes|no|sorry|excuse me|pardon|nice to meet you|pleased to meet you|one coffee please|how much is this|i would like|i live in|we had dinner|dinner)(\s+.*)?$/i.test(
+          rawText.toLowerCase()
+        );
+      if (isEnglishAnswer && !option.translation) {
+        return null;
+      }
+    }
+
+    // 4. If option has explicit audioText that is target language, use it
+    if (option.audioText && option.audioText.trim()) {
+      const audio = option.audioText.trim();
+      if (!/\b(the letter|is silent|is pronounced)\b/i.test(audio)) {
+        return audio;
+      }
+    }
+
+    // 5. Clean option text: remove parenthetical notes e.g. '(High & Flat)'
+    const clean = rawText.replace(/\s*\([^)]*\)/g, '').trim();
     return clean || null;
   };
 
