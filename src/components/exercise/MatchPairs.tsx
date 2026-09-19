@@ -1,5 +1,4 @@
-// FLUENTRA Match Pairs Vocabulary Exercise
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MatchPair } from '../../types/curriculum';
 import { soundService } from '../../services/soundService';
 
@@ -14,9 +13,17 @@ export const MatchPairs: React.FC<MatchPairsProps> = ({ pairs, onComplete }) => 
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const [mismatch, setMismatch] = useState<boolean>(false);
 
-  const leftItems = pairs.map(p => ({ id: p.id, text: p.left }));
-  // Shuffle right items stably
-  const rightItems = [...pairs].reverse().map(p => ({ id: p.id, text: p.right }));
+  const leftItems = useMemo(() => pairs.map(p => ({ id: p.id, text: p.left })), [pairs]);
+
+  // Randomly shuffle right items using Fisher-Yates
+  const rightItems = useMemo(() => {
+    const items = pairs.map(p => ({ id: p.id, text: p.right }));
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+  }, [pairs]);
 
   const handleSelectLeft = (id: string) => {
     if (matchedIds.includes(id)) return;

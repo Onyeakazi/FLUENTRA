@@ -1,5 +1,5 @@
 // FLUENTRA Multiple Choice Exercise Component with Interactive Audio Cards
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Check, X, Volume2 } from 'lucide-react';
 import { Exercise, ExerciseOption } from '../../types/curriculum';
 import { AudioControls } from '../speech/AudioControls';
@@ -28,7 +28,17 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
     profile?.targetLanguage ||
     'fr-FR';
 
-  const options = exercise.options || [];
+  // Randomly mix up options so the correct answer is never predictably in the first position
+  const options = useMemo(() => {
+    const raw = exercise.options || [];
+    if (raw.length <= 1) return raw;
+    const shuffled = [...raw];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [exercise.id, exercise.prompt]);
 
   // Helper to extract the actual target audio required: ONLY TARGET LANGUAGE ANSWERS GET AUDIO READ BACK!
   // Never English translations, English explanations, or English choices.

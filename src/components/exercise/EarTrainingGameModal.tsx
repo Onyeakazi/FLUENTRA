@@ -1,5 +1,5 @@
 // FLUENTRA 11-Mode Ear Training & Audio Arcade Modal Component
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   X,
   Volume2,
@@ -77,6 +77,19 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   const [activeStorySentenceId, setActiveStorySentenceId] = useState<string | null>(null);
 
   const currentRound = rounds[currentIndex] || rounds[0];
+
+  // Randomly mix up options so the correct answer is never predictably in the first position
+  const roundOptions = useMemo(() => {
+    const raw = currentRound?.options || [];
+    if (raw.length <= 1) return raw;
+    const shuffled = [...raw];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [currentRound?.id]);
+
   const progressPercent = Math.round(((currentIndex) / rounds.length) * 100);
 
   // Auto-play audio on round start (except story which has sentence buttons)
@@ -515,7 +528,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
           currentRound.mode === 'speed_warp') &&
           currentRound.options && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {currentRound.options.map(opt => {
+              {roundOptions.map(opt => {
                 const isSelected = selectedOptionId === opt.id;
                 const isCorrectOpt = opt.id === currentRound.correctOptionId;
 
@@ -842,7 +855,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
         {/* ---------------------------------------------------- */}
         {currentRound.mode === 'audio_dialogue_reply' && currentRound.options && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {currentRound.options.map(opt => {
+            {roundOptions.map(opt => {
               const isSelected = selectedOptionId === opt.id;
               const isCorrectOpt = opt.id === currentRound.correctOptionId;
 

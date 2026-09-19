@@ -1,5 +1,5 @@
 // FLUENTRA Sentence Ordering Exercise Component
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Check, X } from 'lucide-react';
 import { Exercise } from '../../types/curriculum';
 
@@ -20,7 +20,17 @@ export const SentenceOrder: React.FC<SentenceOrderProps> = ({
   isChecked,
   isCorrect
 }) => {
-  const availableChips = exercise.options?.map(o => o.text) || [];
+  // Randomly shuffle available chips so they are not pre-sorted
+  const availableChips = useMemo(() => {
+    const raw = exercise.options?.map(o => o.text) || [];
+    if (raw.length <= 1) return raw;
+    const shuffled = [...raw];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [exercise.id, exercise.prompt]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
