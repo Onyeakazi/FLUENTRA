@@ -4,19 +4,16 @@ import { CURRICULUM_DATA } from '../data/curriculumRegistry';
 import { UnitMetadata } from '../types/curriculum';
 import { LearningPath } from '../components/curriculum/LearningPath';
 import { SectionBanner } from '../components/curriculum/SectionBanner';
-import { ResumeHeroCard } from '../components/curriculum/ResumeHeroCard';
-import { UnitDetailSheet } from '../components/curriculum/UnitDetailSheet';
 import { LockedGateModal } from '../components/curriculum/LockedGateModal';
 import { EarTrainingGameModal } from '../components/exercise/EarTrainingGameModal';
 import { useProgression } from '../context/ProgressionContext';
 
 interface LearnViewProps {
-  onStartLesson: (unitId: string, lessonId: string, customLesson?: any) => void;
+  onStartLesson: (unitId: string, lessonId?: string, customLesson?: any) => void;
 }
 
 export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
   const { activeLevel, setActiveLevel, activeStage, setActiveStage } = useProgression();
-  const [selectedUnit, setSelectedUnit] = useState<UnitMetadata | null>(null);
   const [lockedModalUnit, setLockedModalUnit] = useState<UnitMetadata | null>(null);
   const [activeEarGameUnit, setActiveEarGameUnit] = useState<UnitMetadata | null>(null);
 
@@ -38,30 +35,15 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
       {/* 1. Duolingo Signature Unit & Section Banner (Sticky with Guidebook) */}
       <SectionBanner />
 
-      {/* 2. Start from Where You Left Off Quick-Resume Card */}
-      <ResumeHeroCard
-        onResume={(unitId, lessonId) => {
-          onStartLesson(unitId, lessonId || `${unitId}-l1`);
-        }}
-      />
-
-      {/* 3. Duolingo Serpentine Stepping-Stone Path */}
+      {/* 2. Duolingo Serpentine Stepping-Stone Path */}
       <div style={{ width: '100%', maxWidth: '480px', margin: '0 auto' }}>
         <LearningPath
           units={stageUnits}
-          onOpenUnit={(unit) => setSelectedUnit(unit)}
+          onStartLesson={onStartLesson}
           onShowLockedModal={(unit) => setLockedModalUnit(unit)}
           onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
         />
       </div>
-
-      {/* 4. Interactive Detail Sheet for Unlocked Unit */}
-      <UnitDetailSheet
-        unit={selectedUnit}
-        onClose={() => setSelectedUnit(null)}
-        onStartLesson={onStartLesson}
-        onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
-      />
 
       {/* 5. Locked Gate Modal with Prerequisite Explanation */}
       <LockedGateModal

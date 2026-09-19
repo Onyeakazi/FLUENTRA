@@ -7,10 +7,12 @@ import { useProgression } from '../../context/ProgressionContext';
 import { useUser } from '../../context/UserContext';
 import { soundService } from '../../services/soundService';
 import { storageService } from '../../services/storageService';
+import { getLessonsForUnit } from '../../data/curriculumContent';
 
 interface LearningPathProps {
   units: UnitMetadata[];
-  onOpenUnit: (unit: UnitMetadata) => void;
+  onStartLesson: (unitId: string, lessonId?: string) => void;
+  onOpenUnit?: (unit: UnitMetadata) => void;
   onShowLockedModal: (unit: UnitMetadata) => void;
   onOpenEarChallenge?: (unit: UnitMetadata) => void;
 }
@@ -20,11 +22,12 @@ const X_OFFSETS = [0, 44, 66, 40, 0, -40, -66, -44, 0, 44];
 
 export const LearningPath: React.FC<LearningPathProps> = ({
   units,
+  onStartLesson,
   onOpenUnit,
   onShowLockedModal,
   onOpenEarChallenge
 }) => {
-  const { getUnitStatus, activeStage, activeLevel, activeCourse } = useProgression();
+  const { getUnitStatus, activeStage, activeLevel, activeCourse, progressMap } = useProgression();
   const { addXp, profile } = useUser();
   const [openedChests, setOpenedChests] = useState<Record<string, boolean>>({});
   const activeNodeRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +75,29 @@ export const LearningPath: React.FC<LearningPathProps> = ({
 
     addXp(30);
     setOpenedChests((prev) => ({ ...prev, [chestId]: true }));
+  };
+
+  const handlePlayUnit = (unit: UnitMetadata) => {
+    if (getUnitStatus(unit.id) === 'locked') {
+      onShowLockedModal(unit);
+      return;
+    }
+
+    // Check if there is an active checkpoint for this unit
+    const cp = storageService.getResumeCheckpoint(profile?.currentLanguage || 'French');
+    let targetLessonId: string | undefined = undefined;
+
+    if (cp && cp.unitId === unit.id && cp.lessonId) {
+      targetLessonId = cp.lessonId;
+    } else {
+      const unitProg = progressMap[unit.id];
+      const completedLessonIds = unitProg?.completedLessonIds || [];
+      const lessons = getLessonsForUnit(unit.id, profile?.currentLanguage || 'French');
+      const nextLesson = lessons.find((l) => !completedLessonIds.includes(l.id)) || lessons[0];
+      targetLessonId = nextLesson?.id || `${unit.id}-l1`;
+    }
+
+    onStartLesson(unit.id, targetLessonId);
   };
 
   return (
@@ -159,7 +185,7 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                     cursor: 'pointer',
                     zIndex: 20
                   }}
-                  onClick={() => onOpenUnit(unit)}
+                  onClick={() => handlePlayUnit(unit)}
                 >
                   <div
                     style={{
@@ -199,13 +225,7 @@ export const LearningPath: React.FC<LearningPathProps> = ({
               <button
                 type="button"
                 id={`path-unit-btn-${unit.id}`}
-                onClick={() => {
-                  if (isLocked) {
-                    onShowLockedModal(unit);
-                  } else {
-                    onOpenUnit(unit);
-                  }
-                }}
+                onClick={() => handlePlayUnit(unit)}
                 className={isFocusUnit ? 'animate-duo-pulse' : ''}
                 style={{
                   width: '72px',
