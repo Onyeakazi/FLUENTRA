@@ -40,6 +40,22 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
     return shuffled;
   }, [exercise.id, exercise.prompt]);
 
+  // When the answer is in the selection, it should NOT be revealed on the top side
+  const isAnswerInSelection = useMemo(() => {
+    if (!exercise.targetText) return false;
+    const cleanTarget = exercise.targetText.trim().toLowerCase().replace(/[.,!?;:"'«»]/g, '');
+    return options.some(opt => {
+      const cleanOpt = opt.text.trim().toLowerCase().replace(/[.,!?;:"'«»]/g, '');
+      const cleanAudio = opt.audioText?.trim().toLowerCase().replace(/[.,!?;:"'«»]/g, '');
+      return (
+        cleanOpt === cleanTarget ||
+        cleanOpt.includes(cleanTarget) ||
+        cleanTarget.includes(cleanOpt) ||
+        cleanAudio === cleanTarget
+      );
+    });
+  }, [exercise.targetText, options]);
+
   // Helper to extract the actual target audio required: ONLY TARGET LANGUAGE ANSWERS GET AUDIO READ BACK!
   // Never English translations, English explanations, or English choices.
   const getOptionAudioText = (option: ExerciseOption): string | null => {
@@ -137,11 +153,15 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
         {exercise.audioText && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
             <AudioControls text={exercise.audioText} lang={effectiveLang} />
-            {exercise.targetText && exercise.type !== 'listening' && !exercise.targetText.includes('(') && exercise.targetText.length <= 25 && (
-              <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--fl-teal-light)' }}>
-                {exercise.targetText}
-              </span>
-            )}
+            {exercise.targetText &&
+              exercise.type !== 'listening' &&
+              !isAnswerInSelection &&
+              !exercise.targetText.includes('(') &&
+              exercise.targetText.length <= 25 && (
+                <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--fl-teal-light)' }}>
+                  {exercise.targetText}
+                </span>
+              )}
           </div>
         )}
       </div>
