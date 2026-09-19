@@ -127,19 +127,47 @@ export class FirebaseService {
   }
 
   /**
-   * Sync user progress to Cloud Firestore
+   * Sync user profile and full courses progress to Cloud Firestore
    */
-  public async syncUserProfileToCloud(profile: UserProfile): Promise<void> {
-    if (!db || !profile.email) return;
+  public async syncUserProfileToCloud(profile: UserProfile, courses?: Record<string, any>): Promise<void> {
+    if (!db || (!profile.id && !profile.email)) return;
 
     try {
-      const userDocRef = doc(db, 'users', profile.id || profile.email);
-      await setDoc(userDocRef, {
+      const docId = profile.id || profile.email!;
+      const userDocRef = doc(db, 'users', docId);
+      const payload: Record<string, any> = {
         ...profile,
         lastCloudSync: new Date().toISOString()
-      }, { merge: true });
+      };
+      if (courses) {
+        payload.courses = courses;
+      }
+      await setDoc(userDocRef, payload, { merge: true });
     } catch (err) {
       console.warn('Failed to sync profile to Firestore:', err);
+    }
+  }
+
+  /**
+   * Sync a specific course progress atomically to Firestore
+   */
+  public async syncCourseToCloud(userId: string, course: any): Promise<void> {
+    if (!db || !userId || !course || !course.languageId) return;
+
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      await setDoc(
+        userDocRef,
+        {
+          courses: {
+            [course.languageId]: course
+          },
+          lastCloudSync: new Date().toISOString()
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Failed to sync course to Firestore:', err);
     }
   }
 

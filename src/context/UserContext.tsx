@@ -55,23 +55,37 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     soundService.setMuted(!profile.soundEnabled);
   }, [profile.soundEnabled]);
 
-  // Sync Firebase authentication state across page reloads
+  // Sync Firebase authentication state across page reloads and devices
   useEffect(() => {
     if (!firebaseService.isReady()) return;
 
     const unsubscribe = firebaseService.onAuthStateChanged(async (fbUser) => {
       if (fbUser && fbUser.email) {
         const existing = storageService.getProfile();
-        if (existing.isAuthenticated && existing.email === fbUser.email) {
-          return;
+        
+        // Fetch cloud profile from Firestore (by uid or email)
+        let cloudProfile = await firebaseService.fetchUserProfileFromCloud(fbUser.uid);
+        if (!cloudProfile && fbUser.email) {
+          cloudProfile = await firebaseService.fetchUserProfileFromCloud(fbUser.email);
         }
 
-        const cloudProfile = await firebaseService.fetchUserProfileFromCloud(fbUser.uid);
         if (cloudProfile && cloudProfile.isAuthenticated) {
-          storageService.saveProfile(cloudProfile);
-          setProfile(cloudProfile);
+          if (cloudProfile.courses) {
+            storageService.hydrateCoursesFromCloud(cloudProfile.courses);
+          }
+          const merged: UserProfile = {
+            ...existing,
+            ...cloudProfile,
+            id: fbUser.uid,
+            email: fbUser.email,
+            avatarUrl: cloudProfile.avatarUrl || fbUser.photoURL || existing.avatarUrl
+          };
+          storageService.saveProfile(merged);
+          setProfile(merged);
+          window.dispatchEvent(new CustomEvent('fluentra_cloud_sync_completed', { detail: merged }));
         } else {
           const name = fbUser.displayName || fbUser.email.split('@')[0] || 'Learner';
+          const coursesMap = storageService.getAllCoursesMap();
           const updated: UserProfile = {
             ...existing,
             id: fbUser.uid,
@@ -84,6 +98,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
           storageService.saveProfile(updated);
           setProfile(updated);
+          firebaseService.syncUserProfileToCloud(updated, coursesMap);
+          window.dispatchEvent(new CustomEvent('fluentra_cloud_sync_completed', { detail: updated }));
         }
       }
     });
@@ -93,7 +109,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = (email: string, _password?: string): boolean => {
     const existing = storageService.getProfile();
-    // If existing profile matches or create session
     const updated: UserProfile = {
       ...existing,
       email: email,
@@ -104,7 +119,26 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     storageService.saveProfile(updated);
     setProfile(updated);
     soundService.playCorrect();
-    firebaseService.syncUserProfileToCloud(updated);
+
+    if (firebaseService.isReady()) {
+      firebaseService.fetchUserProfileFromCloud(email).then((cloudProfile) => {
+        if (cloudProfile) {
+          if (cloudProfile.courses) {
+            storageService.hydrateCoursesFromCloud(cloudProfile.courses);
+          }
+          const merged = { ...updated, ...cloudProfile };
+          storageService.saveProfile(merged);
+          setProfile(merged);
+          window.dispatchEvent(new CustomEvent('fluentra_cloud_sync_completed', { detail: merged }));
+        } else {
+          const coursesMap = storageService.getAllCoursesMap();
+          firebaseService.syncUserProfileToCloud(updated, coursesMap);
+        }
+      }).catch((err) => {
+        console.warn('Cloud profile fetch on login:', err);
+      });
+    }
+
     return true;
   };
 
@@ -153,7 +187,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     storageService.saveProfile(newProfile);
     setProfile(newProfile);
     soundService.playLevelUnlock();
-    firebaseService.syncUserProfileToCloud(newProfile);
+    const coursesMap = storageService.getAllCoursesMap();
+    firebaseService.syncUserProfileToCloud(newProfile, coursesMap);
   };
 
   const completeAccountSetup = (data: Partial<UserProfile>) => {
@@ -165,7 +200,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       storageService.saveProfile(updated);
       soundService.playLevelUnlock();
-      firebaseService.syncUserProfileToCloud(updated);
+      const coursesMap = storageService.getAllCoursesMap();
+      firebaseService.syncUserProfileToCloud(updated, coursesMap);
       return updated;
     });
   };

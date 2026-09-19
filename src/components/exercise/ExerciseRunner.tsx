@@ -1,5 +1,5 @@
 // FLUENTRA Interactive Exercise Runner — 10-Step Pedagogical Methodology
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Check, ArrowRight, Award, Zap, Sparkles, RotateCcw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Lesson, Exercise } from '../../types/curriculum';
@@ -90,16 +90,26 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
   const [correctCount, setCorrectCount] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  // When switching to the next unit, guarantee complete state reset so it starts cleanly from Step 1
-  React.useEffect(() => {
-    setIsCompleted(false);
-    setIsChecked(false);
-    setIsCorrect(false);
-    setSelectedOptionId(null);
-    setSelectedWords([]);
-    setCorrectCount(0);
-    setCurrentIndex(0);
-    setResumedNotice(null);
+  // Track previous unitId and lessonId to only reset when switching units/lessons, NOT on initial mount!
+  const isFirstMountRef = useRef(true);
+  const prevKeyRef = useRef(`${unitId}-${lesson.id}`);
+
+  useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
+    if (prevKeyRef.current !== `${unitId}-${lesson.id}`) {
+      prevKeyRef.current = `${unitId}-${lesson.id}`;
+      setIsCompleted(false);
+      setIsChecked(false);
+      setIsCorrect(false);
+      setSelectedOptionId(null);
+      setSelectedWords([]);
+      setCorrectCount(0);
+      setCurrentIndex(0);
+      setResumedNotice(null);
+    }
   }, [unitId, lesson.id]);
 
   const exercises = lesson.exercises;

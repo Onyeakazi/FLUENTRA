@@ -1,22 +1,25 @@
 // FLUENTRA Unit Detail & AI Dynamic Lesson Generation Sheet
 import React, { useState, useEffect } from 'react';
-import { X, Play, CheckCircle2, Sparkles, RefreshCw, Cpu, Zap } from 'lucide-react';
+import { X, Play, CheckCircle2, Sparkles, RefreshCw, Cpu, Zap, Headphones } from 'lucide-react';
 import { UnitMetadata, Lesson } from '../../types/curriculum';
 import { getLessonsForUnit } from '../../data/curriculumContent';
 import { aiCurriculumGenerator } from '../../services/aiCurriculumGenerator';
 import { useProgression } from '../../context/ProgressionContext';
 import { useUser } from '../../context/UserContext';
+import { storageService } from '../../services/storageService';
 
 interface UnitDetailSheetProps {
   unit: UnitMetadata | null;
   onClose: () => void;
   onStartLesson: (unitId: string, lessonId: string, customLesson?: Lesson) => void;
+  onOpenEarChallenge?: (unit: UnitMetadata) => void;
 }
 
 export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
   unit,
   onClose,
-  onStartLesson
+  onStartLesson,
+  onOpenEarChallenge
 }) => {
   if (!unit) return null;
 
@@ -188,73 +191,171 @@ export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
           </div>
         )}
 
+        {/* 11-Mode Ear Training Arcade Banner */}
+        <div
+          style={{
+            padding: '14px 16px',
+            borderRadius: 'var(--fl-radius-md)',
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.16) 0%, rgba(0, 245, 180, 0.12) 100%)',
+            border: '1.5px solid rgba(99, 102, 241, 0.35)',
+            marginBottom: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                border: '1.5px solid var(--fl-indigo-light)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--fl-indigo-light)',
+                flexShrink: 0
+              }}
+            >
+              <Headphones size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
+                🎧 11-Mode Ear Training Arcade
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                Sound Blitz, Minimal Pairs, Cloze & Native Micro-Story
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id={`btn-open-ear-arcade-${unit.id}`}
+            className="fl-btn"
+            onClick={() => {
+              onClose();
+              if (onOpenEarChallenge) {
+                onOpenEarChallenge(unit);
+              }
+            }}
+            style={{
+              padding: '9px 16px',
+              fontSize: '13px',
+              fontWeight: 800,
+              backgroundColor: 'var(--fl-indigo-primary)',
+              color: '#FFFFFF',
+              borderRadius: 'var(--fl-radius-sm)',
+              border: 'none',
+              whiteSpace: 'nowrap',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+            }}
+          >
+            Play 11 Games
+          </button>
+        </div>
+
         {/* Lessons List */}
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
-          {lessons.map((lesson, idx) => {
-            const isLessonDone = completedLessons.includes(lesson.id);
+          {(() => {
+            const checkpoint = storageService.getResumeCheckpoint(profile.currentLanguage || 'French');
+            return lessons.map((lesson, idx) => {
+              const isLessonDone = completedLessons.includes(lesson.id);
+              const isCheckpoint = !isLessonDone && checkpoint && checkpoint.unitId === unit.id && (checkpoint.lessonId === lesson.id || (!checkpoint.lessonId && idx === 0));
 
-            return (
-              <div
-                key={lesson.id}
-                className="fl-card"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '16px 18px',
-                  backgroundColor: isLessonDone ? 'rgba(0, 196, 140, 0.05)' : 'var(--fl-bg-card-hover)',
-                  borderColor: isLessonDone ? 'var(--fl-teal-primary)' : 'var(--fl-border)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      backgroundColor: isLessonDone ? 'var(--fl-teal-primary)' : 'rgba(255, 255, 255, 0.08)',
-                      color: '#FFFFFF',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      fontSize: '15px',
-                      flexShrink: 0
-                    }}
-                  >
-                    {isLessonDone ? <CheckCircle2 size={20} color="#FFFFFF" /> : idx + 1}
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
-                      {lesson.title}
-                    </span>
-                    <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
-                      {lesson.exercises.length} interactive exercises · +{lesson.xpReward} XP
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  id={`btn-start-lesson-${lesson.id}`}
-                  className="fl-btn fl-btn-primary"
-                  onClick={() => {
-                    onClose();
-                    onStartLesson(unit.id, lesson.id, lesson);
-                  }}
+              return (
+                <div
+                  key={lesson.id}
+                  className="fl-card"
                   style={{
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    borderRadius: 'var(--fl-radius-sm)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '16px 18px',
+                    backgroundColor: isLessonDone
+                      ? 'rgba(0, 196, 140, 0.05)'
+                      : isCheckpoint
+                      ? 'rgba(88, 204, 2, 0.08)'
+                      : 'var(--fl-bg-card-hover)',
+                    borderColor: isLessonDone
+                      ? 'var(--fl-teal-primary)'
+                      : isCheckpoint
+                      ? '#58CC02'
+                      : 'var(--fl-border)'
                   }}
                 >
-                  <Play size={15} fill="currentColor" />
-                  <span>{isLessonDone ? 'Review' : 'Start'}</span>
-                </button>
-              </div>
-            );
-          })}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        backgroundColor: isLessonDone
+                          ? 'var(--fl-teal-primary)'
+                          : isCheckpoint
+                          ? '#58CC02'
+                          : 'rgba(255, 255, 255, 0.08)',
+                        color: '#FFFFFF',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 700,
+                        fontSize: '15px',
+                        flexShrink: 0
+                      }}
+                    >
+                      {isLessonDone ? <CheckCircle2 size={20} color="#FFFFFF" /> : idx + 1}
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                        {lesson.title}
+                      </span>
+                      <span style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                        {lesson.exercises.length} interactive exercises · +{lesson.xpReward} XP
+                      </span>
+                      {isCheckpoint && (
+                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#58CC02', marginTop: '2px' }}>
+                          ⚡ Resume from Step {checkpoint.exerciseIndex + 1}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    id={`btn-start-lesson-${lesson.id}`}
+                    className="fl-btn fl-btn-primary"
+                    onClick={() => {
+                      onClose();
+                      onStartLesson(unit.id, lesson.id, lesson);
+                    }}
+                    style={{
+                      padding: '10px 16px',
+                      fontSize: '14px',
+                      borderRadius: 'var(--fl-radius-sm)',
+                      backgroundColor: isCheckpoint ? '#58CC02' : undefined,
+                      borderColor: isCheckpoint ? '#58CC02' : undefined,
+                      boxShadow: isCheckpoint ? '0 0 14px rgba(88, 204, 2, 0.4)' : undefined
+                    }}
+                  >
+                    <Play size={15} fill="currentColor" />
+                    <span>
+                      {isLessonDone
+                        ? 'Review'
+                        : isCheckpoint
+                        ? `Resume`
+                        : 'Start'}
+                    </span>
+                  </button>
+                </div>
+              );
+            });
+          })()}
         </div>
       </div>
     </div>

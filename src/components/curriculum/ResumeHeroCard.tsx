@@ -12,7 +12,7 @@ interface ResumeHeroCardProps {
 }
 
 export const ResumeHeroCard: React.FC<ResumeHeroCardProps> = ({ onResume }) => {
-  const { progressMap, activeLevel, activeStage, setActiveLevel, setActiveStage, getUnitStatus } = useProgression();
+  const { progressMap, activeLevel, activeStage, setActiveLevel, setActiveStage, getUnitStatus, activeCourse } = useProgression();
   const { profile } = useUser();
 
   const lang = profile?.currentLanguage || 'French';
@@ -30,18 +30,35 @@ export const ResumeHeroCard: React.FC<ResumeHeroCardProps> = ({ onResume }) => {
     }
   }
 
-  // If no in-lesson checkpoint, find the first in-progress or available unit
+  // 2. If no checkpoint, check the course's currentUnitId
+  if (!activeUnit && activeCourse?.currentUnitId) {
+    const meta = CURRICULUM_DATA.unitsById[activeCourse.currentUnitId];
+    if (meta) {
+      activeUnit = meta;
+    }
+  }
+
+  // 3. Find the first in-progress unit
   if (!activeUnit) {
     for (const unit of CURRICULUM_DATA.units) {
-      const status = getUnitStatus(unit.id);
-      if (status === 'in_progress' || status === 'available') {
+      if (getUnitStatus(unit.id) === 'in_progress') {
         activeUnit = unit;
         break;
       }
     }
   }
 
-  // Fallback to Unit 1
+  // 4. Find the first available unit
+  if (!activeUnit) {
+    for (const unit of CURRICULUM_DATA.units) {
+      if (getUnitStatus(unit.id) === 'available') {
+        activeUnit = unit;
+        break;
+      }
+    }
+  }
+
+  // 5. Fallback to Unit 1
   if (!activeUnit) {
     activeUnit = CURRICULUM_DATA.units[0];
   }
@@ -57,7 +74,11 @@ export const ResumeHeroCard: React.FC<ResumeHeroCardProps> = ({ onResume }) => {
       setActiveStage(activeUnit.stageNumber);
     }
 
-    onResume(activeUnit.id, checkpoint?.lessonId);
+    const targetLessonId = (checkpoint && checkpoint.unitId === activeUnit.id && checkpoint.lessonId)
+      ? checkpoint.lessonId
+      : `${activeUnit.id}-l1`;
+
+    onResume(activeUnit.id, targetLessonId);
   };
 
   return (

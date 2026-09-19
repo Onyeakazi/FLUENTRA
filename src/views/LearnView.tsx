@@ -7,6 +7,7 @@ import { SectionBanner } from '../components/curriculum/SectionBanner';
 import { ResumeHeroCard } from '../components/curriculum/ResumeHeroCard';
 import { UnitDetailSheet } from '../components/curriculum/UnitDetailSheet';
 import { LockedGateModal } from '../components/curriculum/LockedGateModal';
+import { EarTrainingGameModal } from '../components/exercise/EarTrainingGameModal';
 import { useProgression } from '../context/ProgressionContext';
 
 interface LearnViewProps {
@@ -17,6 +18,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
   const { activeLevel, setActiveLevel, activeStage, setActiveStage } = useProgression();
   const [selectedUnit, setSelectedUnit] = useState<UnitMetadata | null>(null);
   const [lockedModalUnit, setLockedModalUnit] = useState<UnitMetadata | null>(null);
+  const [activeEarGameUnit, setActiveEarGameUnit] = useState<UnitMetadata | null>(null);
 
   const currentLevel = CURRICULUM_DATA.levels.find((l) => l.number === activeLevel) || CURRICULUM_DATA.levels[0];
   const currentStage = currentLevel.stages.find((s) => s.number === activeStage) || currentLevel.stages[0];
@@ -49,17 +51,19 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
           units={stageUnits}
           onOpenUnit={(unit) => setSelectedUnit(unit)}
           onShowLockedModal={(unit) => setLockedModalUnit(unit)}
+          onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
         />
       </div>
 
-      {/* 3. Interactive Detail Sheet for Unlocked Unit */}
+      {/* 4. Interactive Detail Sheet for Unlocked Unit */}
       <UnitDetailSheet
         unit={selectedUnit}
         onClose={() => setSelectedUnit(null)}
         onStartLesson={onStartLesson}
+        onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
       />
 
-      {/* 4. Locked Gate Modal with Prerequisite Explanation */}
+      {/* 5. Locked Gate Modal with Prerequisite Explanation */}
       <LockedGateModal
         unit={lockedModalUnit}
         onClose={() => setLockedModalUnit(null)}
@@ -71,6 +75,15 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
           }
         }}
       />
+
+      {/* 6. 11-Mode Ear Training & Audio Arcade Modal */}
+      {activeEarGameUnit && (
+        <EarTrainingGameModal
+          unit={activeEarGameUnit}
+          onClose={() => setActiveEarGameUnit(null)}
+        />
+      )}
     </div>
   );
 };
+

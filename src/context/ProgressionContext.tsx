@@ -8,6 +8,7 @@ import { storageService } from '../services/storageService';
 import { soundService } from '../services/soundService';
 import { AVAILABLE_LANGUAGES, getLanguageOption } from '../data/languages';
 import { useUser } from './UserContext';
+import { firebaseService } from '../services/firebase';
 
 interface ProgressionContextType {
   progressMap: Record<string, UnitProgress>;
@@ -15,6 +16,7 @@ interface ProgressionContextType {
   isUnitUnlocked: (unitId: string) => boolean;
   completeLesson: (unitId: string, lessonId: string, score: number, xpReward: number) => void;
   unlockNextUnit: (currentUnitId: string) => void;
+  recordActiveUnit: (unitId: string) => void;
   activeLevel: number;
   setActiveLevel: (level: number) => void;
   activeStage: number;
@@ -62,6 +64,45 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   }, [profile.currentLanguage]);
 
+  // Real-time Cloud Sync Listener: When user logs in or cloud sync occurs, hydrate and update state
+  useEffect(() => {
+    const handleCloudSync = () => {
+      const opt = getLanguageOption(profile.currentLanguage || 'French');
+      const refreshedCourse = storageService.getCourseProgress(opt.id, opt.code, opt.flag);
+      setActiveCourse(refreshedCourse);
+      setProgressMap(refreshedCourse.unitProgress || storageService.getProgress());
+      setActiveLevelState(refreshedCourse.activeLevel || 1);
+      setActiveStageState(refreshedCourse.activeStage || 1);
+      setEnrolledCourses(storageService.getAllEnrolledCourses());
+    };
+
+    window.addEventListener('fluentra_cloud_sync_completed', handleCloudSync);
+    return () => {
+      window.removeEventListener('fluentra_cloud_sync_completed', handleCloudSync);
+    };
+  }, [profile.currentLanguage]);
+
+  // When user is authenticated, ensure we sync latest course progress from Firestore on mount/auth change
+  useEffect(() => {
+    if (profile.isAuthenticated && (profile.id || profile.email) && firebaseService.isReady()) {
+      const userId = profile.id || profile.email!;
+      firebaseService.fetchUserProfileFromCloud(userId).then((cloudProfile) => {
+        if (cloudProfile && cloudProfile.courses) {
+          storageService.hydrateCoursesFromCloud(cloudProfile.courses);
+          const opt = getLanguageOption(profile.currentLanguage || 'French');
+          const refreshedCourse = storageService.getCourseProgress(opt.id, opt.code, opt.flag);
+          setActiveCourse(refreshedCourse);
+          setProgressMap(refreshedCourse.unitProgress || storageService.getProgress());
+          setActiveLevelState(refreshedCourse.activeLevel || 1);
+          setActiveStageState(refreshedCourse.activeStage || 1);
+          setEnrolledCourses(storageService.getAllEnrolledCourses());
+        }
+      }).catch((err) => {
+        console.warn('Initial cloud progression sync error:', err);
+      });
+    }
+  }, [profile.id, profile.isAuthenticated, profile.email, profile.currentLanguage]);
+
   const setActiveLevel = (level: number) => {
     setActiveLevelState(level);
     setActiveCourse((prev) => {
@@ -95,6 +136,9 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         lastPracticed: new Date().toISOString()
       };
       storageService.saveCourseProgress(savedCourse);
+      if (profile.isAuthenticated && (profile.id || profile.email)) {
+        firebaseService.syncCourseToCloud(profile.id || profile.email!, savedCourse);
+      }
       return savedCourse;
     });
 
@@ -186,6 +230,12 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
           lastPracticed: new Date().toISOString()
         };
         storageService.saveCourseProgress(updatedCourse);
+
+        // Sync to Cloud Firestore in real time
+        if (profile.isAuthenticated && (profile.id || profile.email)) {
+          firebaseService.syncCourseToCloud(profile.id || profile.email!, updatedCourse);
+        }
+
         return updatedCourse;
       });
 
@@ -203,6 +253,52 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
       colors: ['#00F5B4', '#00C48C', '#818CF8', '#FFB800', '#FF6B4A']
     });
   };
+
+  const recordActiveUnit = useCallback((unitId: string) => {
+    const meta = CURRICULUM_DATA.unitsById[unitId];
+    if (meta) {
+      if (meta.levelNumber !== activeLevel) {
+        setActiveLevelState(meta.levelNumber);
+      }
+      if (meta.stageNumber !== activeStage) {
+        setActiveStageState(meta.stageNumber);
+      }
+    }
+
+    setProgressMap((prev) => {
+      const current = prev[unitId];
+      if (!current || current.status === 'available') {
+        const updated = {
+          ...prev,
+          [unitId]: {
+            unitId,
+            status: 'in_progress' as UnitStatus,
+            completedLessonIds: current?.completedLessonIds || [],
+            bestScore: current?.bestScore || 0,
+            lastPracticed: new Date().toISOString()
+          }
+        };
+        storageService.saveProgress(updated);
+        return updated;
+      }
+      return prev;
+    });
+
+    setActiveCourse((prev) => {
+      const updated = {
+        ...prev,
+        currentUnitId: unitId,
+        activeLevel: meta?.levelNumber || prev.activeLevel || 1,
+        activeStage: meta?.stageNumber || prev.activeStage || 1,
+        lastPracticed: new Date().toISOString()
+      };
+      storageService.saveCourseProgress(updated);
+      if (profile.isAuthenticated && (profile.id || profile.email)) {
+        firebaseService.syncCourseToCloud(profile.id || profile.email!, updated);
+      }
+      return updated;
+    });
+  }, [activeLevel, activeStage, profile]);
 
   const completeLesson = (
     unitId: string,
@@ -271,6 +367,12 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
           lastPracticed: new Date().toISOString()
         };
         storageService.saveCourseProgress(updatedCourse);
+
+        // Sync to Cloud Firestore in real time
+        if (profile.isAuthenticated && (profile.id || profile.email)) {
+          firebaseService.syncCourseToCloud(profile.id || profile.email!, updatedCourse);
+        }
+
         return updatedCourse;
       });
 
@@ -291,6 +393,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         isUnitUnlocked,
         completeLesson,
         unlockNextUnit,
+        recordActiveUnit,
         activeLevel,
         setActiveLevel,
         activeStage,

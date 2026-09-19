@@ -520,8 +520,8 @@ export const UNIT_JOURNEYS: Record<string, UnitLearningJourney> = {
         translation: 'It is not good',
         explanation: '“Ce n’est pas...” (/sə nɛ pa/) signals negative structure with the wrapper “n’... pas”.',
         options: [
-          { id: 'u3-2a', text: 'Negative: “Ce n’est pas bon”', translation: 'It is not good' },
-          { id: 'u3-2b', text: 'Affirmative: “C’est bon”', translation: 'It is good' }
+          { id: 'u3-2a', text: 'Negative: “Ce n’est pas bon”', translation: 'It is not good', audioText: 'Ce n’est pas bon' },
+          { id: 'u3-2b', text: 'Affirmative: “C’est bon”', translation: 'It is good', audioText: 'C’est bon' }
         ],
         correctOptionId: 'u3-2a',
         xpReward: 5
@@ -731,7 +731,7 @@ export const UNIT_JOURNEYS: Record<string, UnitLearningJourney> = {
         targetText: 'Vous avez (/vu.za.ve/)',
         explanation: 'In “vous avez”, the silent "s" produces a distinctive buzzing /z/ sound between the two vowels.',
         options: [
-          { id: 'u4-2a', text: 'A buzzing /z/ sound (“vou-Z-avez”)', translation: 'Correct liaison' },
+          { id: 'u4-2a', text: 'A buzzing /z/ sound (“vou-Z-avez”)', translation: 'Correct liaison', audioText: 'Vous avez' },
           { id: 'u4-2b', text: 'A hard /s/ sound (“vou-S-avez”)', translation: 'Incorrect' },
           { id: 'u4-2c', text: 'No connection, separate words', translation: 'Incorrect' }
         ],

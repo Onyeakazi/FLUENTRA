@@ -1,7 +1,7 @@
 // FLUENTRA Main Application Shell
 import React, { useState, useEffect, useRef } from 'react';
 import { UserProvider, useUser } from './context/UserContext';
-import { ProgressionProvider } from './context/ProgressionContext';
+import { ProgressionProvider, useProgression } from './context/ProgressionContext';
 import { FluentraSplash } from './components/brand/FluentraSplash';
 import { TopBar } from './components/navigation/TopBar';
 import { BottomNav, NavTab } from './components/navigation/BottomNav';
@@ -23,6 +23,7 @@ import { ConversationScenario } from './types/conversation';
 
 const FluentraApp: React.FC = () => {
   const { isAuthenticated, profile } = useUser();
+  const { recordActiveUnit } = useProgression();
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState<NavTab>('learn'); // Learn (Path) is default home screen
   const [activeLessonContext, setActiveLessonContext] = useState<{ unitId: string; lesson: Lesson } | null>(null);
@@ -46,8 +47,25 @@ const FluentraApp: React.FC = () => {
   }, [showSplash, isAuthenticated, profile.isSetupCompleted, profile.currentLanguage]);
 
   const handleStartLesson = async (unitId: string, lessonId?: string, customLesson?: Lesson) => {
+    recordActiveUnit(unitId);
+
+    const activateLesson = (targetLesson: Lesson) => {
+      const existingCp = storageService.getResumeCheckpoint(profile.currentLanguage || 'French');
+      const shouldKeepIndex = existingCp && existingCp.unitId === unitId && existingCp.lessonId === targetLesson.id;
+      storageService.saveResumeCheckpoint({
+        unitId,
+        lessonId: targetLesson.id,
+        exerciseIndex: shouldKeepIndex ? existingCp.exerciseIndex : 0,
+        totalExercises: targetLesson.exercises.length,
+        unitTitle: targetLesson.title,
+        languageId: profile.currentLanguage || 'French',
+        timestamp: new Date().toISOString()
+      });
+      setActiveLessonContext({ unitId, lesson: targetLesson });
+    };
+
     if (customLesson) {
-      setActiveLessonContext({ unitId, lesson: customLesson });
+      activateLesson(customLesson);
       return;
     }
 
@@ -63,7 +81,7 @@ const FluentraApp: React.FC = () => {
         : lessons[0];
 
       if (targetLesson) {
-        setActiveLessonContext({ unitId, lesson: targetLesson });
+        activateLesson(targetLesson);
         return;
       }
     } catch {
@@ -74,7 +92,7 @@ const FluentraApp: React.FC = () => {
         : lessons[0];
 
       if (targetLesson) {
-        setActiveLessonContext({ unitId, lesson: targetLesson });
+        activateLesson(targetLesson);
       }
     }
   };

@@ -30,9 +30,43 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
 
   const options = exercise.options || [];
 
+  // Helper to extract the actual target audio required (never long descriptive English instructions)
+  const getOptionAudioText = (option: ExerciseOption): string | null => {
+    // 1. Explicit audioText takes top priority
+    if (option.audioText && option.audioText.trim()) {
+      return option.audioText.trim();
+    }
+
+    // 2. Check if option text contains target phrase in quotes e.g. 'Negative: “Ce n’est pas bon”'
+    const quoteMatch = option.text.match(/[“"']([^"”']+)["”']/);
+
+    // 3. Detect if option is an English rule, explanation, or descriptive statement
+    const isEnglishExplanation =
+      /\b(tongue|teeth|lips|pronounced|sound|silent|rule|english|incorrect|structure|context|grammar|standard|speech|buzzing|transforms|clashing|consonant|vowel|liaison|because|with|friends|interview|officer|premature|polite|informal|formal|beats|meaning|letter)\b/i.test(
+        option.text
+      ) ||
+      /^[A-Z][a-z]+ (says|is|are|has|have|was|were|does|do|at|to|with|in|for)\b/i.test(option.text);
+
+    if (isEnglishExplanation) {
+      // If it quotes an authentic target language phrase, speak that phrase
+      if (
+        quoteMatch &&
+        quoteMatch[1] &&
+        !/\b(ee|silent|sound|k|oh-la|vee|wee|why|s|t|ch)\b/i.test(quoteMatch[1])
+      ) {
+        return quoteMatch[1].trim();
+      }
+      return null;
+    }
+
+    // 4. If option text is in the target language (e.g. 'ici', 'Bonjour', 'Ce n’est pas bon')
+    const clean = option.text.replace(/\s*\([^)]*\)/g, '').trim();
+    return clean || null;
+  };
+
   const handlePlaySound = (option: ExerciseOption, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    const textToSpeak = option.audioText || option.text;
+    const textToSpeak = getOptionAudioText(option);
     if (!textToSpeak) return;
 
     setPlayingOptionId(option.id);
@@ -44,8 +78,11 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
   const handleSelectOption = (option: ExerciseOption) => {
     if (isChecked) return;
     onSelectOption(option.id);
-    // Play the option's audio so the learner hears it immediately
-    handlePlaySound(option);
+    // Only play audio if this option has actual target language audio
+    const audioText = getOptionAudioText(option);
+    if (audioText) {
+      handlePlaySound(option);
+    }
   };
 
   return (
@@ -58,7 +95,7 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
         {exercise.audioText && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
             <AudioControls text={exercise.audioText} lang={effectiveLang} />
-            {exercise.targetText && (
+            {exercise.targetText && exercise.type !== 'listening' && !exercise.targetText.includes('(') && exercise.targetText.length <= 25 && (
               <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--fl-teal-light)' }}>
                 {exercise.targetText}
               </span>
@@ -73,6 +110,7 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
           const isSelected = selectedOptionId === option.id;
           const isCorrect = option.id === exercise.correctOptionId;
           const isPlaying = playingOptionId === option.id;
+          const optionAudio = getOptionAudioText(option);
 
           let cardBorder = 'var(--fl-border)';
           let cardBg = 'var(--fl-bg-card)';
@@ -145,30 +183,32 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
                 )}
               </div>
 
-              {/* Right Side Controls: Speaker Listen Icon & State Badges */}
+              {/* Right Side Controls: Speaker Listen Icon (only if option has spoken target audio) & State Badges */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, marginLeft: '12px' }}>
-                <div
-                  onClick={(e) => handlePlaySound(option, e)}
-                  title="Listen to this sound"
-                  style={{
-                    width: '38px',
-                    height: '38px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: isPlaying ? 'rgba(88, 204, 2, 0.2)' : 'var(--fl-bg-card-hover)',
-                    border: `1.5px solid ${isPlaying ? '#58CC02' : 'var(--fl-border)'}`,
-                    transition: 'all 0.15s ease',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Volume2
-                    size={18}
-                    color={isPlaying ? '#58CC02' : isSelected ? '#58CC02' : 'var(--fl-text-secondary)'}
-                    className={isPlaying ? 'fl-pulse' : ''}
-                  />
-                </div>
+                {optionAudio && (
+                  <div
+                    onClick={(e) => handlePlaySound(option, e)}
+                    title="Listen to this sound"
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: isPlaying ? 'rgba(88, 204, 2, 0.2)' : 'var(--fl-bg-card-hover)',
+                      border: `1.5px solid ${isPlaying ? '#58CC02' : 'var(--fl-border)'}`,
+                      transition: 'all 0.15s ease',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <Volume2
+                      size={18}
+                      color={isPlaying ? '#58CC02' : isSelected ? '#58CC02' : 'var(--fl-text-secondary)'}
+                      className={isPlaying ? 'fl-pulse' : ''}
+                    />
+                  </div>
+                )}
 
                 {isChecked && isCorrect && (
                   <div

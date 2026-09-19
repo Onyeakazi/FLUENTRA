@@ -1,16 +1,18 @@
 // FLUENTRA Duolingo-Style Serpentine Stepping-Stone Learning Path
-import React, { useState } from 'react';
-import { Lock, Check, Play, Star, Sparkles, Gift, Trophy, Crown } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Lock, Check, Play, Star, Sparkles, Gift, Trophy, Crown, Headphones } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { UnitMetadata } from '../../types/curriculum';
 import { useProgression } from '../../context/ProgressionContext';
 import { useUser } from '../../context/UserContext';
 import { soundService } from '../../services/soundService';
+import { storageService } from '../../services/storageService';
 
 interface LearningPathProps {
   units: UnitMetadata[];
   onOpenUnit: (unit: UnitMetadata) => void;
   onShowLockedModal: (unit: UnitMetadata) => void;
+  onOpenEarChallenge?: (unit: UnitMetadata) => void;
 }
 
 // Alternating serpentine horizontal offsets in pixels (tuned for all mobile screen widths)
@@ -19,25 +21,39 @@ const X_OFFSETS = [0, 44, 66, 40, 0, -40, -66, -44, 0, 44];
 export const LearningPath: React.FC<LearningPathProps> = ({
   units,
   onOpenUnit,
-  onShowLockedModal
+  onShowLockedModal,
+  onOpenEarChallenge
 }) => {
-  const { getUnitStatus, activeStage, activeLevel } = useProgression();
-  const { addXp } = useUser();
+  const { getUnitStatus, activeStage, activeLevel, activeCourse } = useProgression();
+  const { addXp, profile } = useUser();
   const [openedChests, setOpenedChests] = useState<Record<string, boolean>>({});
-  const activeNodeRef = React.useRef<HTMLDivElement | null>(null);
+  const activeNodeRef = useRef<HTMLDivElement | null>(null);
+
+  // Target focus unit: checkpoint unit -> currentUnitId -> first in_progress -> first available
+  const targetFocusUnitId = useMemo(() => {
+    const cp = storageService.getResumeCheckpoint(profile?.currentLanguage || 'French');
+    if (cp?.unitId && units.some((u) => u.id === cp.unitId)) {
+      return cp.unitId;
+    }
+    if (activeCourse?.currentUnitId && units.some((u) => u.id === activeCourse.currentUnitId)) {
+      return activeCourse.currentUnitId;
+    }
+    const inProg = units.find((u) => getUnitStatus(u.id) === 'in_progress');
+    if (inProg) return inProg.id;
+    const avail = units.find((u) => getUnitStatus(u.id) === 'available');
+    if (avail) return avail.id;
+    return units[0]?.id;
+  }, [units, activeCourse?.currentUnitId, profile?.currentLanguage, getUnitStatus]);
 
   // Auto-scroll seamlessly to where learner left off
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeNodeRef.current) {
       const timer = setTimeout(() => {
         activeNodeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 250);
       return () => clearTimeout(timer);
     }
-  }, [activeStage, activeLevel]);
-
-  // Find the first available or in-progress unit to highlight with the bouncing START speech bubble
-  let activeUnitFound = false;
+  }, [activeStage, activeLevel, targetFocusUnitId]);
 
   const handleChestClick = (chestId: string, requiredUnitsCompleted: boolean) => {
     if (!requiredUnitsCompleted) {
@@ -81,11 +97,8 @@ export const LearningPath: React.FC<LearningPathProps> = ({
         const isInProgress = status === 'in_progress';
         const isAvailable = status === 'available';
 
-        // Is this the primary active unit to show the bouncing START speech bubble?
-        const isFocusUnit = !activeUnitFound && (isInProgress || isAvailable);
-        if (isFocusUnit) {
-          activeUnitFound = true;
-        }
+        // Is this the primary active unit to show the bouncing START/CONTINUE speech bubble?
+        const isFocusUnit = unit.id === targetFocusUnitId;
 
         const xOffset = X_OFFSETS[index % X_OFFSETS.length];
 
@@ -294,6 +307,40 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                 >
                   {unit.title}
                 </div>
+
+                {/* 11-Mode Ear Challenge Quick Button */}
+                <button
+                  type="button"
+                  id={`path-unit-ear-btn-${unit.id}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isLocked) {
+                      onShowLockedModal(unit);
+                    } else if (onOpenEarChallenge) {
+                      onOpenEarChallenge(unit);
+                    }
+                  }}
+                  style={{
+                    marginTop: '6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    cursor: isLocked ? 'not-allowed' : 'pointer',
+                    backgroundColor: isLocked ? 'rgba(255, 255, 255, 0.04)' : 'rgba(99, 102, 241, 0.16)',
+                    border: isLocked ? '1px solid var(--fl-border)' : '1px solid rgba(99, 102, 241, 0.45)',
+                    color: isLocked ? 'var(--fl-text-muted)' : 'var(--fl-indigo-light)',
+                    boxShadow: isLocked ? 'none' : '0 2px 8px rgba(99, 102, 241, 0.2)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title={isLocked ? `Unit ${unit.number} locked` : `Play 11 Ear Games for Unit ${unit.number}`}
+                >
+                  <Headphones size={11} />
+                  <span>11 Ear Games</span>
+                </button>
               </div>
             </div>
 

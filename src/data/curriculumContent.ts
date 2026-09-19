@@ -300,9 +300,9 @@ export function getLessonsForUnit(
               audioText: 'mā',
               translation: 'Tone 1: High & Flat (mā)',
               options: [
-                { id: 't1', text: 'mā (High & Flat ˉ)', translation: 'Tone 1: mā' },
-                { id: 't2', text: 'má (Rising ˊ)', translation: 'Tone 2: má' },
-                { id: 't4', text: 'mà (Falling ˋ)', translation: 'Tone 4: mà' }
+                { id: 't1', text: 'mā (High & Flat ˉ)', translation: 'Tone 1: mā', audioText: 'mā' },
+                { id: 't2', text: 'má (Rising ˊ)', translation: 'Tone 2: má', audioText: 'má' },
+                { id: 't4', text: 'mà (Falling ˋ)', translation: 'Tone 4: mà', audioText: 'mà' }
               ],
               correctOptionId: 't1',
               explanation: 'The 1st tone (mā) is held high and steady, like a sustained musical note. It means "mother" (妈).',
@@ -406,7 +406,7 @@ export function getLessonsForUnit(
               audioText: 'Salut',
               translation: 'Salut is pronounced /sa.ly/',
               options: [
-                { id: 'opt-t', text: 'The letter "t" is silent (/sa-ly/)', translation: 'Correct French phonetics' },
+                { id: 'opt-t', text: 'The letter "t" is silent (/sa-ly/)', translation: 'Correct French phonetics', audioText: 'Salut' },
                 { id: 'opt-s', text: 'The letter "s" is silent', translation: 'Incorrect' },
                 { id: 'opt-all', text: 'All letters are pronounced', translation: 'Incorrect' }
               ],
@@ -505,7 +505,7 @@ export function getLessonsForUnit(
               audioText: 'Hola',
               translation: '¡Hola! sounds like "Oh-la"',
               options: [
-                { id: 'h1', text: 'Pronounced "Oh-la" (Silent H)', translation: 'Correct Spanish phonetics' },
+                { id: 'h1', text: 'Pronounced "Oh-la" (Silent H)', translation: 'Correct Spanish phonetics', audioText: 'Hola' },
                 { id: 'h2', text: 'Pronounced with an English "H" sound (Hoh-la)', translation: 'Incorrect' },
                 { id: 'h3', text: 'Pronounced with a "W" sound (Woh-la)', translation: 'Incorrect' }
               ],
@@ -601,10 +601,10 @@ export function getLessonsForUnit(
               type: 'multiple_choice',
               prompt: 'In German, the "W" is pronounced like an English "V". How do you pronounce "Wie" (How)?',
               targetText: 'Pronounced like "Vee" (/viː/)',
-              audioText: 'Wie geht es Ihnen?',
+              audioText: 'Wie',
               translation: 'German W = English V sound',
               options: [
-                { id: 'w1', text: 'Pronounced like "Vee" (/viː/)', translation: 'Correct German phonetics' },
+                { id: 'w1', text: 'Pronounced like "Vee" (/viː/)', translation: 'Correct German phonetics', audioText: 'Wie' },
                 { id: 'w2', text: 'Pronounced like "Wee"', translation: 'Incorrect' },
                 { id: 'w3', text: 'Pronounced like "Why"', translation: 'Incorrect' }
               ],
@@ -693,7 +693,7 @@ export function getLessonsForUnit(
               audioText: 'こんにちは',
               translation: 'Konnichiwa has 5 equal mora beats',
               options: [
-                { id: 'b1', text: '5 equal beats (Ko-n-ni-chi-wa)', translation: 'Correct Japanese mora rhythm' },
+                { id: 'b1', text: '5 equal beats (Ko-n-ni-chi-wa)', translation: 'Correct Japanese mora rhythm', audioText: 'こんにちは' },
                 { id: 'b2', text: '3 quick beats (Kon-ni-chiwa)', translation: 'Incorrect' },
                 { id: 'b3', text: '2 beats (Kon-chiwa)', translation: 'Incorrect' }
               ],
@@ -782,7 +782,7 @@ export function getLessonsForUnit(
               audioText: 'Ciao',
               translation: 'Ciao is pronounced /ˈtʃa.o/',
               options: [
-                { id: 'c1', text: 'English "ch" as in "chocolate" (/ˈtʃa.o/)', translation: 'Correct Italian phonetics' },
+                { id: 'c1', text: 'English "ch" as in "chocolate" (/ˈtʃa.o/)', translation: 'Correct Italian phonetics', audioText: 'Ciao' },
                 { id: 'c2', text: 'English "s" as in "see" (/ˈsa.o/)', translation: 'Incorrect' },
                 { id: 'c3', text: 'English "k" as in "cat" (/ˈka.o/)', translation: 'Incorrect' }
               ],

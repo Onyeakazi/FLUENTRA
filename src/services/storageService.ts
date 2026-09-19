@@ -172,6 +172,62 @@ class StorageService {
     return ids.map(id => this.getCourseProgress(id));
   }
 
+  public getAllCoursesMap(): Record<string, CourseProgress> {
+    const ids = this.getEnrolledCourseIds();
+    const map: Record<string, CourseProgress> = {};
+    ids.forEach(id => {
+      const course = this.getCourseProgress(id);
+      if (course) {
+        map[id] = course;
+      }
+    });
+    return map;
+  }
+
+  public hydrateCoursesFromCloud(cloudCourses: Record<string, CourseProgress>): void {
+    if (!cloudCourses || typeof cloudCourses !== 'object') return;
+    try {
+      const currentEnrolled = this.getEnrolledCourseIds();
+      const updatedEnrolled = new Set(currentEnrolled);
+      const profile = this.getProfile();
+
+      Object.entries(cloudCourses).forEach(([langId, cloudCourse]) => {
+        if (!cloudCourse) return;
+        updatedEnrolled.add(langId);
+
+        const localCourse = this.getCourseProgress(langId, cloudCourse.languageCode, cloudCourse.flag);
+        
+        // Merge unitProgress so completed units from cloud are preserved
+        const mergedUnitProgress: Record<string, UnitProgress> = {
+          ...(localCourse.unitProgress || {}),
+          ...(cloudCourse.unitProgress || {})
+        };
+
+        const mergedCourse: CourseProgress = {
+          ...cloudCourse,
+          languageId: langId,
+          activeLevel: Math.max(localCourse.activeLevel || 1, cloudCourse.activeLevel || 1),
+          activeStage: Math.max(localCourse.activeStage || 1, cloudCourse.activeStage || 1),
+          courseXp: Math.max(localCourse.courseXp || 0, cloudCourse.courseXp || 0),
+          lessonsCompleted: Math.max(localCourse.lessonsCompleted || 0, cloudCourse.lessonsCompleted || 0),
+          unitsMastered: Math.max(localCourse.unitsMastered || 0, cloudCourse.unitsMastered || 0),
+          unitProgress: mergedUnitProgress,
+          lastPracticed: cloudCourse.lastPracticed || new Date().toISOString()
+        };
+
+        this.saveCourseProgress(mergedCourse);
+
+        if (profile.currentLanguage === langId) {
+          this.saveProgress(mergedUnitProgress);
+        }
+      });
+
+      this.saveEnrolledCourseIds(Array.from(updatedEnrolled));
+    } catch (e) {
+      console.warn('Failed to hydrate courses from cloud:', e);
+    }
+  }
+
   public logout(): void {
     const current = this.getProfile();
     const loggedOut = { ...current, isAuthenticated: false };
