@@ -16,7 +16,8 @@ import {
   Eye,
   EyeOff,
   Flame,
-  Timer
+  Timer,
+  Square
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { UnitMetadata } from '../../types/curriculum';
@@ -97,6 +98,21 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   }, [currentRound?.id]);
 
   const progressPercent = Math.round(((currentIndex) / rounds.length) * 100);
+
+  const modeBadgeText = useMemo(() => {
+    if (!currentRound?.badgeLabel) return 'AUDIO';
+    return currentRound.badgeLabel.replace(/^\d+\/\d+\s*·\s*/, '');
+  }, [currentRound?.badgeLabel]);
+
+  const isActionDisabled = useMemo(() => {
+    if (isChecked) return false;
+    if (currentRound.mode === 'sound_blitz') return false;
+    if (currentRound.mode === 'echo_mimic') return !evalResult;
+    if (currentRound.mode === 'audio_tile_builder') return selectedWords.length === 0;
+    if (currentRound.mode === 'audio_true_false') return selectedTrueFalse === null;
+    if (currentRound.mode === 'boss_shadowing') return !evalResult;
+    return !selectedOptionId;
+  }, [isChecked, currentRound.mode, evalResult, selectedWords.length, selectedTrueFalse, selectedOptionId]);
 
   // Auto-play audio on round start (except story which has sentence buttons)
   useEffect(() => {
@@ -493,12 +509,9 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Flame size={18} color="#FF9600" />
-            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
-              {currentIndex + 1}/11
-            </span>
-          </div>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)' }}>
+            {currentIndex + 1} / {rounds.length}
+          </span>
         </div>
       </div>
 
@@ -520,30 +533,28 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             flexDirection: 'column'
           }}
         >
-        {/* Round Badge Header */}
+        {/* Step Indicator Header matching Core Lesson Runner (Image 2) */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-          <span
-            className="fl-badge"
-            style={{
-              backgroundColor: '#58CC02',
-              color: '#FFFFFF',
-              fontWeight: 800,
-              fontSize: '11px',
-              padding: '4px 10px',
-              borderRadius: '999px',
-              letterSpacing: '0.04em'
-            }}
-          >
-            {currentRound.badgeLabel}
-          </span>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-gold-star)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span
+              className="fl-badge fl-badge-teal"
+              style={{ fontSize: '11px', padding: '3px 8px', fontWeight: 800 }}
+            >
+              Step {currentIndex + 1}/11 · {modeBadgeText}
+            </span>
+            <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 700 }}>
+              {unit.title}
+            </span>
+          </div>
+
+          <span style={{ fontSize: '12px', color: 'var(--fl-gold-star)', fontWeight: 700 }}>
             +15 XP
           </span>
         </div>
 
         {/* Prompt Header */}
         <div style={{ marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 6px' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 6px', lineHeight: 1.3 }}>
             {currentRound.title}
           </h3>
           <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', margin: 0, lineHeight: 1.45 }}>
@@ -551,40 +562,28 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
           </p>
         </div>
 
-        {/* Central Pulsating Audio Wave Box (Modes 1 to 9) */}
+        {/* Central Hero Card (Modes 1 to 9) - Matching Image 2 Fluentra Styling */}
         {currentRound.mode !== 'audio_story' && currentRound.mode !== 'sound_blitz' && (
           <div
-            className="fl-card"
+            className="fl-card fl-card-active"
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '24px 18px',
+              padding: '24px 20px',
               marginBottom: '22px',
-              background: 'linear-gradient(135deg, rgba(88, 204, 2, 0.1) 0%, rgba(0, 196, 140, 0.05) 100%)',
-              border: isPlaying ? '1.5px solid #58CC02' : '1px solid var(--fl-border)',
-              position: 'relative'
+              borderRadius: '20px',
+              background: 'rgba(0, 245, 180, 0.04)',
+              border: isPlaying ? '1.5px solid var(--fl-teal-light)' : '1.5px solid rgba(0, 245, 180, 0.35)',
+              boxShadow: isPlaying ? '0 0 28px rgba(0, 245, 180, 0.22)' : '0 0 20px rgba(0, 245, 180, 0.08)',
+              position: 'relative',
+              textAlign: 'center',
+              gap: '12px'
             }}
           >
-            {/* Audio Wave Visualizer Animation */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', height: '42px', marginBottom: '16px' }}>
-              {[12, 28, 42, 20, 36, 16, 32].map((h, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: '6px',
-                    height: isPlaying ? `${h}px` : '8px',
-                    borderRadius: '4px',
-                    backgroundColor: '#58CC02',
-                    transition: 'all 0.18s ease'
-                  }}
-                />
-              ))}
-            </div>
-
             {/* Audio Controls (Play Normal + Slow 0.7x + Speed Warp) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button
                 type="button"
                 className="fl-btn-icon"
@@ -592,12 +591,18 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                 style={{
                   width: '52px',
                   height: '52px',
-                  backgroundColor: isPlaying && playingSpeed === 0.95 ? 'rgba(88, 204, 2, 0.3)' : 'var(--fl-bg-card-hover)',
-                  border: '2px solid #58CC02'
+                  borderRadius: '50%',
+                  backgroundColor: isPlaying && playingSpeed === 0.95 ? 'var(--fl-teal-subtle)' : 'var(--fl-bg-card-hover)',
+                  border: `1.5px solid ${isPlaying && playingSpeed === 0.95 ? 'var(--fl-teal-light)' : 'var(--fl-border)'}`,
+                  boxShadow: isPlaying && playingSpeed === 0.95 ? '0 0 16px rgba(0, 245, 180, 0.35)' : 'none'
                 }}
-                title="Listen at normal speed"
+                title="Listen to native audio"
+                aria-label="Listen to audio"
               >
-                <Volume2 size={24} color="#58CC02" />
+                <Volume2
+                  size={24}
+                  color={isPlaying && playingSpeed === 0.95 ? 'var(--fl-teal-light)' : '#FFFFFF'}
+                />
               </button>
 
               <button
@@ -607,12 +612,17 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                 style={{
                   width: '44px',
                   height: '44px',
-                  backgroundColor: isPlaying && playingSpeed < 0.8 ? 'rgba(88, 204, 2, 0.3)' : 'var(--fl-bg-card-hover)',
-                  border: '1.5px solid var(--fl-border)'
+                  borderRadius: '50%',
+                  backgroundColor: isPlaying && playingSpeed < 0.85 ? 'var(--fl-indigo-subtle)' : 'var(--fl-bg-card-hover)',
+                  border: `1.5px solid ${isPlaying && playingSpeed < 0.85 ? 'var(--fl-indigo-light)' : 'var(--fl-border)'}`
                 }}
                 title="Listen slowly (0.7x)"
+                aria-label="Listen slowly"
               >
-                <Snail size={20} color="var(--fl-indigo-light)" />
+                <Snail
+                  size={20}
+                  color={isPlaying && playingSpeed < 0.85 ? 'var(--fl-indigo-light)' : 'var(--fl-text-secondary)'}
+                />
               </button>
 
               {currentRound.mode === 'speed_warp' && (
@@ -623,31 +633,56 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                   style={{
                     width: '44px',
                     height: '44px',
-                    backgroundColor: isPlaying && playingSpeed > 1.1 ? 'rgba(255, 107, 74, 0.3)' : 'var(--fl-bg-card-hover)',
-                    border: '1.5px solid var(--fl-coral-flame)'
+                    borderRadius: '50%',
+                    backgroundColor: isPlaying && playingSpeed > 1.1 ? 'var(--fl-coral-subtle)' : 'var(--fl-bg-card-hover)',
+                    border: `1.5px solid ${isPlaying && playingSpeed > 1.1 ? 'var(--fl-coral-flame)' : 'var(--fl-border)'}`
                   }}
                   title="Listen at 1.25x Street Speed"
+                  aria-label="Listen at fast speed"
                 >
                   <Zap size={20} color="var(--fl-coral-flame)" />
                 </button>
               )}
             </div>
 
+            {/* Equalizer Waveform Dots (matching Image 2) */}
+            {(!isChecked || currentRound.mode === 'blind_ear') && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', height: '16px', margin: '4px 0' }}>
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: '5px',
+                      height: isPlaying ? '14px' : '5px',
+                      borderRadius: isPlaying ? '3px' : '50%',
+                      backgroundColor: isPlaying ? 'var(--fl-teal-light)' : 'rgba(0, 245, 180, 0.4)',
+                      transition: 'all 0.18s ease'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
             {/* Audio Cloze Sentence */}
             {currentRound.sentenceWithBlank && (
-              <div style={{ marginTop: '16px', fontSize: '20px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
+              <div style={{ marginTop: '4px', fontSize: '22px', fontWeight: 800, color: '#FFFFFF' }}>
                 {currentRound.sentenceWithBlank}
               </div>
             )}
 
-            {/* In Blind Ear mode, text reveals ONLY when checked */}
+            {/* Revealed Target Text & Phonetic Guide on Check */}
             {isChecked && currentRound.targetText && (
-              <div className="animate-fade-in" style={{ marginTop: '14px', textAlign: 'center' }}>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#58CC02' }}>
+              <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                <span style={{ fontSize: '28px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
                   {currentRound.targetText}
                 </span>
+                {currentRound.phoneticHint && (
+                  <span style={{ fontSize: '15px', color: 'var(--fl-teal-light)', fontFamily: 'monospace' }}>
+                    {currentRound.phoneticHint}
+                  </span>
+                )}
                 {currentRound.translation && (
-                  <span style={{ display: 'block', fontSize: '14px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                  <span style={{ fontSize: '16px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
                     “{currentRound.translation}”
                   </span>
                 )}
@@ -669,15 +704,25 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                 const isSelected = selectedOptionId === opt.id;
                 const isCorrectOpt = opt.id === currentRound.correctOptionId;
 
-                let border = isSelected ? '#58CC02' : 'var(--fl-border)';
-                let bg = isSelected ? 'rgba(88, 204, 2, 0.1)' : 'var(--fl-bg-card)';
+                let border = '1.5px solid var(--fl-border-strong)';
+                let bg = 'var(--fl-bg-card)';
+                let glow = 'none';
+
+                if (isSelected) {
+                  border = '2px solid var(--fl-teal-light)';
+                  bg = 'rgba(0, 245, 180, 0.08)';
+                  glow = '0 0 16px rgba(0, 245, 180, 0.12)';
+                }
+
                 if (isChecked) {
                   if (isCorrectOpt) {
-                    border = '#58CC02';
+                    border = '2px solid #58CC02';
                     bg = 'rgba(88, 204, 2, 0.15)';
+                    glow = '0 0 16px rgba(88, 204, 2, 0.2)';
                   } else if (isSelected && !isCorrectOpt) {
-                    border = 'var(--fl-coral-flame)';
+                    border = '2px solid var(--fl-coral-flame)';
                     bg = 'var(--fl-coral-subtle)';
+                    glow = '0 0 16px rgba(255, 107, 74, 0.2)';
                   }
                 }
 
@@ -693,25 +738,72 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       }
                     }}
                     style={{
-                      padding: '16px 18px',
+                      padding: '16px 20px',
+                      borderRadius: '16px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      borderColor: border,
+                      border,
                       backgroundColor: bg,
-                      textAlign: 'left'
+                      boxShadow: glow,
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease'
                     }}
                   >
                     <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                       {opt.text}
                     </span>
-                    {opt.audioText && (
-                      <Volume2
-                        size={18}
-                        color={isSelected ? '#58CC02' : 'var(--fl-text-secondary)'}
-                        style={{ flexShrink: 0 }}
-                      />
-                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                      {opt.audioText && (
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (opt.audioText) playAudio(opt.audioText, 0.95);
+                          }}
+                          style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--fl-bg-card-hover)',
+                            border: '1px solid var(--fl-border)'
+                          }}
+                          title="Listen to option"
+                        >
+                          <Volume2 size={16} color={isSelected ? 'var(--fl-teal-light)' : 'var(--fl-text-secondary)'} />
+                        </div>
+                      )}
+
+                      {/* Fluentra Radio / Result Indicator Circle */}
+                      {isChecked && isCorrectOpt ? (
+                        <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#58CC02', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Check size={14} color="#FFFFFF" />
+                        </div>
+                      ) : isChecked && isSelected && !isCorrectOpt ? (
+                        <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--fl-coral-flame)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <X size={14} color="#FFFFFF" />
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '50%',
+                            border: `2px solid ${isSelected ? 'var(--fl-teal-light)' : 'var(--fl-border-strong)'}`,
+                            backgroundColor: isSelected ? 'var(--fl-teal-light)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          {isSelected && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#0B0F19' }} />}
+                        </div>
+                      )}
+                    </div>
                   </button>
                 );
               })}
@@ -723,57 +815,103 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
         {/* ---------------------------------------------------- */}
         {currentRound.mode === 'echo_mimic' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginTop: '10px' }}>
+            {/* Waveform Equalizer Animation */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', height: '24px' }}>
+              {[8, 16, 24, 18, 28, 14, 22, 10].map((baseHeight, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: '4px',
+                    height: speechState === 'listening' ? `${baseHeight}px` : '4px',
+                    borderRadius: '2px',
+                    backgroundColor: speechState === 'listening' ? 'var(--fl-coral-flame)' : 'rgba(0, 245, 180, 0.4)',
+                    transition: 'height 0.15s ease'
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Glowing Touch Mic Button matching Image 2 */}
             <button
               type="button"
+              id="btn-ear-mic-toggle"
               onClick={speechState === 'listening' ? handleStopMic : handleStartMic}
               style={{
-                width: '88px',
-                height: '88px',
+                width: '76px',
+                height: '76px',
                 borderRadius: '50%',
-                backgroundColor: speechState === 'listening' ? 'var(--fl-coral-flame)' : '#58CC02',
+                backgroundColor: speechState === 'listening'
+                  ? 'var(--fl-coral-flame)'
+                  : speechState === 'processing'
+                  ? 'var(--fl-bg-card-hover)'
+                  : 'var(--fl-teal-light)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 border: 'none',
                 cursor: 'pointer',
-                boxShadow: speechState === 'listening' ? '0 0 30px rgba(239, 68, 68, 0.5)' : '0 0 30px rgba(88, 204, 2, 0.4)',
-                transition: 'all 0.15s ease'
+                boxShadow: speechState === 'listening'
+                  ? '0 0 32px rgba(255, 107, 74, 0.5)'
+                  : '0 0 28px rgba(0, 245, 180, 0.45)',
+                transition: 'all 0.18s ease'
               }}
+              aria-label={speechState === 'listening' ? 'Stop recording' : 'Tap to speak'}
             >
-              <Mic size={38} color="#FFFFFF" />
+              {speechState === 'listening' ? (
+                <Square size={28} color="#FFFFFF" fill="#FFFFFF" />
+              ) : (
+                <Mic size={36} color="var(--fl-text-inverse)" />
+              )}
             </button>
 
-            <span style={{ fontSize: '14px', fontWeight: 700, color: speechState === 'listening' ? 'var(--fl-coral-flame)' : 'var(--fl-text-secondary)' }}>
-              {speechState === 'listening' ? 'Listening... Speak now!' : speechState === 'processing' ? 'Evaluating acoustic resonance...' : 'Tap mic and shadow the phrase'}
-            </span>
+            {/* Guidance Text matching Image 2 */}
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <p style={{ fontWeight: 700, fontSize: '16px', color: speechState === 'listening' ? 'var(--fl-coral-flame)' : 'var(--fl-text-primary)', margin: 0 }}>
+                {speechState === 'listening'
+                  ? 'Listening... Speak clearly'
+                  : speechState === 'processing'
+                  ? 'Analyzing pronunciation...'
+                  : 'Tap microphone and speak'}
+              </p>
+              <p style={{ fontSize: '13px', color: 'var(--fl-text-muted)', marginTop: '4px', margin: '4px 0 0' }}>
+                {speechState === 'listening' ? 'Tap square when finished' : 'Speak at natural speed'}
+              </p>
 
-            {speechState === 'listening' && lastTranscript && (
-              <span
-                style={{
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  color: 'var(--fl-teal-light)',
-                  backgroundColor: 'rgba(0, 245, 180, 0.12)',
-                  border: '1px solid rgba(0, 245, 180, 0.35)',
-                  padding: '4px 12px',
-                  borderRadius: '999px',
-                  marginTop: '6px'
-                }}
-              >
-                Heard: “{lastTranscript}”
-              </span>
-            )}
+              {speechState === 'listening' && lastTranscript && (
+                <div
+                  style={{
+                    marginTop: '10px',
+                    padding: '6px 14px',
+                    borderRadius: '999px',
+                    backgroundColor: 'rgba(0, 245, 180, 0.12)',
+                    border: '1px solid rgba(0, 245, 180, 0.35)',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: 'var(--fl-teal-light)',
+                    maxWidth: '300px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  Heard: “{lastTranscript}”
+                </div>
+              )}
+            </div>
 
+            {/* Result Feedback Card */}
             {evalResult && (
               <div
                 className="fl-card animate-pop-in"
                 style={{
                   width: '100%',
-                  padding: '16px',
+                  padding: '16px 20px',
+                  borderRadius: '16px',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '8px',
-                  borderColor: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)'
+                  borderColor: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)',
+                  backgroundColor: isCorrect ? 'rgba(88, 204, 2, 0.08)' : 'rgba(239, 68, 68, 0.08)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -791,6 +929,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             )}
           </div>
         )}
+
 
         {/* ---------------------------------------------------- */}
         {/* MODE 4: Sound Blitz (Timed Speed Pairing)            */}
@@ -958,47 +1097,63 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             <div
               className="fl-card"
               style={{
-                padding: '20px 18px',
+                padding: '22px 20px',
+                borderRadius: '18px',
                 textAlign: 'center',
                 fontSize: '18px',
                 fontWeight: 700,
-                color: 'var(--fl-text-primary)'
+                color: 'var(--fl-text-primary)',
+                border: '1.5px solid var(--fl-border-strong)'
               }}
             >
               {currentRound.conceptStatement}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <button
                 type="button"
-                className="fl-btn"
+                className="fl-card fl-card-interactive"
                 onClick={() => !isChecked && setSelectedTrueFalse(true)}
                 style={{
-                  minHeight: '56px',
+                  minHeight: '60px',
+                  borderRadius: '16px',
                   fontSize: '17px',
                   fontWeight: 800,
-                  backgroundColor: selectedTrueFalse === true ? 'rgba(88, 204, 2, 0.2)' : 'var(--fl-bg-card)',
-                  borderColor: selectedTrueFalse === true ? '#58CC02' : 'var(--fl-border)',
-                  color: selectedTrueFalse === true ? '#58CC02' : 'var(--fl-text-primary)'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  backgroundColor: selectedTrueFalse === true ? 'rgba(88, 204, 2, 0.15)' : 'var(--fl-bg-card)',
+                  border: selectedTrueFalse === true ? '2px solid #58CC02' : '1.5px solid var(--fl-border-strong)',
+                  color: selectedTrueFalse === true ? '#58CC02' : 'var(--fl-text-primary)',
+                  boxShadow: selectedTrueFalse === true ? '0 0 16px rgba(88, 204, 2, 0.2)' : 'none'
                 }}
               >
-                TRUE ✓
+                <span>TRUE</span>
+                <Check size={18} />
               </button>
 
               <button
                 type="button"
-                className="fl-btn"
+                className="fl-card fl-card-interactive"
                 onClick={() => !isChecked && setSelectedTrueFalse(false)}
                 style={{
-                  minHeight: '56px',
+                  minHeight: '60px',
+                  borderRadius: '16px',
                   fontSize: '17px',
                   fontWeight: 800,
-                  backgroundColor: selectedTrueFalse === false ? 'rgba(239, 68, 68, 0.2)' : 'var(--fl-bg-card)',
-                  borderColor: selectedTrueFalse === false ? 'var(--fl-coral-flame)' : 'var(--fl-border)',
-                  color: selectedTrueFalse === false ? 'var(--fl-coral-flame)' : 'var(--fl-text-primary)'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  backgroundColor: selectedTrueFalse === false ? 'rgba(255, 107, 74, 0.15)' : 'var(--fl-bg-card)',
+                  border: selectedTrueFalse === false ? '2px solid var(--fl-coral-flame)' : '1.5px solid var(--fl-border-strong)',
+                  color: selectedTrueFalse === false ? 'var(--fl-coral-flame)' : 'var(--fl-text-primary)',
+                  boxShadow: selectedTrueFalse === false ? '0 0 16px rgba(255, 107, 74, 0.2)' : 'none'
                 }}
               >
-                FALSE ✗
+                <span>FALSE</span>
+                <X size={18} />
               </button>
             </div>
           </div>
@@ -1013,55 +1168,101 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
               const isSelected = selectedOptionId === opt.id;
               const isCorrectOpt = opt.id === currentRound.correctOptionId;
 
-              let border = isSelected ? '#58CC02' : 'var(--fl-border)';
-              let bg = isSelected ? 'rgba(88, 204, 2, 0.1)' : 'var(--fl-bg-card)';
+              let border = '1.5px solid var(--fl-border-strong)';
+              let bg = 'var(--fl-bg-card)';
+              let glow = 'none';
+
+              if (isSelected) {
+                border = '2px solid var(--fl-teal-light)';
+                bg = 'rgba(0, 245, 180, 0.08)';
+                glow = '0 0 16px rgba(0, 245, 180, 0.12)';
+              }
+
               if (isChecked) {
                 if (isCorrectOpt) {
-                  border = '#58CC02';
+                  border = '2px solid #58CC02';
                   bg = 'rgba(88, 204, 2, 0.15)';
+                  glow = '0 0 16px rgba(88, 204, 2, 0.2)';
                 } else if (isSelected && !isCorrectOpt) {
-                  border = 'var(--fl-coral-flame)';
+                  border = '2px solid var(--fl-coral-flame)';
                   bg = 'var(--fl-coral-subtle)';
+                  glow = '0 0 16px rgba(255, 107, 74, 0.2)';
                 }
               }
 
               return (
-                <div
+                <button
                   key={opt.id}
+                  type="button"
                   className="fl-card fl-card-interactive"
                   onClick={() => !isChecked && setSelectedOptionId(opt.id)}
                   style={{
-                    padding: '16px 18px',
+                    padding: '16px 20px',
+                    borderRadius: '16px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    borderColor: border,
+                    border,
                     backgroundColor: bg,
-                    cursor: 'pointer'
+                    boxShadow: glow,
+                    textAlign: 'left',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                     {opt.text}
                   </span>
 
-                  <button
-                    type="button"
-                    className="fl-btn-icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (opt.audioText) playAudio(opt.audioText, 0.95);
-                    }}
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      backgroundColor: 'rgba(88, 204, 2, 0.15)',
-                      borderColor: '#58CC02'
-                    }}
-                    title="Listen to option"
-                  >
-                    <Volume2 size={18} color="#58CC02" />
-                  </button>
-                </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                    {opt.audioText && (
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (opt.audioText) playAudio(opt.audioText, 0.95);
+                        }}
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: 'var(--fl-bg-card-hover)',
+                          border: '1px solid var(--fl-border)'
+                        }}
+                        title="Listen to option"
+                      >
+                        <Volume2 size={16} color={isSelected ? 'var(--fl-teal-light)' : 'var(--fl-text-secondary)'} />
+                      </div>
+                    )}
+
+                    {isChecked && isCorrectOpt ? (
+                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#58CC02', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Check size={14} color="#FFFFFF" />
+                      </div>
+                    ) : isChecked && isSelected && !isCorrectOpt ? (
+                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--fl-coral-flame)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <X size={14} color="#FFFFFF" />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          border: `2px solid ${isSelected ? 'var(--fl-teal-light)' : 'var(--fl-border-strong)'}`,
+                          backgroundColor: isSelected ? 'var(--fl-teal-light)' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        {isSelected && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#0B0F19' }} />}
+                      </div>
+                    )}
+                  </div>
+                </button>
               );
             })}
           </div>
@@ -1077,12 +1278,13 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                 key={p.id}
                 className="fl-card"
                 style={{
-                  padding: '16px',
+                  padding: '16px 20px',
+                  borderRadius: '16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   backgroundColor: 'var(--fl-bg-card-hover)',
-                  border: '1px solid var(--fl-border)'
+                  border: '1.5px solid var(--fl-border)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1098,10 +1300,11 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                   type="button"
                   className="fl-btn-icon"
                   onClick={() => playAudio(p.audioText, 0.95)}
-                  style={{ width: '38px', height: '38px', borderColor: '#58CC02' }}
+                  style={{ width: '38px', height: '38px', borderColor: 'var(--fl-teal-light)', backgroundColor: 'var(--fl-teal-subtle)' }}
                   title="Listen"
+                  aria-label="Listen"
                 >
-                  <Volume2 size={18} color="#58CC02" />
+                  <Volume2 size={18} color="var(--fl-teal-light)" />
                 </button>
               </div>
             ))}
@@ -1109,24 +1312,35 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
               <button
                 type="button"
+                id="btn-ear-boss-mic-toggle"
                 onClick={speechState === 'listening' ? handleStopMic : handleStartMic}
                 style={{
-                  width: '78px',
-                  height: '78px',
+                  width: '76px',
+                  height: '76px',
                   borderRadius: '50%',
-                  backgroundColor: speechState === 'listening' ? 'var(--fl-coral-flame)' : '#FFB800',
+                  backgroundColor: speechState === 'listening'
+                    ? 'var(--fl-coral-flame)'
+                    : 'var(--fl-teal-light)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0 0 24px rgba(255, 184, 0, 0.4)'
+                  boxShadow: speechState === 'listening'
+                    ? '0 0 32px rgba(255, 107, 74, 0.5)'
+                    : '0 0 28px rgba(0, 245, 180, 0.45)',
+                  transition: 'all 0.18s ease'
                 }}
+                aria-label={speechState === 'listening' ? 'Stop recording' : 'Tap to speak'}
               >
-                <Mic size={34} color="#FFFFFF" />
+                {speechState === 'listening' ? (
+                  <Square size={28} color="#FFFFFF" fill="#FFFFFF" />
+                ) : (
+                  <Mic size={36} color="var(--fl-text-inverse)" />
+                )}
               </button>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-secondary)' }}>
-                {speechState === 'listening' ? 'Recording Boss Streak...' : 'Tap mic and shadow all 3 phrases'}
+              <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-text-secondary)' }}>
+                {speechState === 'listening' ? 'Recording Boss Streak... Speak clearly' : 'Tap mic and shadow all 3 phrases'}
               </span>
             </div>
           </div>
@@ -1141,7 +1355,8 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             <div
               className="fl-card"
               style={{
-                padding: '16px 18px',
+                padding: '16px 20px',
+                borderRadius: '16px',
                 background: 'linear-gradient(135deg, rgba(0, 196, 140, 0.15) 0%, rgba(129, 140, 248, 0.1) 100%)',
                 border: '1.5px solid var(--fl-teal-primary)',
                 display: 'flex',
@@ -1172,8 +1387,9 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                   padding: '8px 14px',
                   fontSize: '13px',
                   fontWeight: 700,
-                  backgroundColor: showEnglishReview ? 'rgba(88, 204, 2, 0.2)' : 'var(--fl-bg-card-hover)',
-                  borderColor: showEnglishReview ? '#58CC02' : 'var(--fl-border)'
+                  borderRadius: '12px',
+                  backgroundColor: showEnglishReview ? 'rgba(0, 245, 180, 0.15)' : 'var(--fl-bg-card-hover)',
+                  borderColor: showEnglishReview ? 'var(--fl-teal-light)' : 'var(--fl-border)'
                 }}
               >
                 {showEnglishReview ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -1191,13 +1407,14 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                     key={sentence.id}
                     className="fl-card"
                     style={{
-                      padding: '14px 16px',
+                      padding: '14px 18px',
+                      borderRadius: '16px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: '12px',
-                      borderColor: isPlayingSentence ? '#58CC02' : 'var(--fl-border)',
-                      backgroundColor: isPlayingSentence ? 'rgba(88, 204, 2, 0.08)' : 'var(--fl-bg-card)'
+                      borderColor: isPlayingSentence ? 'var(--fl-teal-light)' : 'var(--fl-border)',
+                      backgroundColor: isPlayingSentence ? 'rgba(0, 245, 180, 0.08)' : 'var(--fl-bg-card)'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
@@ -1226,12 +1443,13 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       style={{
                         width: '38px',
                         height: '38px',
-                        borderColor: isPlayingSentence ? '#58CC02' : 'var(--fl-border)',
-                        backgroundColor: isPlayingSentence ? 'rgba(88, 204, 2, 0.2)' : 'var(--fl-bg-card-hover)'
+                        borderColor: isPlayingSentence ? 'var(--fl-teal-light)' : 'var(--fl-border)',
+                        backgroundColor: isPlayingSentence ? 'var(--fl-teal-subtle)' : 'var(--fl-bg-card-hover)'
                       }}
                       title="Listen to native sentence"
+                      aria-label="Listen to sentence"
                     >
-                      <Volume2 size={18} color={isPlayingSentence ? '#58CC02' : 'var(--fl-text-secondary)'} />
+                      <Volume2 size={18} color={isPlayingSentence ? 'var(--fl-teal-light)' : 'var(--fl-text-secondary)'} />
                     </button>
                   </div>
                 );
@@ -1248,14 +1466,18 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                   const isSelected = selectedOptionId === opt.id;
                   const isCorrectOpt = opt.id === currentRound.storyData?.comprehensionQuestion.correctOptionId;
 
-                  let border = isSelected ? '#58CC02' : 'var(--fl-border)';
-                  let bg = isSelected ? 'rgba(88, 204, 2, 0.1)' : 'var(--fl-bg-card)';
+                  let border = '1.5px solid var(--fl-border-strong)';
+                  let bg = 'var(--fl-bg-card)';
+                  if (isSelected) {
+                    border = '2px solid var(--fl-teal-light)';
+                    bg = 'rgba(0, 245, 180, 0.08)';
+                  }
                   if (isChecked) {
                     if (isCorrectOpt) {
-                      border = '#58CC02';
+                      border = '2px solid #58CC02';
                       bg = 'rgba(88, 204, 2, 0.15)';
                     } else if (isSelected && !isCorrectOpt) {
-                      border = 'var(--fl-coral-flame)';
+                      border = '2px solid var(--fl-coral-flame)';
                       bg = 'var(--fl-coral-subtle)';
                     }
                   }
@@ -1267,9 +1489,10 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       className="fl-card fl-card-interactive"
                       onClick={() => !isChecked && setSelectedOptionId(opt.id)}
                       style={{
-                        padding: '14px 16px',
+                        padding: '14px 18px',
+                        borderRadius: '16px',
                         textAlign: 'left',
-                        borderColor: border,
+                        border,
                         backgroundColor: bg,
                         fontSize: '15px',
                         fontWeight: 700
@@ -1292,14 +1515,14 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
           width: '100%',
           backgroundColor: 'var(--fl-bg-card)',
           borderTop: `1.5px solid ${isChecked ? (isCorrect ? '#58CC02' : 'var(--fl-coral-flame)') : 'var(--fl-border)'}`,
-          paddingBottom: 'var(--fl-safe-bottom)'
+          paddingBottom: 'calc(16px + var(--fl-safe-bottom))'
         }}
       >
         <div
           style={{
             maxWidth: '520px',
             margin: '0 auto',
-            padding: '16px 16px 14px',
+            padding: '16px 20px 0',
             display: 'flex',
             flexDirection: 'column'
           }}
@@ -1320,7 +1543,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
               >
                 {isCorrect ? <Check size={18} color="#FFFFFF" /> : <RotateCcw size={16} color="#FFFFFF" />}
               </div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <p style={{ fontWeight: 800, fontSize: '17px', color: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)', margin: 0 }}>
                   {isCorrect ? 'Ear-First Mastery! ✓' : 'Acoustic Miss — Try Again:'}
                 </p>
@@ -1335,17 +1558,45 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
 
           <button
             type="button"
-            className={`fl-btn ${isChecked ? (isCorrect ? 'fl-btn-primary' : 'fl-btn-coral') : 'fl-btn-primary'}`}
+            id="btn-ear-game-action"
             onClick={isChecked ? (isCorrect ? handleNext : handleRetry) : handleCheck}
-            disabled={
-              !isChecked &&
-              !selectedOptionId &&
-              selectedWords.length === 0 &&
-              selectedTrueFalse === null &&
-              !evalResult &&
-              currentRound.mode !== 'sound_blitz'
-            }
-            style={{ width: '100%', minHeight: '52px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            disabled={isActionDisabled}
+            style={{
+              width: '100%',
+              minHeight: '52px',
+              fontSize: '16px',
+              fontWeight: 800,
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              border: isActionDisabled ? '1.5px solid var(--fl-border)' : 'none',
+              backgroundColor: isActionDisabled
+                ? 'var(--fl-bg-card-hover)'
+                : isChecked
+                ? isCorrect
+                  ? '#58CC02'
+                  : 'var(--fl-coral-flame)'
+                : 'transparent',
+              background: (!isActionDisabled && !isChecked)
+                ? 'linear-gradient(135deg, var(--fl-teal-light) 0%, var(--fl-teal-primary) 100%)'
+                : undefined,
+              color: isActionDisabled
+                ? 'var(--fl-text-muted)'
+                : isChecked
+                ? '#FFFFFF'
+                : 'var(--fl-text-inverse)',
+              boxShadow: isActionDisabled
+                ? 'none'
+                : isChecked
+                ? isCorrect
+                  ? '0 4px 14px rgba(88, 204, 2, 0.35)'
+                  : '0 4px 14px rgba(255, 107, 74, 0.35)'
+                : '0 4px 16px rgba(0, 245, 180, 0.35)',
+              cursor: isActionDisabled ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s ease'
+            }}
           >
             {isChecked ? (
               isCorrect ? (
@@ -1371,3 +1622,4 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
     </div>
   );
 };
+
