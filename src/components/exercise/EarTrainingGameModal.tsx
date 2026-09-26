@@ -333,16 +333,21 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
           left: 0,
           right: 0,
           bottom: 0,
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100%',
+          minHeight: '100dvh',
+          maxHeight: '100dvh',
           zIndex: 99999,
           backgroundColor: 'var(--fl-bg-app)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '24px',
-          overflowY: 'auto'
+          padding: '20px 16px',
+          paddingTop: 'calc(20px + var(--fl-safe-top))',
+          paddingBottom: 'calc(20px + var(--fl-safe-bottom))',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         <div
@@ -436,8 +441,10 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
+        minHeight: '100dvh',
+        maxHeight: '100dvh',
         zIndex: 99999,
         backgroundColor: 'var(--fl-bg-app)',
         display: 'flex',
@@ -445,50 +452,74 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
         overflow: 'hidden'
       }}
     >
-      {/* Top Bar */}
+      {/* Top Bar with Safe Area Inset */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: '14px 20px',
-          paddingTop: 'calc(14px + var(--fl-safe-top))',
-          gap: '16px',
+          width: '100%',
           borderBottom: '1px solid var(--fl-border)',
-          backgroundColor: 'var(--fl-bg-card)'
+          backgroundColor: 'var(--fl-bg-card)',
+          paddingTop: 'var(--fl-safe-top)'
         }}
       >
-        <button
-          type="button"
-          className="fl-btn-icon"
-          onClick={onClose}
-          style={{ width: '38px', height: '38px', flexShrink: 0 }}
-          aria-label="Exit Arcade"
+        <div
+          style={{
+            maxWidth: '520px',
+            margin: '0 auto',
+            padding: '12px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '14px'
+          }}
         >
-          <X size={20} />
-        </button>
+          <button
+            type="button"
+            className="fl-btn-icon"
+            onClick={onClose}
+            style={{ width: '38px', height: '38px', flexShrink: 0 }}
+            aria-label="Exit Arcade"
+          >
+            <X size={20} />
+          </button>
 
-        <div style={{ flex: 1 }}>
-          <div className="fl-progress-track">
-            <div
-              className="fl-progress-fill"
-              style={{
-                width: `${progressPercent}%`,
-                background: 'linear-gradient(90deg, #58CC02 0%, #00F5B4 100%)'
-              }}
-            />
+          <div style={{ flex: 1 }}>
+            <div className="fl-progress-track">
+              <div
+                className="fl-progress-fill"
+                style={{
+                  width: `${progressPercent}%`,
+                  background: 'linear-gradient(90deg, #58CC02 0%, #00F5B4 100%)'
+                }}
+              />
+            </div>
           </div>
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Flame size={18} color="#FF9600" />
-          <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
-            {currentIndex + 1}/11
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Flame size={18} color="#FF9600" />
+            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
+              {currentIndex + 1}/11
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Main Interactive Game Stage */}
-      <div style={{ flex: 1, padding: '24px 20px', overflowY: 'auto' }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          padding: '20px 16px'
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            maxWidth: '500px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
         {/* Round Badge Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
           <span
@@ -1252,79 +1283,90 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Persistent Bottom Action Drawer */}
       <div
         style={{
-          padding: '18px 20px',
-          paddingBottom: 'calc(18px + var(--fl-safe-bottom))',
+          width: '100%',
           backgroundColor: 'var(--fl-bg-card)',
-          borderTop: `1.5px solid ${isChecked ? (isCorrect ? '#58CC02' : 'var(--fl-coral-flame)') : 'var(--fl-border)'}`
+          borderTop: `1.5px solid ${isChecked ? (isCorrect ? '#58CC02' : 'var(--fl-coral-flame)') : 'var(--fl-border)'}`,
+          paddingBottom: 'var(--fl-safe-bottom)'
         }}
       >
-        {isChecked && (
-          <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-            <div
-              style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                backgroundColor: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
-              {isCorrect ? <Check size={18} color="#FFFFFF" /> : <RotateCcw size={16} color="#FFFFFF" />}
-            </div>
-            <div>
-              <p style={{ fontWeight: 800, fontSize: '17px', color: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)', margin: 0 }}>
-                {isCorrect ? 'Ear-First Mastery! ✓' : 'Acoustic Miss — Try Again:'}
-              </p>
-              {currentRound.explanation && (
-                <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', margin: '4px 0 0' }}>
-                  {currentRound.explanation}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        <button
-          type="button"
-          className={`fl-btn ${isChecked ? (isCorrect ? 'fl-btn-primary' : 'fl-btn-coral') : 'fl-btn-primary'}`}
-          onClick={isChecked ? (isCorrect ? handleNext : handleRetry) : handleCheck}
-          disabled={
-            !isChecked &&
-            !selectedOptionId &&
-            selectedWords.length === 0 &&
-            selectedTrueFalse === null &&
-            !evalResult &&
-            currentRound.mode !== 'sound_blitz'
-          }
-          style={{ width: '100%', minHeight: '52px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+        <div
+          style={{
+            maxWidth: '520px',
+            margin: '0 auto',
+            padding: '16px 16px 14px',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
         >
-          {isChecked ? (
-            isCorrect ? (
-              <>
-                <span>{currentIndex + 1 === rounds.length ? 'Claim Golden Ear Trophy' : 'Continue to Next Round'}</span>
-                <ArrowRight size={18} />
-              </>
+          {isChecked && (
+            <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+              <div
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  backgroundColor: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                {isCorrect ? <Check size={18} color="#FFFFFF" /> : <RotateCcw size={16} color="#FFFFFF" />}
+              </div>
+              <div>
+                <p style={{ fontWeight: 800, fontSize: '17px', color: isCorrect ? '#58CC02' : 'var(--fl-coral-flame)', margin: 0 }}>
+                  {isCorrect ? 'Ear-First Mastery! ✓' : 'Acoustic Miss — Try Again:'}
+                </p>
+                {currentRound.explanation && (
+                  <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', margin: '4px 0 0' }}>
+                    {currentRound.explanation}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className={`fl-btn ${isChecked ? (isCorrect ? 'fl-btn-primary' : 'fl-btn-coral') : 'fl-btn-primary'}`}
+            onClick={isChecked ? (isCorrect ? handleNext : handleRetry) : handleCheck}
+            disabled={
+              !isChecked &&
+              !selectedOptionId &&
+              selectedWords.length === 0 &&
+              selectedTrueFalse === null &&
+              !evalResult &&
+              currentRound.mode !== 'sound_blitz'
+            }
+            style={{ width: '100%', minHeight: '52px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          >
+            {isChecked ? (
+              isCorrect ? (
+                <>
+                  <span>{currentIndex + 1 === rounds.length ? 'Claim Golden Ear Trophy' : 'Continue to Next Round'}</span>
+                  <ArrowRight size={18} />
+                </>
+              ) : (
+                <>
+                  <RotateCcw size={18} />
+                  <span>Repeat Attempt</span>
+                </>
+              )
             ) : (
               <>
-                <RotateCcw size={18} />
-                <span>Repeat Attempt</span>
+                <span>Check Ear Answer</span>
+                <ArrowRight size={18} />
               </>
-            )
-          ) : (
-            <>
-              <span>Check Ear Answer</span>
-              <ArrowRight size={18} />
-            </>
-          )}
-        </button>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
