@@ -49,6 +49,12 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   );
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Sync rounds if unit or language changes
+  useEffect(() => {
+    setRounds(earTrainingService.getRoundsForUnit(unit.id, currentLang));
+    setCurrentIndex(0);
+  }, [unit.id, currentLang]);
+
   // Audio Playback State
   const [isPlaying, setIsPlaying] = useState(false);
   const [playingSpeed, setPlayingSpeed] = useState<number>(0.95);
@@ -319,7 +325,26 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
 
   if (isGameFinished) {
     return (
-      <div className="content-fullscreen" style={{ padding: '24px', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        id="ear-training-modal-finished"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 99999,
+          backgroundColor: 'var(--fl-bg-app)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          overflowY: 'auto'
+        }}
+      >
         <div
           className="fl-card animate-pop-in"
           style={{
@@ -403,7 +428,23 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   }
 
   return (
-    <div className="content-fullscreen" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div
+      id="ear-training-modal-root"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 99999,
+        backgroundColor: 'var(--fl-bg-app)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}
+    >
       {/* Top Bar */}
       <div
         style={{

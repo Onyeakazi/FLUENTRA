@@ -13,6 +13,7 @@ import { PracticeView } from './views/PracticeView';
 import { SpeakView } from './views/SpeakView';
 import { ProfileView } from './views/ProfileView';
 import { ExerciseRunner } from './components/exercise/ExerciseRunner';
+import { EarTrainingGameModal } from './components/exercise/EarTrainingGameModal';
 import { ConversationRoleplayView } from './views/ConversationRoleplayView';
 import { WelcomeBackResumeModal } from './components/curriculum/WelcomeBackResumeModal';
 import { getLessonsForUnit } from './data/curriculumContent';
@@ -145,16 +146,28 @@ const FluentraApp: React.FC = () => {
         />
       )}
 
-      {/* 5. Fullscreen Active AI Roleplay Conversation */}
-      {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && activeScenario && (
+      {/* 5. Fullscreen 11 Ear Games Audio Arcade */}
+      {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && activeEarGameUnit && (
+        <EarTrainingGameModal
+          unit={activeEarGameUnit}
+          onClose={() => setActiveEarGameUnit(null)}
+          onCompleted={() => {
+            completeEarTraining(activeEarGameUnit.id);
+            setActiveEarGameUnit(null);
+          }}
+        />
+      )}
+
+      {/* 6. Fullscreen Active AI Roleplay Conversation */}
+      {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && !activeEarGameUnit && activeScenario && (
         <ConversationRoleplayView
           scenario={activeScenario}
           onExit={() => setActiveScenario(null)}
         />
       )}
 
-      {/* 6. Main Authenticated App Views */}
-      {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && !activeScenario && (
+      {/* 7. Main Authenticated App Views */}
+      {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && !activeEarGameUnit && !activeScenario && (
         <>
           <TopBar />
 

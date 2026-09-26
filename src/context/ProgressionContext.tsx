@@ -222,9 +222,8 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [progressMap]);
 
   const isEarTrainingUnlocked = useCallback((unitId: string): boolean => {
-    if (getUnitStatus(unitId) === 'locked') return false;
-    return isLessonCompleted(unitId);
-  }, [getUnitStatus, isLessonCompleted]);
+    return getUnitStatus(unitId) !== 'locked';
+  }, [getUnitStatus]);
 
   const isEarTrainingCompleted = useCallback((unitId: string): boolean => {
     const item = progressMap[unitId];

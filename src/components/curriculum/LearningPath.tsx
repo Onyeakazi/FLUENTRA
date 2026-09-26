@@ -127,16 +127,6 @@ export const LearningPath: React.FC<LearningPathProps> = ({
       return;
     }
 
-    const earUnlocked = isEarTrainingUnlocked(unit.id);
-    if (!earUnlocked) {
-      onShowLockedModal(
-        unit,
-        `You must complete the Unit ${unit.number} Core Lesson before unlocking the 11 Ear Games!`,
-        `Unit ${unit.number} Ear Games Locked 🔒`
-      );
-      return;
-    }
-
     if (onOpenEarChallenge) {
       onOpenEarChallenge(unit);
     }

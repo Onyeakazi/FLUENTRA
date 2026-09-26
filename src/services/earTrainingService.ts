@@ -63,8 +63,9 @@ class EarTrainingService {
   public getRoundsForUnit(unitId: string, languageName = 'French'): EarGameRound[] {
     const langOpt = getLanguageOption(languageName);
     const langCode = langOpt.code || 'fr-FR';
+    const canonicalName = langOpt.name;
     const unitJourney = UNIT_JOURNEYS[unitId] || UNIT_JOURNEYS['u1'];
-    const pack = LANGUAGE_PACKS[languageName] || LANGUAGE_PACKS.French;
+    const pack = LANGUAGE_PACKS[canonicalName] || LANGUAGE_PACKS.French;
 
     const targets = unitJourney?.learningTargets || [];
     const t1 = targets[0] || { term: pack.greetingFormal.target, translation: pack.greetingFormal.trans, audioText: pack.greetingFormal.target };
