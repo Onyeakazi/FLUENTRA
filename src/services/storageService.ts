@@ -1,4 +1,5 @@
 import { UserProfile, UnitProgress, CourseProgress } from '../types/progress';
+import { getLanguageOption } from '../data/languages';
 
 const STORAGE_KEYS = {
   PROFILE: 'fluentra_user_profile',
@@ -44,6 +45,16 @@ export const INITIAL_UNAUTHENTICATED_PROFILE: UserProfile = {
   slowAudioDefault: false
 };
 
+export const createInitialUnitProgress = (): Record<string, UnitProgress> => ({
+  u1: {
+    unitId: 'u1',
+    status: 'available',
+    completedLessonIds: [],
+    bestScore: 0,
+    lastPracticed: new Date().toISOString()
+  }
+});
+
 class StorageService {
   public getProfile(): UserProfile {
     try {
@@ -65,61 +76,144 @@ class StorageService {
     }
   }
 
-  public getProgress(): Record<string, UnitProgress> {
+  public getProgress(languageId?: string): Record<string, UnitProgress> {
+    const lang = getLanguageOption(languageId || this.getProfile().currentLanguage || 'French').id;
     try {
-      const data = localStorage.getItem(STORAGE_KEYS.PROGRESSION);
+      const courseKey = `fluentra_course_progress_${lang}`;
+      const data = localStorage.getItem(courseKey);
       if (data) {
-        return JSON.parse(data);
+        const parsed: CourseProgress = JSON.parse(data);
+        if (parsed.unitProgress && Object.keys(parsed.unitProgress).length > 0) {
+          return parsed.unitProgress;
+        }
       }
     } catch (e) {
       console.warn('Progress read error', e);
     }
 
-    // Default progression state: Unit 1 available
-    const initial: Record<string, UnitProgress> = {
-      'u1': {
-        unitId: 'u1',
-        status: 'available',
-        completedLessonIds: [],
-        bestScore: 0,
-        lastPracticed: new Date().toISOString()
+    // Only if French, check legacy PROGRESSION key for backward compatibility
+    if (lang === 'French') {
+      try {
+        const legacy = localStorage.getItem(STORAGE_KEYS.PROGRESSION);
+        if (legacy) {
+          return JSON.parse(legacy);
+        }
+      } catch (e) {
+        console.warn('Legacy progress read error', e);
       }
-    };
-    return initial;
+    }
+
+    return createInitialUnitProgress();
   }
 
-  public saveProgress(progress: Record<string, UnitProgress>): void {
+  public saveProgress(progress: Record<string, UnitProgress>, languageId?: string): void {
+    const lang = getLanguageOption(languageId || this.getProfile().currentLanguage || 'French').id;
     try {
-      localStorage.setItem(STORAGE_KEYS.PROGRESSION, JSON.stringify(progress));
+      // Only keep legacy key synced for French to prevent contaminating other languages
+      if (lang === 'French') {
+        localStorage.setItem(STORAGE_KEYS.PROGRESSION, JSON.stringify(progress));
+      }
     } catch (e) {
       console.warn('Progress save error', e);
     }
   }
 
-  public getCourseProgress(languageId: string, languageCode = 'zh-CN', flag = '🇨🇳'): CourseProgress {
-    const key = `fluentra_course_progress_${languageId}`;
+  public getCourseProgress(languageId: string, languageCode?: string, flag?: string): CourseProgress {
+    const opt = getLanguageOption(languageId);
+    const canonicalId = opt.id;
+    const targetCode = languageCode || opt.code;
+    const targetFlag = flag || opt.flag;
+    const key = `fluentra_course_progress_${canonicalId}`;
+
     try {
-      const data = localStorage.getItem(key);
+      let data = localStorage.getItem(key);
+      if (!data && languageId && languageId !== canonicalId) {
+        data = localStorage.getItem(`fluentra_course_progress_${languageId}`);
+        if (data) {
+          localStorage.removeItem(`fluentra_course_progress_${languageId}`);
+        }
+      }
+
       if (data) {
-        return JSON.parse(data);
+        const parsed: CourseProgress = JSON.parse(data);
+        parsed.languageId = canonicalId;
+        parsed.languageCode = targetCode;
+        parsed.flag = targetFlag;
+
+        // Auto-sanitize contaminated course progress:
+        // If this course is not French (or has 0 XP and 0 lessons recorded),
+        // but unitProgress shows completed lessons or unlocked units beyond u1:
+        const hasCompletedLessons = Object.values(parsed.unitProgress || {}).some(
+          (u) => (u.completedLessonIds && u.completedLessonIds.length > 0) || !!u.earTrainingCompleted
+        );
+        const hasCompletedUnits = Object.values(parsed.unitProgress || {}).some(
+          (u) => u.status === 'completed' || u.status === 'mastered'
+        );
+        const hasUnlockedBeyondU1 = Object.keys(parsed.unitProgress || {}).some(
+          (uid) => uid !== 'u1' && parsed.unitProgress[uid]?.status !== 'locked'
+        );
+
+        const isContaminated =
+          parsed.languageId !== 'French' &&
+          (!parsed.courseXp || parsed.courseXp === 0) &&
+          (!parsed.lessonsCompleted || parsed.lessonsCompleted === 0) &&
+          (hasCompletedLessons || hasCompletedUnits || hasUnlockedBeyondU1);
+
+        if (isContaminated) {
+          console.warn(`[FLUENTRA] Resetting contaminated course progress for ${canonicalId} to ground zero.`);
+          parsed.unitProgress = createInitialUnitProgress();
+          parsed.currentUnitId = 'u1';
+          parsed.activeLevel = 1;
+          parsed.activeStage = 1;
+          parsed.courseXp = 0;
+          parsed.lessonsCompleted = 0;
+          parsed.unitsMastered = 0;
+          parsed.lastPracticed = new Date().toISOString();
+          this.saveCourseProgress(parsed);
+          this.clearResumeCheckpoint(canonicalId);
+          if (languageId && languageId !== canonicalId) {
+            this.clearResumeCheckpoint(languageId);
+          }
+        }
+
+        if (!parsed.unitProgress || !parsed.unitProgress['u1']) {
+          parsed.unitProgress = {
+            ...createInitialUnitProgress(),
+            ...(parsed.unitProgress || {})
+          };
+        }
+
+        return parsed;
       }
     } catch (e) {
       console.warn('Course progress read error', e);
     }
 
-    // Backward compatibility: If legacy progress exists, migrate it
-    const legacy = this.getProgress();
+    // New course initialization: ONLY French may inherit legacy progress from previous single-language version
+    let initialUnitProgress: Record<string, UnitProgress>;
+    if (canonicalId === 'French') {
+      try {
+        const legacy = localStorage.getItem(STORAGE_KEYS.PROGRESSION);
+        initialUnitProgress = legacy ? JSON.parse(legacy) : createInitialUnitProgress();
+      } catch {
+        initialUnitProgress = createInitialUnitProgress();
+      }
+    } else {
+      // For Chinese Mandarin or ANY other course, start completely fresh at ground zero!
+      initialUnitProgress = createInitialUnitProgress();
+    }
+
     const initialCourse: CourseProgress = {
-      languageId,
-      languageCode,
-      flag,
+      languageId: canonicalId,
+      languageCode: targetCode,
+      flag: targetFlag,
       activeLevel: 1,
       activeStage: 1,
       currentUnitId: 'u1',
       courseXp: 0,
       unitsMastered: 0,
       lessonsCompleted: 0,
-      unitProgress: legacy,
+      unitProgress: initialUnitProgress,
       lastPracticed: new Date().toISOString()
     };
     this.saveCourseProgress(initialCourse);
@@ -127,9 +221,10 @@ class StorageService {
   }
 
   public saveCourseProgress(course: CourseProgress): void {
-    const key = `fluentra_course_progress_${course.languageId}`;
+    const canonicalId = getLanguageOption(course.languageId).id;
+    const key = `fluentra_course_progress_${canonicalId}`;
     try {
-      localStorage.setItem(key, JSON.stringify(course));
+      localStorage.setItem(key, JSON.stringify({ ...course, languageId: canonicalId }));
     } catch (e) {
       console.warn('Course progress save error', e);
     }
@@ -140,12 +235,15 @@ class StorageService {
       const data = localStorage.getItem('fluentra_enrolled_courses');
       if (data) {
         const parsed = JSON.parse(data);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const normalized = Array.from(new Set(parsed.map(id => getLanguageOption(id).id)));
+          return normalized;
+        }
       }
     } catch (e) {
       console.warn('Enrolled courses read error', e);
     }
-    const current = this.getProfile().currentLanguage || 'French';
+    const current = getLanguageOption(this.getProfile().currentLanguage || 'French').id;
     const fallback = [current];
     this.saveEnrolledCourseIds(fallback);
     return fallback;
@@ -153,18 +251,21 @@ class StorageService {
 
   public saveEnrolledCourseIds(ids: string[]): void {
     try {
-      localStorage.setItem('fluentra_enrolled_courses', JSON.stringify(ids));
+      const normalized = Array.from(new Set(ids.map(id => getLanguageOption(id).id)));
+      localStorage.setItem('fluentra_enrolled_courses', JSON.stringify(normalized));
     } catch (e) {
       console.warn('Enrolled courses save error', e);
     }
   }
 
   public enrollInCourse(languageId: string, languageCode?: string, flag?: string): CourseProgress {
+    const opt = getLanguageOption(languageId);
+    const canonicalId = opt.id;
     const existingIds = this.getEnrolledCourseIds();
-    if (!existingIds.includes(languageId)) {
-      this.saveEnrolledCourseIds([...existingIds, languageId]);
+    if (!existingIds.includes(canonicalId)) {
+      this.saveEnrolledCourseIds([...existingIds, canonicalId]);
     }
-    return this.getCourseProgress(languageId, languageCode, flag);
+    return this.getCourseProgress(canonicalId, languageCode || opt.code, flag || opt.flag);
   }
 
   public getAllEnrolledCourses(): CourseProgress[] {

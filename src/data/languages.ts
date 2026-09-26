@@ -68,18 +68,52 @@ export const AVAILABLE_LANGUAGES: LanguageOption[] = [
 
 export const LANG_FLAGS: Record<string, string> = {
   'Chinese Mandarin': '🇨🇳',
+  Chinese: '🇨🇳',
+  China: '🇨🇳',
+  Mandarin: '🇨🇳',
   French: '🇫🇷',
+  France: '🇫🇷',
   Spanish: '🇪🇸',
+  Spain: '🇪🇸',
   German: '🇩🇪',
+  Germany: '🇩🇪',
   Japanese: '🇯🇵',
-  Italian: '🇮🇹'
+  Japan: '🇯🇵',
+  Italian: '🇮🇹',
+  Italy: '🇮🇹'
 };
 
-export const getLanguageOption = (langIdOrName: string): LanguageOption => {
+export const getLanguageOption = (langIdOrName: string = ''): LanguageOption => {
+  const query = (langIdOrName || '').trim().toLowerCase();
+  if (!query) {
+    return AVAILABLE_LANGUAGES[1]; // French default
+  }
+
+  // Country & language alias mappings
+  if (query === 'china' || query === 'chinese' || query === 'mandarin' || query === 'zh' || query === 'zh-cn' || query === 'chinese mandarin') {
+    return AVAILABLE_LANGUAGES[0];
+  }
+  if (query === 'france' || query === 'french' || query === 'fr' || query === 'fr-fr') {
+    return AVAILABLE_LANGUAGES[1];
+  }
+  if (query === 'spain' || query === 'spanish' || query === 'es' || query === 'es-es') {
+    return AVAILABLE_LANGUAGES[2];
+  }
+  if (query === 'germany' || query === 'german' || query === 'de' || query === 'de-de') {
+    return AVAILABLE_LANGUAGES[3];
+  }
+  if (query === 'japan' || query === 'japanese' || query === 'ja' || query === 'ja-jp') {
+    return AVAILABLE_LANGUAGES[4];
+  }
+  if (query === 'italy' || query === 'italian' || query === 'it' || query === 'it-it') {
+    return AVAILABLE_LANGUAGES[5];
+  }
+
   const found = AVAILABLE_LANGUAGES.find(
-    l => l.id.toLowerCase() === langIdOrName.toLowerCase() ||
-         l.name.toLowerCase() === langIdOrName.toLowerCase() ||
-         l.code.toLowerCase() === langIdOrName.toLowerCase()
+    l => l.id.toLowerCase() === query ||
+         l.name.toLowerCase() === query ||
+         l.code.toLowerCase() === query
   );
-  return found || AVAILABLE_LANGUAGES[0]; // Chinese Mandarin fallback
+  return found || AVAILABLE_LANGUAGES[1]; // Default to French
 };
+

@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import { UnitStatus } from '../types/curriculum';
 import { UnitProgress, CourseProgress } from '../types/progress';
 import { CURRICULUM_DATA } from '../data/curriculumRegistry';
-import { storageService } from '../services/storageService';
+import { storageService, createInitialUnitProgress } from '../services/storageService';
 import { soundService } from '../services/soundService';
 import { AVAILABLE_LANGUAGES, getLanguageOption } from '../data/languages';
 import { useUser } from './UserContext';
@@ -45,7 +45,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   );
 
   const [progressMap, setProgressMap] = useState<Record<string, UnitProgress>>(() =>
-    activeCourse.unitProgress || storageService.getProgress()
+    activeCourse.unitProgress || createInitialUnitProgress()
   );
 
   const [activeLevel, setActiveLevelState] = useState<number>(() => activeCourse.activeLevel || 1);
@@ -61,12 +61,12 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const opt = getLanguageOption(profile.currentLanguage);
       const course = storageService.getCourseProgress(opt.id, opt.code, opt.flag);
       setActiveCourse(course);
-      setProgressMap(course.unitProgress || {});
+      setProgressMap(course.unitProgress || createInitialUnitProgress());
       setActiveLevelState(course.activeLevel || 1);
       setActiveStageState(course.activeStage || 1);
       setEnrolledCourses(storageService.getAllEnrolledCourses());
     }
-  }, [profile.currentLanguage]);
+  }, [profile.currentLanguage, activeCourse.languageId]);
 
   // Real-time Cloud Sync Listener: When user logs in or cloud sync occurs, hydrate and update state
   useEffect(() => {
@@ -74,7 +74,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const opt = getLanguageOption(profile.currentLanguage || 'French');
       const refreshedCourse = storageService.getCourseProgress(opt.id, opt.code, opt.flag);
       setActiveCourse(refreshedCourse);
-      setProgressMap(refreshedCourse.unitProgress || storageService.getProgress());
+      setProgressMap(refreshedCourse.unitProgress || createInitialUnitProgress());
       setActiveLevelState(refreshedCourse.activeLevel || 1);
       setActiveStageState(refreshedCourse.activeStage || 1);
       setEnrolledCourses(storageService.getAllEnrolledCourses());
@@ -96,7 +96,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
           const opt = getLanguageOption(profile.currentLanguage || 'French');
           const refreshedCourse = storageService.getCourseProgress(opt.id, opt.code, opt.flag);
           setActiveCourse(refreshedCourse);
-          setProgressMap(refreshedCourse.unitProgress || storageService.getProgress());
+          setProgressMap(refreshedCourse.unitProgress || createInitialUnitProgress());
           setActiveLevelState(refreshedCourse.activeLevel || 1);
           setActiveStageState(refreshedCourse.activeStage || 1);
           setEnrolledCourses(storageService.getAllEnrolledCourses());
@@ -130,10 +130,10 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const targetCode = languageCode || opt.code;
     const targetFlag = flag || opt.flag;
 
-    // 1. Save current course state before switching
-    setActiveCourse((currentCourse) => {
+    // 1. Immediately save current course state before switching
+    if (activeCourse && activeCourse.languageId) {
       const savedCourse: CourseProgress = {
-        ...currentCourse,
+        ...activeCourse,
         activeLevel,
         activeStage,
         unitProgress: progressMap,
@@ -143,16 +143,15 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (profile.isAuthenticated && (profile.id || profile.email)) {
         firebaseService.syncCourseToCloud(profile.id || profile.email!, savedCourse);
       }
-      return savedCourse;
-    });
+    }
 
     // 2. Ensure target language is registered in enrolled courses
     storageService.enrollInCourse(opt.id, targetCode, targetFlag);
 
-    // 3. Load target course progress
+    // 3. Load target course progress (with contamination sanitation)
     const nextCourse = storageService.getCourseProgress(opt.id, targetCode, targetFlag);
     setActiveCourse(nextCourse);
-    setProgressMap(nextCourse.unitProgress || {});
+    setProgressMap(nextCourse.unitProgress || createInitialUnitProgress());
     setActiveLevelState(nextCourse.activeLevel || 1);
     setActiveStageState(nextCourse.activeStage || 1);
 
@@ -167,7 +166,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     // 5. Refresh enrolled list
     setEnrolledCourses(storageService.getAllEnrolledCourses());
     soundService.playLevelUnlock();
-  }, [activeLevel, activeStage, progressMap, updateSettings]);
+  }, [activeCourse, activeLevel, activeStage, profile, progressMap, updateSettings]);
 
   const enrollInNewCourse = useCallback((languageId: string) => {
     const opt = getLanguageOption(languageId);
@@ -274,7 +273,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return updatedCourse;
       });
 
-      storageService.saveProgress(updated);
+      storageService.saveProgress(updated, activeCourse.languageId);
       setEnrolledCourses(storageService.getAllEnrolledCourses());
       return updated;
     });
@@ -313,7 +312,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
             lastPracticed: new Date().toISOString()
           }
         };
-        storageService.saveProgress(updated);
+        storageService.saveProgress(updated, activeCourse.languageId);
         return updated;
       }
       return prev;
@@ -397,7 +396,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return updatedCourse;
       });
 
-      storageService.saveProgress(updated);
+      storageService.saveProgress(updated, activeCourse.languageId);
       setEnrolledCourses(storageService.getAllEnrolledCourses());
 
       return updated;
@@ -475,7 +474,7 @@ export const ProgressionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return updatedCourse;
       });
 
-      storageService.saveProgress(updated);
+      storageService.saveProgress(updated, activeCourse.languageId);
       setEnrolledCourses(storageService.getAllEnrolledCourses());
 
       return updated;

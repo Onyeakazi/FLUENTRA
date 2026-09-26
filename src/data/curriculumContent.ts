@@ -2,6 +2,7 @@ import { Lesson, Exercise } from '../types/curriculum';
 import { CURRICULUM_DATA } from './curriculumRegistry';
 import { aiCurriculumGenerator } from '../services/aiCurriculumGenerator';
 import { UNIT_JOURNEYS, buildUnitLessonFromJourney } from './unitJourneys';
+import { getLanguageOption } from './languages';
 
 export interface LanguagePack {
   code: string;
@@ -273,17 +274,20 @@ export function getLessonsForUnit(
   languageName: string = 'French',
   learningGoal: string = 'travel'
 ): Lesson[] {
+  const opt = getLanguageOption(languageName);
+  const canonicalName = opt.name;
+
   // If unit has a structured 10-step pedagogical journey, return it
-  if ((languageName === 'French' || !languageName) && UNIT_JOURNEYS[unitId]) {
+  if ((canonicalName === 'French' || !canonicalName) && UNIT_JOURNEYS[unitId]) {
     return [buildUnitLessonFromJourney(UNIT_JOURNEYS[unitId])];
   }
 
-  const pack = LANGUAGE_PACKS[languageName] || LANGUAGE_PACKS.French;
+  const pack = LANGUAGE_PACKS[canonicalName] || LANGUAGE_PACKS.French;
   const meta = CURRICULUM_DATA.unitsById[unitId] || CURRICULUM_DATA.units[0];
 
   // Unit 1: Absolute Ground-Zero Ear-Training, Phonetics & Sound Architecture
   if (unitId === 'u1') {
-    if (languageName === 'Chinese Mandarin') {
+    if (canonicalName === 'Chinese Mandarin') {
       return [
         {
           id: 'u1-l1',

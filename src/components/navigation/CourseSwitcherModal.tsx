@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { X, Check, Plus, Globe, Award, Zap, BookOpen, ChevronRight } from 'lucide-react';
 import { useProgression } from '../../context/ProgressionContext';
 import { useUser } from '../../context/UserContext';
-import { AVAILABLE_LANGUAGES, LanguageOption } from '../../data/languages';
+import { AVAILABLE_LANGUAGES, LanguageOption, getLanguageOption } from '../../data/languages';
 import { soundService } from '../../services/soundService';
 
 interface CourseSwitcherModalProps {
@@ -19,7 +19,7 @@ export const CourseSwitcherModal: React.FC<CourseSwitcherModalProps> = ({ isOpen
   if (!isOpen) return null;
 
   // Find languages not yet enrolled
-  const enrolledLangIds = enrolledCourses.map((c) => c.languageId);
+  const enrolledLangIds = enrolledCourses.map((c) => getLanguageOption(c.languageId).id);
   const availableToAdd = AVAILABLE_LANGUAGES.filter(
     (lang) => !enrolledLangIds.includes(lang.id) && !enrolledLangIds.includes(lang.name)
   );

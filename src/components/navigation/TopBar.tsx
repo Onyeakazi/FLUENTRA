@@ -3,14 +3,15 @@ import React, { useState } from 'react';
 import { Flame, Gem, Heart, Sun, Moon, ChevronDown } from 'lucide-react';
 import { FluentraLogo } from '../brand/FluentraLogo';
 import { useUser } from '../../context/UserContext';
-import { LANG_FLAGS } from '../../data/languages';
+import { LANG_FLAGS, getLanguageOption } from '../../data/languages';
 import { CourseSwitcherModal } from './CourseSwitcherModal';
 
 export const TopBar: React.FC = () => {
   const { profile, theme, toggleTheme } = useUser();
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
 
-  const flag = LANG_FLAGS[profile.currentLanguage] || '🇫🇷';
+  const langOpt = getLanguageOption(profile.currentLanguage || 'French');
+  const flag = langOpt.flag || LANG_FLAGS[profile.currentLanguage] || '🇫🇷';
 
   return (
     <>
