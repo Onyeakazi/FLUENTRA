@@ -6,12 +6,16 @@ import { CURRICULUM_DATA } from '../../data/curriculumRegistry';
 
 interface LockedGateModalProps {
   unit: UnitMetadata | null;
+  customTitle?: string;
+  lockReason?: string;
   onClose: () => void;
   onJumpToPrereq?: (prereqUnitId: string) => void;
 }
 
 export const LockedGateModal: React.FC<LockedGateModalProps> = ({
   unit,
+  customTitle,
+  lockReason,
   onClose,
   onJumpToPrereq
 }) => {
@@ -45,7 +49,7 @@ export const LockedGateModal: React.FC<LockedGateModalProps> = ({
         </div>
 
         <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '6px' }}>
-          Unit {unit.number} is Locked 🔒
+          {customTitle || `Unit ${unit.number} is Locked 🔒`}
         </h3>
         <p style={{ fontSize: '15px', color: 'var(--fl-text-secondary)', marginBottom: '18px' }}>
           {unit.title}
@@ -68,9 +72,11 @@ export const LockedGateModal: React.FC<LockedGateModalProps> = ({
             </span>
           </div>
           <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', lineHeight: 1.5 }}>
-            {prereqUnit ? (
+            {lockReason ? (
+              lockReason
+            ) : prereqUnit ? (
               <>
-                You must complete <strong>Unit {prereqUnit.number}: {prereqUnit.title}</strong> before moving forward in this level.
+                You must complete <strong>Unit {prereqUnit.number}: {prereqUnit.title}</strong> (including all 11 Ear Games) before moving forward in this level.
               </>
             ) : (
               'Complete the prior units in this stage to unlock.'

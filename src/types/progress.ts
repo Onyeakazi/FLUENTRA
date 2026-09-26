@@ -9,6 +9,8 @@ export interface UnitProgress {
   bestScore: number;
   lastPracticed?: string;
   masteryDate?: string;
+  earTrainingCompleted?: boolean;
+  earTrainingScore?: number;
 }
 
 export interface DailyGoal {

@@ -18,15 +18,17 @@ import { WelcomeBackResumeModal } from './components/curriculum/WelcomeBackResum
 import { getLessonsForUnit } from './data/curriculumContent';
 import { aiCurriculumGenerator } from './services/aiCurriculumGenerator';
 import { storageService, ResumeCheckpoint } from './services/storageService';
-import { Lesson } from './types/curriculum';
+import { Lesson, UnitMetadata } from './types/curriculum';
+import { CURRICULUM_DATA } from './data/curriculumRegistry';
 import { ConversationScenario } from './types/conversation';
 
 const FluentraApp: React.FC = () => {
   const { isAuthenticated, profile } = useUser();
-  const { recordActiveUnit } = useProgression();
+  const { recordActiveUnit, isUnitUnlocked, completeEarTraining } = useProgression();
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState<NavTab>('learn'); // Learn (Path) is default home screen
   const [activeLessonContext, setActiveLessonContext] = useState<{ unitId: string; lesson: Lesson } | null>(null);
+  const [activeEarGameUnit, setActiveEarGameUnit] = useState<UnitMetadata | null>(null);
   const [activeScenario, setActiveScenario] = useState<ConversationScenario | null>(null);
 
   // 1-Tap "Start From Where You Left Off" Launch Modal State
@@ -47,6 +49,12 @@ const FluentraApp: React.FC = () => {
   }, [showSplash, isAuthenticated, profile.isSetupCompleted, profile.currentLanguage]);
 
   const handleStartLesson = async (unitId: string, lessonId?: string, customLesson?: Lesson) => {
+    // STRICT LOCK: Never launch a locked unit under any circumstance
+    if (!isUnitUnlocked(unitId)) {
+      console.warn(`Unit ${unitId} is locked. Prerequisite unit and all 11 ear games must be completed.`);
+      return;
+    }
+
     recordActiveUnit(unitId);
 
     const activateLesson = (targetLesson: Lesson) => {
@@ -126,6 +134,14 @@ const FluentraApp: React.FC = () => {
           lesson={activeLessonContext.lesson}
           onExit={() => setActiveLessonContext(null)}
           onStartNextUnit={(nextUnitId) => handleStartLesson(nextUnitId)}
+          onOpenEarGames={(unitId) => {
+            setActiveLessonContext(null);
+            setActiveTab('learn');
+            const unit = CURRICULUM_DATA.unitsById[unitId];
+            if (unit) {
+              setActiveEarGameUnit(unit);
+            }
+          }}
         />
       )}
 
@@ -146,6 +162,8 @@ const FluentraApp: React.FC = () => {
             {activeTab === 'learn' && (
               <LearnView
                 onStartLesson={(unitId, lessonId, customLesson) => handleStartLesson(unitId, lessonId, customLesson)}
+                activeEarGameUnit={activeEarGameUnit}
+                onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
               />
             )}
 

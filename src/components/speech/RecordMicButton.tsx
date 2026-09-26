@@ -1,22 +1,20 @@
 // FLUENTRA Microphone Recording Button & Visualizer
 import React from 'react';
-import { Mic, Square, Sparkles } from 'lucide-react';
+import { Mic, Square } from 'lucide-react';
 import { SpeechRecognitionState } from '../../types/speech';
 
 interface RecordMicButtonProps {
   state: SpeechRecognitionState;
   onStart: () => void;
   onStop: () => void;
-  onSimulateSpeech?: (transcript: string) => void;
-  targetSample?: string;
+  liveTranscript?: string;
 }
 
 export const RecordMicButton: React.FC<RecordMicButtonProps> = ({
   state,
   onStart,
   onStop,
-  onSimulateSpeech,
-  targetSample
+  liveTranscript
 }) => {
   const isListening = state === 'listening';
   const isProcessing = state === 'processing' || state === 'evaluating';
@@ -54,8 +52,8 @@ export const RecordMicButton: React.FC<RecordMicButtonProps> = ({
         )}
       </button>
 
-      {/* Human Guidance Label */}
-      <div style={{ textAlign: 'center' }}>
+      {/* Human Guidance Label & Live Transcript */}
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <p style={{ fontWeight: 700, fontSize: '16px', color: isListening ? 'var(--fl-coral-flame)' : 'var(--fl-text-primary)' }}>
           {isListening
             ? 'Listening... Speak clearly'
@@ -66,26 +64,29 @@ export const RecordMicButton: React.FC<RecordMicButtonProps> = ({
         <p style={{ fontSize: '13px', color: 'var(--fl-text-muted)', marginTop: '3px' }}>
           {isListening ? 'Tap square when finished' : 'Speak at natural speed'}
         </p>
-      </div>
 
-      {/* Test / Fallback Quick Simulator */}
-      {onSimulateSpeech && targetSample && (
-        <button
-          type="button"
-          className="fl-btn-secondary"
-          onClick={() => onSimulateSpeech(targetSample)}
-          style={{
-            fontSize: '13px',
-            padding: '8px 14px',
-            borderRadius: 'var(--fl-radius-full)',
-            marginTop: '4px'
-          }}
-          title="Simulate speaking for testing"
-        >
-          <Sparkles size={14} color="var(--fl-teal-light)" />
-          <span>Quick Voice Demo</span>
-        </button>
-      )}
+        {/* Real-time Spoken Transcript Visualizer */}
+        {isListening && liveTranscript && (
+          <div
+            style={{
+              marginTop: '10px',
+              padding: '6px 14px',
+              borderRadius: '999px',
+              backgroundColor: 'rgba(0, 245, 180, 0.12)',
+              border: '1px solid rgba(0, 245, 180, 0.35)',
+              fontSize: '13px',
+              fontWeight: 700,
+              color: 'var(--fl-teal-light)',
+              maxWidth: '300px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}
+          >
+            Heard: “{liveTranscript}”
+          </div>
+        )}
+      </div>
     </div>
   );
 };

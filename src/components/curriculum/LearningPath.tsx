@@ -13,12 +13,12 @@ interface LearningPathProps {
   units: UnitMetadata[];
   onStartLesson: (unitId: string, lessonId?: string) => void;
   onOpenUnit?: (unit: UnitMetadata) => void;
-  onShowLockedModal: (unit: UnitMetadata) => void;
+  onShowLockedModal: (unit: UnitMetadata, lockReason?: string, customTitle?: string) => void;
   onOpenEarChallenge?: (unit: UnitMetadata) => void;
 }
 
-// Alternating serpentine horizontal offsets in pixels (tuned for all mobile screen widths)
-const X_OFFSETS = [0, 44, 66, 40, 0, -40, -66, -44, 0, 44];
+// Alternating serpentine horizontal offsets in pixels (tuned for fluid mobile path curves)
+const X_OFFSETS = [0, 42, 64, 40, 0, -40, -64, -42];
 
 export const LearningPath: React.FC<LearningPathProps> = ({
   units,
@@ -27,26 +27,46 @@ export const LearningPath: React.FC<LearningPathProps> = ({
   onShowLockedModal,
   onOpenEarChallenge
 }) => {
-  const { getUnitStatus, activeStage, activeLevel, activeCourse, progressMap } = useProgression();
+  const {
+    getUnitStatus,
+    isLessonCompleted,
+    isEarTrainingUnlocked,
+    isEarTrainingCompleted,
+    activeStage,
+    activeLevel,
+    progressMap
+  } = useProgression();
   const { addXp, profile } = useUser();
   const [openedChests, setOpenedChests] = useState<Record<string, boolean>>({});
   const activeNodeRef = useRef<HTMLDivElement | null>(null);
 
-  // Target focus unit: checkpoint unit -> currentUnitId -> first in_progress -> first available
-  const targetFocusUnitId = useMemo(() => {
+  // Target focus step ID: either `${unit.id}-lesson` or `${unit.id}-ear`
+  const targetFocusStepId = useMemo(() => {
     const cp = storageService.getResumeCheckpoint(profile?.currentLanguage || 'French');
     if (cp?.unitId && units.some((u) => u.id === cp.unitId)) {
-      return cp.unitId;
+      if (!isLessonCompleted(cp.unitId)) {
+        return `${cp.unitId}-lesson`;
+      }
+      if (!isEarTrainingCompleted(cp.unitId)) {
+        return `${cp.unitId}-ear`;
+      }
     }
-    if (activeCourse?.currentUnitId && units.some((u) => u.id === activeCourse.currentUnitId)) {
-      return activeCourse.currentUnitId;
+
+    // Find the first unlocked unit that is not 100% completed
+    for (const u of units) {
+      const uStatus = getUnitStatus(u.id);
+      if (uStatus !== 'locked') {
+        if (!isLessonCompleted(u.id)) {
+          return `${u.id}-lesson`;
+        }
+        if (!isEarTrainingCompleted(u.id)) {
+          return `${u.id}-ear`;
+        }
+      }
     }
-    const inProg = units.find((u) => getUnitStatus(u.id) === 'in_progress');
-    if (inProg) return inProg.id;
-    const avail = units.find((u) => getUnitStatus(u.id) === 'available');
-    if (avail) return avail.id;
-    return units[0]?.id;
-  }, [units, activeCourse?.currentUnitId, profile?.currentLanguage, getUnitStatus]);
+
+    return `${units[0]?.id}-lesson`;
+  }, [units, profile?.currentLanguage, getUnitStatus, isLessonCompleted, isEarTrainingCompleted]);
 
   // Auto-scroll seamlessly to where learner left off
   useEffect(() => {
@@ -56,7 +76,7 @@ export const LearningPath: React.FC<LearningPathProps> = ({
       }, 250);
       return () => clearTimeout(timer);
     }
-  }, [activeStage, activeLevel, targetFocusUnitId]);
+  }, [activeStage, activeLevel, targetFocusStepId]);
 
   const handleChestClick = (chestId: string, requiredUnitsCompleted: boolean) => {
     if (!requiredUnitsCompleted) {
@@ -100,6 +120,28 @@ export const LearningPath: React.FC<LearningPathProps> = ({
     onStartLesson(unit.id, targetLessonId);
   };
 
+  const handlePlayEarChallenge = (unit: UnitMetadata) => {
+    const isUnitLocked = getUnitStatus(unit.id) === 'locked';
+    if (isUnitLocked) {
+      onShowLockedModal(unit);
+      return;
+    }
+
+    const earUnlocked = isEarTrainingUnlocked(unit.id);
+    if (!earUnlocked) {
+      onShowLockedModal(
+        unit,
+        `You must complete the Unit ${unit.number} Core Lesson before unlocking the 11 Ear Games!`,
+        `Unit ${unit.number} Ear Games Locked 🔒`
+      );
+      return;
+    }
+
+    if (onOpenEarChallenge) {
+      onOpenEarChallenge(unit);
+    }
+  };
+
   return (
     <div
       style={{
@@ -116,64 +158,74 @@ export const LearningPath: React.FC<LearningPathProps> = ({
       }}
     >
       {units.map((unit, index) => {
-        const status = getUnitStatus(unit.id);
-        const isLocked = status === 'locked';
-        const isMastered = status === 'mastered';
-        const isCompleted = status === 'completed';
-        const isInProgress = status === 'in_progress';
-        const isAvailable = status === 'available';
+        const unitStatus = getUnitStatus(unit.id);
+        const isUnitLocked = unitStatus === 'locked';
 
-        // Is this the primary active unit to show the bouncing START/CONTINUE speech bubble?
-        const isFocusUnit = unit.id === targetFocusUnitId;
+        const lessonDone = isLessonCompleted(unit.id);
+        const earUnlocked = isEarTrainingUnlocked(unit.id);
+        const earDone = isEarTrainingCompleted(unit.id);
 
-        const xOffset = X_OFFSETS[index % X_OFFSETS.length];
+        const isLessonFocus = targetFocusStepId === `${unit.id}-lesson`;
+        const isEarFocus = targetFocusStepId === `${unit.id}-ear`;
 
-        // Should a bonus chest appear after this unit?
+        const lessonOffset = X_OFFSETS[(index * 2) % X_OFFSETS.length];
+        const earOffset = X_OFFSETS[(index * 2 + 1) % X_OFFSETS.length];
+
         const showMidChest = index === 4; // After unit 5
         const showEndChest = index === units.length - 1; // After unit 10
-        // Determine button visual styles
-        let bgStyle = 'var(--fl-bg-card-subtle)';
-        let shadowColor = 'var(--fl-border-strong)';
-        let iconColor = 'var(--fl-text-muted)';
-        let borderGlow = 'none';
 
-        if (isMastered) {
-          bgStyle = 'linear-gradient(135deg, #FFC800 0%, #FFB800 100%)';
-          shadowColor = '#E5A500';
-          iconColor = '#FFFFFF';
-        } else if (isCompleted) {
-          bgStyle = 'linear-gradient(135deg, #58CC02 0%, #46A302 100%)';
-          shadowColor = '#388401';
-          iconColor = '#FFFFFF';
-        } else if (isInProgress || isAvailable) {
-          bgStyle = 'linear-gradient(135deg, #58CC02 0%, #4BB900 100%)';
-          shadowColor = '#388401';
-          iconColor = '#FFFFFF';
-          borderGlow = '0 0 24px rgba(88, 204, 2, 0.45)';
-        } else {
-          bgStyle = 'var(--fl-bg-card-elevated)';
-          shadowColor = 'var(--fl-border-strong)';
-          iconColor = 'var(--fl-text-muted)';
+        // Visual styles for Core Lesson Stepping Stone
+        let lessonBg = 'var(--fl-bg-card-elevated)';
+        let lessonShadow = 'var(--fl-border-strong)';
+        let lessonIconColor = 'var(--fl-text-muted)';
+        let lessonBorderGlow = 'none';
+
+        if (lessonDone) {
+          lessonBg = 'linear-gradient(135deg, #58CC02 0%, #46A302 100%)';
+          lessonShadow = '#388401';
+          lessonIconColor = '#FFFFFF';
+        } else if (!isUnitLocked) {
+          lessonBg = 'linear-gradient(135deg, #58CC02 0%, #4BB900 100%)';
+          lessonShadow = '#388401';
+          lessonIconColor = '#FFFFFF';
+          lessonBorderGlow = '0 0 24px rgba(88, 204, 2, 0.45)';
+        }
+
+        // Visual styles for 11 Ear Games Stepping Stone
+        let earBg = 'var(--fl-bg-card-elevated)';
+        let earShadow = 'var(--fl-border-strong)';
+        let earIconColor = 'var(--fl-text-muted)';
+        let earBorderGlow = 'none';
+
+        if (earDone) {
+          earBg = 'linear-gradient(135deg, #FFC800 0%, #FF9600 100%)';
+          earShadow = '#E5A500';
+          earIconColor = '#FFFFFF';
+        } else if (earUnlocked) {
+          earBg = 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #4338CA 100%)';
+          earShadow = '#3730A3';
+          earIconColor = '#FFFFFF';
+          earBorderGlow = '0 0 24px rgba(99, 102, 241, 0.55)';
         }
 
         return (
           <React.Fragment key={unit.id}>
-            {/* Serpentine Stepping Stone Node */}
+            {/* STEP 1: Core Lesson Stepping Stone */}
             <div
-              ref={isFocusUnit ? activeNodeRef : undefined}
+              ref={isLessonFocus ? activeNodeRef : undefined}
               style={{
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                margin: '18px 0',
-                transform: `translateX(${xOffset}px)`,
+                margin: '16px 0',
+                transform: `translateX(${lessonOffset}px)`,
                 transition: 'transform 0.3s ease',
-                zIndex: isFocusUnit ? 10 : 2
+                zIndex: isLessonFocus ? 10 : 2
               }}
             >
               {/* Bouncing START / CONTINUE Speech Bubble Tooltip */}
-              {isFocusUnit && (
+              {isLessonFocus && (
                 <div
                   className="animate-duo-bounce"
                   style={{
@@ -205,9 +257,8 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                     }}
                   >
                     <Sparkles size={13} color="#58CC02" />
-                    <span>{isInProgress ? 'Continue' : 'Start'}</span>
+                    <span>{unitStatus === 'in_progress' ? 'Continue' : 'Start'}</span>
                   </div>
-                  {/* Pointed Speech-Bubble Tail */}
                   <div
                     style={{
                       width: 0,
@@ -226,22 +277,20 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                 type="button"
                 id={`path-unit-btn-${unit.id}`}
                 onClick={() => handlePlayUnit(unit)}
-                className={isFocusUnit ? 'animate-duo-pulse' : ''}
+                className={isLessonFocus ? 'animate-duo-pulse' : ''}
                 style={{
                   width: '72px',
                   height: '72px',
                   borderRadius: '50%',
-                  background: bgStyle,
-                  border: isLocked
+                  background: lessonBg,
+                  border: isUnitLocked
                     ? '2px solid var(--fl-border)'
-                    : isMastered
-                    ? '2px solid #FDE68A'
                     : '2px solid #A7F3D0',
-                  boxShadow: `0 7px 0 ${shadowColor}, ${borderGlow}`,
+                  boxShadow: `0 7px 0 ${lessonShadow}, ${lessonBorderGlow}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
+                  cursor: isUnitLocked ? 'not-allowed' : 'pointer',
                   position: 'relative',
                   outline: 'none',
                   transition: 'all 0.12s ease',
@@ -249,30 +298,163 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                 }}
                 onMouseDown={(e) => {
                   e.currentTarget.style.transform = 'translateY(4px)';
-                  e.currentTarget.style.boxShadow = `0 3px 0 ${shadowColor}`;
+                  e.currentTarget.style.boxShadow = `0 3px 0 ${lessonShadow}`;
                 }}
                 onMouseUp={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = `0 7px 0 ${shadowColor}, ${borderGlow}`;
+                  e.currentTarget.style.boxShadow = `0 7px 0 ${lessonShadow}, ${lessonBorderGlow}`;
                 }}
-                title={`Unit ${unit.number}: ${unit.title} (${status})`}
-                aria-label={`Unit ${unit.number}: ${unit.title} (${status})`}
+                title={`Unit ${unit.number}: ${unit.title} (Lesson: ${lessonDone ? 'Completed' : isUnitLocked ? 'Locked' : 'Available'})`}
+                aria-label={`Unit ${unit.number} Core Lesson`}
               >
-                {/* Visual Icon Inside Node */}
-                {isMastered ? (
-                  <Crown size={28} color={iconColor} strokeWidth={2.5} />
-                ) : isCompleted ? (
-                  <Check size={28} color={iconColor} strokeWidth={3} />
-                ) : isFocusUnit ? (
-                  <Play size={26} color={iconColor} fill={iconColor} style={{ marginLeft: '3px' }} />
-                ) : isAvailable ? (
-                  <Play size={24} color={iconColor} fill={iconColor} style={{ marginLeft: '3px' }} />
+                {lessonDone ? (
+                  <Check size={28} color={lessonIconColor} strokeWidth={3} />
+                ) : isLessonFocus || !isUnitLocked ? (
+                  <Play size={26} color={lessonIconColor} fill={lessonIconColor} style={{ marginLeft: '3px' }} />
                 ) : (
-                  <Lock size={22} color={iconColor} />
+                  <Lock size={22} color={lessonIconColor} />
+                )}
+              </button>
+
+              {/* Lesson Node Labels */}
+              <div style={{ marginTop: '8px', textAlign: 'center', maxWidth: '140px' }}>
+                <div
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    color: isLessonFocus
+                      ? 'var(--fl-teal-light)'
+                      : isUnitLocked
+                      ? 'var(--fl-text-muted)'
+                      : 'var(--fl-text-primary)',
+                    letterSpacing: '0.02em'
+                  }}
+                >
+                  Unit {unit.number} · Lesson
+                </div>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--fl-text-secondary)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  {unit.title}
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 2: Dedicated 11 Ear Games Stepping Stone (Required Section) */}
+            <div
+              ref={isEarFocus ? activeNodeRef : undefined}
+              style={{
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                margin: '16px 0',
+                transform: `translateX(${earOffset}px)`,
+                transition: 'transform 0.3s ease',
+                zIndex: isEarFocus ? 10 : 2
+              }}
+            >
+              {/* Bouncing 11 EAR GAMES Speech Bubble Tooltip */}
+              {isEarFocus && (
+                <div
+                  className="animate-duo-bounce"
+                  style={{
+                    position: 'absolute',
+                    top: '-46px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    zIndex: 20
+                  }}
+                  onClick={() => handlePlayEarChallenge(unit)}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '6px 14px',
+                      borderRadius: '16px',
+                      backgroundColor: '#FFFFFF',
+                      color: '#0D1117',
+                      fontWeight: 800,
+                      fontSize: '12px',
+                      letterSpacing: '0.04em',
+                      boxShadow: '0 8px 18px rgba(0, 0, 0, 0.25)',
+                      border: '2px solid #6366F1',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    <Headphones size={13} color="#6366F1" />
+                    <span>11 Ear Games</span>
+                  </div>
+                  <div
+                    style={{
+                      width: 0,
+                      height: 0,
+                      borderLeft: '6px solid transparent',
+                      borderRight: '6px solid transparent',
+                      borderTop: '7px solid #FFFFFF',
+                      marginTop: '-1px'
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* 3D Circular Ear Training Stepping Stone Button */}
+              <button
+                type="button"
+                id={`path-unit-ear-stone-${unit.id}`}
+                onClick={() => handlePlayEarChallenge(unit)}
+                className={isEarFocus ? 'animate-duo-pulse' : ''}
+                style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '50%',
+                  background: earBg,
+                  border: !earUnlocked
+                    ? '2px solid var(--fl-border)'
+                    : earDone
+                    ? '2px solid #FEF08A'
+                    : '2px solid #C7D2FE',
+                  boxShadow: `0 7px 0 ${earShadow}, ${earBorderGlow}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: !earUnlocked ? 'not-allowed' : 'pointer',
+                  position: 'relative',
+                  outline: 'none',
+                  transition: 'all 0.12s ease',
+                  transform: 'translateY(0)'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'translateY(4px)';
+                  e.currentTarget.style.boxShadow = `0 3px 0 ${earShadow}`;
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = `0 7px 0 ${earShadow}, ${earBorderGlow}`;
+                }}
+                title={`Unit ${unit.number}: 11 Ear Games (${earDone ? 'Mastered' : earUnlocked ? 'Available' : 'Locked'})`}
+                aria-label={`Unit ${unit.number} 11 Ear Training Games`}
+              >
+                {earDone ? (
+                  <Crown size={28} color={earIconColor} strokeWidth={2.5} />
+                ) : earUnlocked ? (
+                  <Headphones size={28} color={earIconColor} strokeWidth={2.5} />
+                ) : (
+                  <Lock size={22} color={earIconColor} />
                 )}
 
-                {/* Mastered Crown Badge / Stars on top */}
-                {isMastered && (
+                {/* Mastered Golden Star Badge */}
+                {earDone && (
                   <div
                     style={{
                       position: 'absolute',
@@ -294,73 +476,31 @@ export const LearningPath: React.FC<LearningPathProps> = ({
                 )}
               </button>
 
-              {/* Unit Label Under Node */}
-              <div
-                style={{
-                  marginTop: '10px',
-                  textAlign: 'center',
-                  maxWidth: '140px'
-                }}
-              >
+              {/* Ear Challenge Node Labels */}
+              <div style={{ marginTop: '8px', textAlign: 'center', maxWidth: '140px' }}>
                 <div
                   style={{
                     fontSize: '12px',
                     fontWeight: 800,
-                    color: isFocusUnit
-                      ? 'var(--fl-teal-light)'
-                      : isLocked
+                    color: isEarFocus
+                      ? 'var(--fl-indigo-light)'
+                      : !earUnlocked
                       ? 'var(--fl-text-muted)'
                       : 'var(--fl-text-primary)',
                     letterSpacing: '0.02em'
                   }}
                 >
-                  Unit {unit.number}
+                  Unit {unit.number} · 11 Ear Games
                 </div>
                 <div
                   style={{
                     fontSize: '11px',
-                    color: 'var(--fl-text-secondary)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    color: earDone ? 'var(--fl-gold-star)' : earUnlocked ? 'var(--fl-indigo-light)' : 'var(--fl-text-secondary)',
+                    fontWeight: earDone || earUnlocked ? 700 : 500
                   }}
                 >
-                  {unit.title}
+                  {earDone ? 'Mastered ⭐' : earUnlocked ? 'Play Arcade 🎧' : 'Locked 🔒'}
                 </div>
-
-                {/* 11-Mode Ear Challenge Quick Button */}
-                <button
-                  type="button"
-                  id={`path-unit-ear-btn-${unit.id}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (isLocked) {
-                      onShowLockedModal(unit);
-                    } else if (onOpenEarChallenge) {
-                      onOpenEarChallenge(unit);
-                    }
-                  }}
-                  style={{
-                    marginTop: '6px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '3px 10px',
-                    borderRadius: '999px',
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    cursor: isLocked ? 'not-allowed' : 'pointer',
-                    backgroundColor: isLocked ? 'rgba(255, 255, 255, 0.04)' : 'rgba(99, 102, 241, 0.16)',
-                    border: isLocked ? '1px solid var(--fl-border)' : '1px solid rgba(99, 102, 241, 0.45)',
-                    color: isLocked ? 'var(--fl-text-muted)' : 'var(--fl-indigo-light)',
-                    boxShadow: isLocked ? 'none' : '0 2px 8px rgba(99, 102, 241, 0.2)',
-                    transition: 'all 0.15s ease'
-                  }}
-                  title={isLocked ? `Unit ${unit.number} locked` : `Play 11 Ear Games for Unit ${unit.number}`}
-                >
-                  <Headphones size={11} />
-                  <span>11 Ear Games</span>
-                </button>
               </div>
             </div>
 

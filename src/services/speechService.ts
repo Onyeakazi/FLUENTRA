@@ -1,4 +1,4 @@
-// FLUENTRA Speech Recognition Service (Web Speech API + Resilient Fallback)
+// FLUENTRA High-Performance Speech Recognition Service (Web Speech API)
 
 export type SpeechCallback = (transcript: string, isFinal: boolean) => void;
 export type SpeechErrorCallback = (errorMessage: string) => void;
@@ -13,13 +13,20 @@ class SpeechService {
   private isListening: boolean = false;
 
   constructor() {
+    this.initRecognition();
+  }
+
+  private initRecognition(): void {
     if (typeof window !== 'undefined') {
       const win = window as IWindowWithSpeech;
       const SpeechRecognition = win.SpeechRecognition || win.webkitSpeechRecognition;
       if (SpeechRecognition) {
         this.recognition = new SpeechRecognition();
-        this.recognition.continuous = false;
+        // Continuous mode prevents premature cutoff on tiny breath pauses
+        this.recognition.continuous = true;
+        // Real-time interim results deliver instant responsiveness
         this.recognition.interimResults = true;
+        this.recognition.maxAlternatives = 1;
       }
     }
   }
@@ -35,11 +42,24 @@ class SpeechService {
     onEnd: () => void
   ): boolean {
     if (!this.recognition) {
-      onError('Speech recognition is not supported in this browser. You can use Tap to Answer or text input.');
-      return false;
+      this.initRecognition();
+      if (!this.recognition) {
+        onError('Speech recognition is not supported in this browser. Please use Chrome, Safari or Edge.');
+        return false;
+      }
     }
 
     try {
+      // If already listening, cleanly abort previous session first
+      if (this.isListening) {
+        try {
+          this.recognition.abort();
+        } catch (_) {
+          // ignore
+        }
+        this.isListening = false;
+      }
+
       this.recognition.lang = lang;
       this.isListening = true;
 
@@ -48,18 +68,26 @@ class SpeechService {
         let finalTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
+          const res = event.results[i];
+          if (res && res[0]) {
+            if (res.isFinal) {
+              finalTranscript += res[0].transcript;
+            } else {
+              interimTranscript += res[0].transcript;
+            }
           }
         }
 
-        const text = finalTranscript || interimTranscript;
-        onResult(text, Boolean(finalTranscript));
+        const text = (finalTranscript || interimTranscript).trim();
+        if (text) {
+          onResult(text, Boolean(finalTranscript));
+        }
       };
 
       this.recognition.onerror = (event: any) => {
+        // Intentionally aborted sessions shouldn't show an error alert
+        if (event.error === 'aborted') return;
+
         this.isListening = false;
         let message = 'Could not hear your audio clearly. Please try again.';
         if (event.error === 'not-allowed') {
@@ -88,6 +116,17 @@ class SpeechService {
     if (this.recognition && this.isListening) {
       try {
         this.recognition.stop();
+      } catch (e) {
+        // Safe ignore
+      }
+      this.isListening = false;
+    }
+  }
+
+  public abort(): void {
+    if (this.recognition) {
+      try {
+        this.recognition.abort();
       } catch (e) {
         // Safe ignore
       }

@@ -10,12 +10,31 @@ import { useProgression } from '../context/ProgressionContext';
 
 interface LearnViewProps {
   onStartLesson: (unitId: string, lessonId?: string, customLesson?: any) => void;
+  activeEarGameUnit?: UnitMetadata | null;
+  onOpenEarChallenge?: (unit: UnitMetadata | null) => void;
 }
 
-export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
-  const { activeLevel, setActiveLevel, activeStage, setActiveStage } = useProgression();
+export const LearnView: React.FC<LearnViewProps> = ({
+  onStartLesson,
+  activeEarGameUnit: externalActiveEarUnit,
+  onOpenEarChallenge: externalSetEarUnit
+}) => {
+  const { activeLevel, setActiveLevel, activeStage, setActiveStage, completeEarTraining } = useProgression();
   const [lockedModalUnit, setLockedModalUnit] = useState<UnitMetadata | null>(null);
-  const [activeEarGameUnit, setActiveEarGameUnit] = useState<UnitMetadata | null>(null);
+  const [lockedModalReason, setLockedModalReason] = useState<string | null>(null);
+  const [lockedModalTitle, setLockedModalTitle] = useState<string | null>(null);
+
+  const [internalActiveEarUnit, setInternalActiveEarUnit] = useState<UnitMetadata | null>(null);
+
+  // Controlled or uncontrolled active ear game unit
+  const activeEarGameUnit = externalActiveEarUnit !== undefined ? externalActiveEarUnit : internalActiveEarUnit;
+  const setActiveEarGameUnit = (unit: UnitMetadata | null) => {
+    if (externalSetEarUnit) {
+      externalSetEarUnit(unit);
+    } else {
+      setInternalActiveEarUnit(unit);
+    }
+  };
 
   const currentLevel = CURRICULUM_DATA.levels.find((l) => l.number === activeLevel) || CURRICULUM_DATA.levels[0];
   const currentStage = currentLevel.stages.find((s) => s.number === activeStage) || currentLevel.stages[0];
@@ -40,15 +59,25 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
         <LearningPath
           units={stageUnits}
           onStartLesson={onStartLesson}
-          onShowLockedModal={(unit) => setLockedModalUnit(unit)}
+          onShowLockedModal={(unit, lockReason, customTitle) => {
+            setLockedModalUnit(unit);
+            setLockedModalReason(lockReason || null);
+            setLockedModalTitle(customTitle || null);
+          }}
           onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
         />
       </div>
 
-      {/* 5. Locked Gate Modal with Prerequisite Explanation */}
+      {/* 3. Locked Gate Modal with Strict Prerequisite Explanation */}
       <LockedGateModal
         unit={lockedModalUnit}
-        onClose={() => setLockedModalUnit(null)}
+        lockReason={lockedModalReason || undefined}
+        customTitle={lockedModalTitle || undefined}
+        onClose={() => {
+          setLockedModalUnit(null);
+          setLockedModalReason(null);
+          setLockedModalTitle(null);
+        }}
         onJumpToPrereq={(prereqId) => {
           const prereq = CURRICULUM_DATA.unitsById[prereqId];
           if (prereq) {
@@ -58,14 +87,17 @@ export const LearnView: React.FC<LearnViewProps> = ({ onStartLesson }) => {
         }}
       />
 
-      {/* 6. 11-Mode Ear Training & Audio Arcade Modal */}
+      {/* 4. 11-Mode Ear Training & Audio Arcade Modal */}
       {activeEarGameUnit && (
         <EarTrainingGameModal
           unit={activeEarGameUnit}
           onClose={() => setActiveEarGameUnit(null)}
+          onCompleted={() => {
+            completeEarTraining(activeEarGameUnit.id);
+            setActiveEarGameUnit(null);
+          }}
         />
       )}
     </div>
   );
 };
-

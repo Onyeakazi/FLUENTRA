@@ -1,5 +1,5 @@
 // FLUENTRA 11-Mode Ear Training & Audio Arcade Modal Component
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   X,
   Volume2,
@@ -140,22 +140,97 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
     });
   };
 
+  const latestSpeechTranscriptRef = useRef<string>('');
+  const speechSilenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSpeechEvaluatedRef = useRef<boolean>(false);
+
+  const triggerEvaluateSpeech = useCallback((transcriptToEval: string) => {
+    if (isSpeechEvaluatedRef.current) return;
+    isSpeechEvaluatedRef.current = true;
+
+    if (speechSilenceTimerRef.current) {
+      clearTimeout(speechSilenceTimerRef.current);
+      speechSilenceTimerRef.current = null;
+    }
+
+    speechService.stop();
+    setSpeechState('processing');
+
+    const target = currentRound.targetText || currentRound.audioText;
+    const result = pronunciationEngine.evaluate(target, transcriptToEval);
+    setEvalResult(result);
+    setSpeechState('success');
+    const passed = result.overallScore >= 75;
+    setIsCorrect(passed);
+    setIsChecked(true);
+
+    if (passed) {
+      soundService.playCorrect();
+      setTotalXpEarned((p) => p + 15);
+    } else {
+      soundService.playIncorrect();
+    }
+  }, [currentRound]);
+
   // Mic Shadowing Handlers
   const handleStartMic = () => {
     soundService.playMicClick();
     setSpeechState('listening');
     setEvalResult(null);
+    setLastTranscript('');
+    latestSpeechTranscriptRef.current = '';
+    isSpeechEvaluatedRef.current = false;
+
+    if (speechSilenceTimerRef.current) {
+      clearTimeout(speechSilenceTimerRef.current);
+      speechSilenceTimerRef.current = null;
+    }
 
     const started = speechService.start(
       currentRound.langCode,
       (transcript, isFinal) => {
-        setLastTranscript(transcript);
+        if (isSpeechEvaluatedRef.current) return;
+
+        const clean = transcript.trim();
+        latestSpeechTranscriptRef.current = clean;
+        setLastTranscript(clean);
+
+        // Fast-path: immediate pass if pronunciation meets passing score
+        const target = currentRound.targetText || currentRound.audioText;
+        const quick = pronunciationEngine.evaluate(target, clean);
+        if (quick.overallScore >= 75) {
+          triggerEvaluateSpeech(clean);
+          return;
+        }
+
         if (isFinal) {
-          handleEvaluateSpeech(transcript);
+          triggerEvaluateSpeech(clean);
+          return;
+        }
+
+        if (speechSilenceTimerRef.current) {
+          clearTimeout(speechSilenceTimerRef.current);
+        }
+        speechSilenceTimerRef.current = setTimeout(() => {
+          if (!isSpeechEvaluatedRef.current && latestSpeechTranscriptRef.current) {
+            triggerEvaluateSpeech(latestSpeechTranscriptRef.current);
+          }
+        }, 600);
+      },
+      () => {
+        if (!isSpeechEvaluatedRef.current) {
+          setSpeechState('idle');
         }
       },
-      () => setSpeechState('idle'),
-      () => setSpeechState('idle')
+      () => {
+        if (!isSpeechEvaluatedRef.current) {
+          if (latestSpeechTranscriptRef.current) {
+            triggerEvaluateSpeech(latestSpeechTranscriptRef.current);
+          } else {
+            setSpeechState('idle');
+          }
+        }
+      }
     );
 
     if (!started) setSpeechState('idle');
@@ -164,30 +239,17 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   const handleStopMic = () => {
     soundService.playMicClick();
     speechService.stop();
-    if (lastTranscript) {
-      handleEvaluateSpeech(lastTranscript);
-    } else {
+
+    if (speechSilenceTimerRef.current) {
+      clearTimeout(speechSilenceTimerRef.current);
+      speechSilenceTimerRef.current = null;
+    }
+
+    if (latestSpeechTranscriptRef.current && !isSpeechEvaluatedRef.current) {
+      triggerEvaluateSpeech(latestSpeechTranscriptRef.current);
+    } else if (!isSpeechEvaluatedRef.current) {
       setSpeechState('idle');
     }
-  };
-
-  const handleEvaluateSpeech = (transcript: string) => {
-    setSpeechState('processing');
-    const target = currentRound.targetText || currentRound.audioText;
-    setTimeout(() => {
-      const result = pronunciationEngine.evaluate(target, transcript);
-      setEvalResult(result);
-      setSpeechState('success');
-      const passed = result.overallScore >= 75;
-      setIsCorrect(passed);
-      setIsChecked(true);
-      if (passed) {
-        soundService.playCorrect();
-        setTotalXpEarned(p => p + 15);
-      } else {
-        soundService.playIncorrect();
-      }
-    }, 400);
   };
 
   // Checking Answers
@@ -326,7 +388,10 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
           <button
             type="button"
             className="fl-btn fl-btn-primary"
-            onClick={onClose}
+            onClick={() => {
+              if (onCompleted) onCompleted();
+              onClose();
+            }}
             style={{ width: '100%', minHeight: '52px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
             <span>Return to Learning Path</span>
@@ -609,6 +674,23 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             <span style={{ fontSize: '14px', fontWeight: 700, color: speechState === 'listening' ? 'var(--fl-coral-flame)' : 'var(--fl-text-secondary)' }}>
               {speechState === 'listening' ? 'Listening... Speak now!' : speechState === 'processing' ? 'Evaluating acoustic resonance...' : 'Tap mic and shadow the phrase'}
             </span>
+
+            {speechState === 'listening' && lastTranscript && (
+              <span
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  color: 'var(--fl-teal-light)',
+                  backgroundColor: 'rgba(0, 245, 180, 0.12)',
+                  border: '1px solid rgba(0, 245, 180, 0.35)',
+                  padding: '4px 12px',
+                  borderRadius: '999px',
+                  marginTop: '6px'
+                }}
+              >
+                Heard: “{lastTranscript}”
+              </span>
+            )}
 
             {evalResult && (
               <div

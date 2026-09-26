@@ -1,5 +1,5 @@
 // FLUENTRA Speaking & Pronunciation Challenge Exercise
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Exercise } from '../../types/curriculum';
 import { AudioControls } from '../speech/AudioControls';
 import { RecordMicButton } from '../speech/RecordMicButton';
@@ -7,6 +7,8 @@ import { PronunciationScoreCard } from '../speech/PronunciationScoreCard';
 import { speechService } from '../../services/speechService';
 import { pronunciationEngine } from '../../services/pronunciationService';
 import { soundService } from '../../services/soundService';
+import { useUser } from '../../context/UserContext';
+import { getLanguageOption } from '../../data/languages';
 import { SpeechRecognitionState, PronunciationResult } from '../../types/speech';
 
 interface SpeakingChallengeProps {
@@ -15,38 +17,119 @@ interface SpeakingChallengeProps {
 }
 
 export const SpeakingChallenge: React.FC<SpeakingChallengeProps> = ({ exercise, onPass }) => {
+  const { profile } = useUser();
+  const currentLang = profile?.currentLanguage || 'French';
+  const langOpt = getLanguageOption(currentLang);
+  const langCode = langOpt?.code || 'fr-FR';
+
   const [speechState, setSpeechState] = useState<SpeechRecognitionState>('idle');
   const [evalResult, setEvalResult] = useState<PronunciationResult | null>(null);
-  const [lastTranscript, setLastTranscript] = useState<string>('');
+  const [liveTranscript, setLiveTranscript] = useState<string>('');
 
   const target = exercise.targetText || exercise.audioText || 'Bonjour';
+
+  const latestTranscriptRef = useRef<string>('');
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isEvaluatedRef = useRef<boolean>(false);
+
+  // Clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+      speechService.stop();
+    };
+  }, []);
+
+  const triggerEvaluation = useCallback((transcriptToEval: string) => {
+    if (isEvaluatedRef.current) return;
+    isEvaluatedRef.current = true;
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+
+    speechService.stop();
+    setSpeechState('processing');
+
+    // Immediate evaluation without artificial latency
+    const result = pronunciationEngine.evaluate(target, transcriptToEval);
+    setEvalResult(result);
+    setSpeechState('success');
+
+    if (result.isPassed) {
+      soundService.playCorrect();
+    } else {
+      soundService.playIncorrect();
+    }
+  }, [target]);
 
   const handleStartMic = () => {
     soundService.playMicClick();
     setSpeechState('listening');
     setEvalResult(null);
+    setLiveTranscript('');
+    latestTranscriptRef.current = '';
+    isEvaluatedRef.current = false;
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
 
     const started = speechService.start(
-      'fr-FR',
+      langCode,
       (transcript, isFinal) => {
-        setLastTranscript(transcript);
-        if (isFinal) {
-          handleEvaluate(transcript);
+        if (isEvaluatedRef.current) return;
+
+        const cleanTranscript = transcript.trim();
+        latestTranscriptRef.current = cleanTranscript;
+        setLiveTranscript(cleanTranscript);
+
+        // 1. FAST-PATH: If spoken text already meets the passing threshold (>= 80%), evaluate immediately!
+        const quickEval = pronunciationEngine.evaluate(target, cleanTranscript);
+        if (quickEval.isPassed) {
+          triggerEvaluation(cleanTranscript);
+          return;
         }
+
+        // 2. FINAL RESULT: If the engine finalized the utterance, evaluate immediately
+        if (isFinal) {
+          triggerEvaluation(cleanTranscript);
+          return;
+        }
+
+        // 3. FAST SILENCE DEBOUNCE: If learner spoke and paused for 600ms, evaluate immediately
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+        }
+        silenceTimerRef.current = setTimeout(() => {
+          if (!isEvaluatedRef.current && latestTranscriptRef.current) {
+            triggerEvaluation(latestTranscriptRef.current);
+          }
+        }, 600);
       },
       (errorMsg) => {
         console.warn('Speech recognition warning:', errorMsg);
-        setSpeechState('idle');
+        if (!isEvaluatedRef.current) {
+          setSpeechState('idle');
+        }
       },
       () => {
-        if (speechState === 'listening') {
-          setSpeechState('idle');
+        // When speech recognition ends: if speech was captured but not evaluated, evaluate it now
+        if (!isEvaluatedRef.current) {
+          if (latestTranscriptRef.current) {
+            triggerEvaluation(latestTranscriptRef.current);
+          } else {
+            setSpeechState('idle');
+          }
         }
       }
     );
 
     if (!started) {
-      // If browser doesn't have mic support, fall back to simulated test
       setSpeechState('idle');
     }
   };
@@ -54,34 +137,17 @@ export const SpeakingChallenge: React.FC<SpeakingChallengeProps> = ({ exercise, 
   const handleStopMic = () => {
     soundService.playMicClick();
     speechService.stop();
-    if (lastTranscript) {
-      handleEvaluate(lastTranscript);
-    } else {
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+
+    if (latestTranscriptRef.current && !isEvaluatedRef.current) {
+      triggerEvaluation(latestTranscriptRef.current);
+    } else if (!isEvaluatedRef.current) {
       setSpeechState('idle');
     }
-  };
-
-  const handleEvaluate = (transcript: string) => {
-    setSpeechState('processing');
-    setTimeout(() => {
-      const result = pronunciationEngine.evaluate(target, transcript);
-      setEvalResult(result);
-      setSpeechState('success');
-
-      if (result.isPassed) {
-        soundService.playCorrect();
-      } else {
-        soundService.playIncorrect();
-      }
-    }, 450);
-  };
-
-  const handleSimulate = (sampleText: string) => {
-    setSpeechState('listening');
-    setTimeout(() => {
-      setLastTranscript(sampleText);
-      handleEvaluate(sampleText);
-    }, 500);
   };
 
   return (
@@ -132,8 +198,7 @@ export const SpeakingChallenge: React.FC<SpeakingChallengeProps> = ({ exercise, 
           state={speechState}
           onStart={handleStartMic}
           onStop={handleStopMic}
-          onSimulateSpeech={handleSimulate}
-          targetSample={target}
+          liveTranscript={liveTranscript}
         />
       )}
 
@@ -143,6 +208,9 @@ export const SpeakingChallenge: React.FC<SpeakingChallengeProps> = ({ exercise, 
           result={evalResult}
           onRetry={() => {
             setEvalResult(null);
+            setLiveTranscript('');
+            latestTranscriptRef.current = '';
+            isEvaluatedRef.current = false;
             setSpeechState('idle');
           }}
           onContinue={() => {

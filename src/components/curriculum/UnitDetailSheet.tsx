@@ -21,21 +21,20 @@ export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
   onStartLesson,
   onOpenEarChallenge
 }) => {
-  if (!unit) return null;
-
   const { progressMap } = useProgression();
   const { profile } = useUser();
-  const unitProgress = progressMap[unit.id];
+  const unitProgress = unit ? progressMap[unit.id] : undefined;
   const completedLessons = unitProgress?.completedLessonIds || [];
 
   const [lessons, setLessons] = useState<Lesson[]>(() => {
-    return getLessonsForUnit(unit.id, profile.currentLanguage);
+    return unit ? getLessonsForUnit(unit.id, profile.currentLanguage) : [];
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationNotice, setGenerationNotice] = useState<string | null>(null);
 
   // Dynamically synthesize/generate AI lessons whenever unit opens
   useEffect(() => {
+    if (!unit) return;
     let isMounted = true;
     const loadDynamicLessons = async () => {
       setIsGenerating(true);
@@ -61,7 +60,9 @@ export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [unit.id, profile.currentLanguage, profile.learningGoal, unit.levelNumber]);
+  }, [unit?.id, profile.currentLanguage, profile.learningGoal, unit?.levelNumber]);
+
+  if (!unit) return null;
 
   const handleRegenerate = async () => {
     setIsGenerating(true);

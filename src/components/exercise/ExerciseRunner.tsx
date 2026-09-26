@@ -1,6 +1,6 @@
 // FLUENTRA Interactive Exercise Runner — 10-Step Pedagogical Methodology
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Check, ArrowRight, Award, Zap, Sparkles, RotateCcw } from 'lucide-react';
+import { X, Check, ArrowRight, Award, Zap, Sparkles, RotateCcw, Headphones } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Lesson, Exercise } from '../../types/curriculum';
 import { MultipleChoice } from './MultipleChoice';
@@ -21,6 +21,7 @@ interface ExerciseRunnerProps {
   lesson: Lesson;
   onExit: () => void;
   onStartNextUnit?: (nextUnitId: string) => void;
+  onOpenEarGames?: (unitId: string) => void;
 }
 
 const STEP_METADATA: Record<string, { num: number; label: string; badgeClass: string }> = {
@@ -40,7 +41,8 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
   unitId,
   lesson,
   onExit,
-  onStartNextUnit
+  onStartNextUnit,
+  onOpenEarGames
 }) => {
   const { completeLesson } = useProgression();
   const { profile } = useUser();
@@ -300,68 +302,80 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
             </div>
           </div>
 
-          {/* Next Unit Unlocked Banner */}
-          {nextUnitMeta && (
+          {/* Next Required Milestone: 11 Ear Training Games */}
+          <div
+            style={{
+              padding: '14px 18px',
+              borderRadius: '16px',
+              backgroundColor: 'rgba(99, 102, 241, 0.12)',
+              border: '1.5px solid rgba(99, 102, 241, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              width: '100%',
+              marginBottom: '20px'
+            }}
+          >
             <div
               style={{
-                width: '100%',
-                padding: '12px 14px',
-                borderRadius: 'var(--fl-radius-md)',
-                backgroundColor: 'rgba(88, 204, 2, 0.12)',
-                border: '1.5px solid #58CC02',
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: '#6366F1',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                textAlign: 'left'
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)'
               }}
             >
-              <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: '#58CC02',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}
-              >
-                <Check size={18} color="#FFFFFF" />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#58CC02', textTransform: 'uppercase' }}>
-                  Next Unit Unlocked
-                </span>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
-                  Unit {nextUnitNum}: {nextUnitMeta.title}
-                </span>
-              </div>
+              <Headphones size={20} color="#FFFFFF" />
             </div>
-          )}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--fl-indigo-light)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Next Required Section · 11 Ear Games
+              </span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                Master all 11 acoustic challenges to unlock Unit {nextUnitNum}
+              </span>
+            </div>
+          </div>
 
           {/* Continuous Navigation Actions */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
-            {onStartNextUnit && nextUnitMeta && (
-              <button
-                type="button"
-                id="btn-lesson-start-next-unit"
-                className="fl-btn fl-btn-primary"
-                onClick={() => {
-                  setIsCompleted(false);
-                  onStartNextUnit(nextUnitId);
-                }}
-                style={{ width: '100%', minHeight: '52px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-              >
-                <span>Continue to Next Unit</span>
-                <ArrowRight size={18} />
-              </button>
-            )}
+            <button
+              type="button"
+              id="btn-lesson-start-ear-games"
+              className="fl-btn fl-btn-primary"
+              onClick={() => {
+                setIsCompleted(false);
+                if (onOpenEarGames) {
+                  onOpenEarGames(unitId);
+                } else {
+                  onExit();
+                }
+              }}
+              style={{
+                width: '100%',
+                minHeight: '52px',
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                boxShadow: '0 6px 20px rgba(99, 102, 241, 0.4)'
+              }}
+            >
+              <Headphones size={19} />
+              <span>Continue to 11 Ear Games</span>
+              <ArrowRight size={18} />
+            </button>
 
             <button
               type="button"
               id="btn-lesson-continue-finish"
-              className={`fl-btn ${onStartNextUnit && nextUnitMeta ? 'fl-btn-secondary' : 'fl-btn-primary'}`}
+              className="fl-btn fl-btn-secondary"
               onClick={onExit}
               style={{ width: '100%', minHeight: '48px', fontSize: '15px' }}
             >
