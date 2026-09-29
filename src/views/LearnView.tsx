@@ -11,12 +11,14 @@ import { useProgression } from '../context/ProgressionContext';
 interface LearnViewProps {
   onStartLesson: (unitId: string, lessonId?: string, customLesson?: any) => void;
   activeEarGameUnit?: UnitMetadata | null;
-  onOpenEarChallenge?: (unit: UnitMetadata | null) => void;
+  activeEarGameLessonId?: string | null;
+  onOpenEarChallenge?: (unit: UnitMetadata | null, lessonId?: string) => void;
 }
 
 export const LearnView: React.FC<LearnViewProps> = ({
   onStartLesson,
   activeEarGameUnit: externalActiveEarUnit,
+  activeEarGameLessonId: externalActiveEarLessonId,
   onOpenEarChallenge: externalSetEarUnit
 }) => {
   const { activeLevel, setActiveLevel, activeStage, setActiveStage, completeEarTraining } = useProgression();
@@ -25,14 +27,17 @@ export const LearnView: React.FC<LearnViewProps> = ({
   const [lockedModalTitle, setLockedModalTitle] = useState<string | null>(null);
 
   const [internalActiveEarUnit, setInternalActiveEarUnit] = useState<UnitMetadata | null>(null);
+  const [internalActiveEarLessonId, setInternalActiveEarLessonId] = useState<string | null>(null);
 
   // Controlled or uncontrolled active ear game unit
   const activeEarGameUnit = externalActiveEarUnit !== undefined ? externalActiveEarUnit : internalActiveEarUnit;
-  const setActiveEarGameUnit = (unit: UnitMetadata | null) => {
+  const activeEarGameLessonId = externalActiveEarLessonId !== undefined ? externalActiveEarLessonId : internalActiveEarLessonId;
+  const setActiveEarGameUnit = (unit: UnitMetadata | null, lessonId?: string) => {
     if (externalSetEarUnit) {
-      externalSetEarUnit(unit);
+      externalSetEarUnit(unit, lessonId);
     } else {
       setInternalActiveEarUnit(unit);
+      setInternalActiveEarLessonId(lessonId || null);
     }
   };
 
@@ -91,10 +96,15 @@ export const LearnView: React.FC<LearnViewProps> = ({
       {activeEarGameUnit && (
         <EarTrainingGameModal
           unit={activeEarGameUnit}
-          onClose={() => setActiveEarGameUnit(null)}
+          lessonId={activeEarGameLessonId || undefined}
+          onClose={() => {
+            setActiveEarGameUnit(null);
+            setInternalActiveEarLessonId(null);
+          }}
           onCompleted={() => {
             completeEarTraining(activeEarGameUnit.id);
             setActiveEarGameUnit(null);
+            setInternalActiveEarLessonId(null);
           }}
         />
       )}

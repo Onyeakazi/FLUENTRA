@@ -14,7 +14,7 @@ interface LearningPathProps {
   onStartLesson: (unitId: string, lessonId?: string) => void;
   onOpenUnit?: (unit: UnitMetadata) => void;
   onShowLockedModal: (unit: UnitMetadata, lockReason?: string, customTitle?: string) => void;
-  onOpenEarChallenge?: (unit: UnitMetadata) => void;
+  onOpenEarChallenge?: (unit: UnitMetadata, lessonId?: string) => void;
 }
 
 // Alternating serpentine horizontal offsets in pixels (tuned for fluid mobile path curves)
@@ -120,7 +120,7 @@ export const LearningPath: React.FC<LearningPathProps> = ({
     onStartLesson(unit.id, targetLessonId);
   };
 
-  const handlePlayEarChallenge = (unit: UnitMetadata) => {
+  const handlePlayEarChallenge = (unit: UnitMetadata, lessonId?: string) => {
     const isUnitLocked = getUnitStatus(unit.id) === 'locked';
     if (isUnitLocked) {
       onShowLockedModal(unit);
@@ -128,7 +128,7 @@ export const LearningPath: React.FC<LearningPathProps> = ({
     }
 
     if (onOpenEarChallenge) {
-      onOpenEarChallenge(unit);
+      onOpenEarChallenge(unit, lessonId);
     }
   };
 

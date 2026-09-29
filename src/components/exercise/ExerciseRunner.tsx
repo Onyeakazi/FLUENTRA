@@ -21,7 +21,7 @@ interface ExerciseRunnerProps {
   lesson: Lesson;
   onExit: () => void;
   onStartNextUnit?: (nextUnitId: string) => void;
-  onOpenEarGames?: (unitId: string) => void;
+  onOpenEarGames?: (unitId: string, lessonId?: string) => void;
 }
 
 const STEP_METADATA: Record<string, { num: number; label: string; badgeClass: string }> = {
@@ -350,7 +350,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
               onClick={() => {
                 setIsCompleted(false);
                 if (onOpenEarGames) {
-                  onOpenEarGames(unitId);
+                  onOpenEarGames(unitId, lesson.id);
                 } else {
                   onExit();
                 }

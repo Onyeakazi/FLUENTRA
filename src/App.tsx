@@ -30,6 +30,7 @@ const FluentraApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('learn'); // Learn (Path) is default home screen
   const [activeLessonContext, setActiveLessonContext] = useState<{ unitId: string; lesson: Lesson } | null>(null);
   const [activeEarGameUnit, setActiveEarGameUnit] = useState<UnitMetadata | null>(null);
+  const [activeEarGameLessonId, setActiveEarGameLessonId] = useState<string | null>(null);
   const [activeScenario, setActiveScenario] = useState<ConversationScenario | null>(null);
 
   // 1-Tap "Start From Where You Left Off" Launch Modal State
@@ -135,12 +136,13 @@ const FluentraApp: React.FC = () => {
           lesson={activeLessonContext.lesson}
           onExit={() => setActiveLessonContext(null)}
           onStartNextUnit={(nextUnitId) => handleStartLesson(nextUnitId)}
-          onOpenEarGames={(unitId) => {
+          onOpenEarGames={(unitId, lessonId) => {
             setActiveLessonContext(null);
             setActiveTab('learn');
             const unit = CURRICULUM_DATA.unitsById[unitId];
             if (unit) {
               setActiveEarGameUnit(unit);
+              setActiveEarGameLessonId(lessonId || null);
             }
           }}
         />
@@ -150,10 +152,15 @@ const FluentraApp: React.FC = () => {
       {isAuthenticated && profile.isSetupCompleted && !activeLessonContext && activeEarGameUnit && (
         <EarTrainingGameModal
           unit={activeEarGameUnit}
-          onClose={() => setActiveEarGameUnit(null)}
+          lessonId={activeEarGameLessonId || undefined}
+          onClose={() => {
+            setActiveEarGameUnit(null);
+            setActiveEarGameLessonId(null);
+          }}
           onCompleted={() => {
             completeEarTraining(activeEarGameUnit.id);
             setActiveEarGameUnit(null);
+            setActiveEarGameLessonId(null);
           }}
         />
       )}
@@ -176,7 +183,11 @@ const FluentraApp: React.FC = () => {
               <LearnView
                 onStartLesson={(unitId, lessonId, customLesson) => handleStartLesson(unitId, lessonId, customLesson)}
                 activeEarGameUnit={activeEarGameUnit}
-                onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
+                activeEarGameLessonId={activeEarGameLessonId}
+                onOpenEarChallenge={(unit, lessonId) => {
+                  setActiveEarGameUnit(unit);
+                  setActiveEarGameLessonId(lessonId || null);
+                }}
               />
             )}
 

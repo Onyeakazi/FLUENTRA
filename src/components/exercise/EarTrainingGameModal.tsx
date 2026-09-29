@@ -32,12 +32,14 @@ import { SpeechRecognitionState, PronunciationResult } from '../../types/speech'
 
 interface EarTrainingGameModalProps {
   unit: UnitMetadata;
+  lessonId?: string;
   onClose: () => void;
   onCompleted?: () => void;
 }
 
 export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   unit,
+  lessonId,
   onClose,
   onCompleted
 }) => {
@@ -46,15 +48,15 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   const currentLang = profile.currentLanguage || 'French';
 
   const [rounds, setRounds] = useState<EarGameRound[]>(() =>
-    earTrainingService.getRoundsForUnit(unit.id, currentLang)
+    earTrainingService.getRoundsForUnit(unit.id, currentLang, lessonId)
   );
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Sync rounds if unit or language changes
+  // Sync rounds if unit, language, or lessonId changes
   useEffect(() => {
-    setRounds(earTrainingService.getRoundsForUnit(unit.id, currentLang));
+    setRounds(earTrainingService.getRoundsForUnit(unit.id, currentLang, lessonId));
     setCurrentIndex(0);
-  }, [unit.id, currentLang]);
+  }, [unit.id, currentLang, lessonId]);
 
   // Audio Playback State
   const [isPlaying, setIsPlaying] = useState(false);
