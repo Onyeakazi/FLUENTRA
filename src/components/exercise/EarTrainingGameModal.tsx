@@ -1347,138 +1347,261 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
         )}
 
         {/* ---------------------------------------------------- */}
-        {/* MODE 11: The Native Audio Story & English Review     */}
+        {/* MODE 11: The Native Audio Story & Comprehension Check */}
         {/* ---------------------------------------------------- */}
         {currentRound.mode === 'audio_story' && currentRound.storyData && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            {/* Story Header Banner */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Story Card: Full Text Display & Audio Player */}
             <div
-              className="fl-card"
+              className="fl-card fl-card-active"
               style={{
-                padding: '16px 20px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, rgba(0, 196, 140, 0.15) 0%, rgba(129, 140, 248, 0.1) 100%)',
-                border: '1.5px solid var(--fl-teal-primary)',
+                padding: '22px 20px',
+                borderRadius: '20px',
+                background: 'linear-gradient(180deg, rgba(0, 245, 180, 0.06) 0%, rgba(19, 27, 46, 0.95) 100%)',
+                border: isPlaying ? '1.5px solid var(--fl-teal-light)' : '1.5px solid rgba(0, 245, 180, 0.35)',
+                boxShadow: isPlaying ? '0 0 28px rgba(0, 245, 180, 0.2)' : '0 0 20px rgba(0, 245, 180, 0.08)',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '12px'
+                flexDirection: 'column',
+                gap: '14px',
+                transition: 'all 0.2s ease'
               }}
             >
-              <div>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--fl-teal-light)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Micro-Tale
-                </span>
-                <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF', margin: '2px 0 0' }}>
-                  {showEnglishReview ? currentRound.storyData.titleEnglish : currentRound.storyData.title}
-                </h4>
+              {/* Story Top Header Bar */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span
+                    className="fl-badge fl-badge-teal"
+                    style={{ fontSize: '11px', fontWeight: 800, padding: '3px 8px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <BookOpen size={14} />
+                    <span>SHORT STORY · {currentLang.toUpperCase()}</span>
+                  </span>
+                </div>
+
+                {/* English Review Toggle */}
+                <button
+                  type="button"
+                  id="btn-toggle-story-translation"
+                  onClick={() => setShowEnglishReview(prev => !prev)}
+                  className="fl-btn fl-btn-secondary"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    borderRadius: '12px',
+                    backgroundColor: showEnglishReview ? 'rgba(0, 245, 180, 0.15)' : 'var(--fl-bg-card-hover)',
+                    borderColor: showEnglishReview ? 'var(--fl-teal-light)' : 'var(--fl-border)'
+                  }}
+                >
+                  {showEnglishReview ? <EyeOff size={14} /> : <Eye size={14} />}
+                  <span>{showEnglishReview ? 'Hide Translation' : 'Review English'}</span>
+                </button>
               </div>
 
-              {/* Toggle Review in English Button */}
-              <button
-                type="button"
-                onClick={() => setShowEnglishReview(prev => !prev)}
-                className="fl-btn fl-btn-secondary"
+              {/* Story Titles */}
+              <div>
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF', margin: '2px 0 3px' }}>
+                  {currentRound.storyData.title}
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', margin: 0 }}>
+                  {currentRound.storyData.titleEnglish}
+                </p>
+              </div>
+
+              {/* Audio Controls Box (Reads out the full story in the language) */}
+              <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  borderRadius: '12px',
-                  backgroundColor: showEnglishReview ? 'rgba(0, 245, 180, 0.15)' : 'var(--fl-bg-card-hover)',
-                  borderColor: showEnglishReview ? 'var(--fl-teal-light)' : 'var(--fl-border)'
+                  justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  borderRadius: '14px',
+                  backgroundColor: 'rgba(11, 15, 25, 0.55)',
+                  border: '1px solid var(--fl-border)',
+                  flexWrap: 'wrap',
+                  gap: '10px'
                 }}
               >
-                {showEnglishReview ? <EyeOff size={15} /> : <Eye size={15} />}
-                <span>{showEnglishReview ? 'Hide English' : 'Review in English'}</span>
-              </button>
-            </div>
-
-            {/* Sentence-by-Sentence Audio Reader */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {currentRound.storyData.sentences.map((sentence, idx) => {
-                const isPlayingSentence = activeStorySentenceId === sentence.id;
-
-                return (
-                  <div
-                    key={sentence.id}
-                    className="fl-card"
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {/* Main Play / Pause Full Story Audio Button */}
+                  <button
+                    type="button"
+                    id="btn-play-story-audio"
+                    className="fl-btn-icon"
+                    onClick={() => {
+                      if (isPlaying) {
+                        ttsService.stop();
+                        setIsPlaying(false);
+                      } else {
+                        const storyText = currentRound.storyData?.fullStoryText || currentRound.storyData?.sentences.map(s => s.targetText).join(' ') || '';
+                        playAudio(storyText, 0.95);
+                      }
+                    }}
                     style={{
-                      padding: '14px 18px',
-                      borderRadius: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '12px',
-                      borderColor: isPlayingSentence ? 'var(--fl-teal-light)' : 'var(--fl-border)',
-                      backgroundColor: isPlayingSentence ? 'rgba(0, 245, 180, 0.08)' : 'var(--fl-bg-card)'
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      backgroundColor: isPlaying ? 'var(--fl-teal-subtle)' : 'var(--fl-bg-card-hover)',
+                      border: `1.5px solid ${isPlaying ? 'var(--fl-teal-light)' : 'var(--fl-border)'}`,
+                      boxShadow: isPlaying ? '0 0 16px rgba(0, 245, 180, 0.35)' : 'none'
+                    }}
+                    title={isPlaying ? 'Pause Story Audio' : `Listen to Story in ${currentLang}`}
+                    aria-label="Play story audio"
+                  >
+                    {isPlaying ? (
+                      <Square size={20} color="var(--fl-teal-light)" fill="var(--fl-teal-light)" />
+                    ) : (
+                      <Volume2 size={22} color="var(--fl-teal-light)" />
+                    )}
+                  </button>
+
+                  {/* Snail Slow Audio Button */}
+                  <button
+                    type="button"
+                    id="btn-play-story-slow"
+                    className="fl-btn-icon"
+                    onClick={() => {
+                      if (isPlaying && playingSpeed < 0.85) {
+                        ttsService.stop();
+                        setIsPlaying(false);
+                      } else {
+                        const storyText = currentRound.storyData?.fullStoryText || currentRound.storyData?.sentences.map(s => s.targetText).join(' ') || '';
+                        playAudio(storyText, 0.72);
+                      }
+                    }}
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: isPlaying && playingSpeed < 0.85 ? 'var(--fl-indigo-subtle)' : 'var(--fl-bg-card-hover)',
+                      border: `1.5px solid ${isPlaying && playingSpeed < 0.85 ? 'var(--fl-indigo-light)' : 'var(--fl-border)'}`
+                    }}
+                    title="Listen slowly (0.7x)"
+                    aria-label="Listen slowly"
+                  >
+                    <Snail size={18} color={isPlaying && playingSpeed < 0.85 ? 'var(--fl-indigo-light)' : 'var(--fl-text-secondary)'} />
+                  </button>
+
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: isPlaying ? 'var(--fl-teal-light)' : 'var(--fl-text-primary)' }}>
+                    {isPlaying ? (playingSpeed < 0.85 ? 'Reading slowly (0.7x)...' : 'Reading aloud in ' + currentLang + '...') : 'Read Aloud in ' + currentLang}
+                  </span>
+                </div>
+
+                {/* Animated Equalizer Waveform Dots */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', height: '16px' }}>
+                  {[...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: '4px',
+                        height: isPlaying ? '14px' : '4px',
+                        borderRadius: isPlaying ? '2px' : '50%',
+                        backgroundColor: isPlaying ? 'var(--fl-teal-light)' : 'rgba(0, 245, 180, 0.35)',
+                        transition: 'all 0.18s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Story Text Display Passage */}
+              <div
+                style={{
+                  padding: '18px 20px',
+                  borderRadius: '16px',
+                  backgroundColor: 'rgba(11, 15, 25, 0.65)',
+                  border: '1.5px solid var(--fl-border)'
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: '18px',
+                    lineHeight: 1.75,
+                    fontWeight: 600,
+                    color: '#F8FAFC',
+                    margin: 0,
+                    letterSpacing: '0.01em'
+                  }}
+                >
+                  “{currentRound.storyData.fullStoryText || currentRound.storyData.sentences.map(s => s.targetText).join(' ')}”
+                </p>
+
+                {/* English Review Translation Display */}
+                {showEnglishReview && (
+                  <div
+                    className="animate-fade-in"
+                    style={{
+                      marginTop: '14px',
+                      paddingTop: '12px',
+                      borderTop: '1px dashed var(--fl-border-strong)'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                      <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--fl-text-muted)', flexShrink: 0 }}>
-                        {idx + 1}
-                      </span>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
-                          {sentence.targetText}
-                        </span>
-                        {showEnglishReview && (
-                          <span className="animate-fade-in" style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontStyle: 'italic', marginTop: '2px' }}>
-                            “{sentence.translation}”
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="fl-btn-icon"
-                      onClick={() => {
-                        setActiveStorySentenceId(sentence.id);
-                        playAudio(sentence.audioText, 0.95, () => setActiveStorySentenceId(null));
-                      }}
+                    <p
                       style={{
-                        width: '38px',
-                        height: '38px',
-                        borderColor: isPlayingSentence ? 'var(--fl-teal-light)' : 'var(--fl-border)',
-                        backgroundColor: isPlayingSentence ? 'var(--fl-teal-subtle)' : 'var(--fl-bg-card-hover)'
+                        fontSize: '15px',
+                        lineHeight: 1.65,
+                        color: 'var(--fl-text-secondary)',
+                        fontStyle: 'italic',
+                        margin: 0
                       }}
-                      title="Listen to native sentence"
-                      aria-label="Listen to sentence"
                     >
-                      <Volume2 size={18} color={isPlayingSentence ? 'var(--fl-teal-light)' : 'var(--fl-text-secondary)'} />
-                    </button>
+                      “{currentRound.storyData.fullStoryTranslation || currentRound.storyData.sentences.map(s => s.translation).join(' ')}”
+                    </p>
                   </div>
-                );
-              })}
+                )}
+              </div>
             </div>
 
-            {/* Story Comprehension Check */}
-            <div style={{ marginTop: '10px' }}>
-              <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#FFFFFF', marginBottom: '10px' }}>
-                Quick Check: {currentRound.storyData.comprehensionQuestion.prompt}
+            {/* Comprehension Question & Objectives */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span
+                  className="fl-badge fl-badge-indigo"
+                  style={{ fontSize: '11px', fontWeight: 800, padding: '3px 8px' }}
+                >
+                  QUESTION
+                </span>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--fl-text-muted)' }}>
+                  Story Comprehension
+                </span>
+              </div>
+
+              <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF', margin: 0, lineHeight: 1.4 }}>
+                {currentRound.storyData.comprehensionQuestion.prompt}
               </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+              <p style={{ fontSize: '14px', color: 'var(--fl-text-secondary)', margin: '-4px 0 4px' }}>
+                Select the correct objective based on the short story:
+              </p>
+
+              {/* Objectives To Pick From */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {currentRound.storyData.comprehensionQuestion.options.map(opt => {
                   const isSelected = selectedOptionId === opt.id;
                   const isCorrectOpt = opt.id === currentRound.storyData?.comprehensionQuestion.correctOptionId;
 
                   let border = '1.5px solid var(--fl-border-strong)';
                   let bg = 'var(--fl-bg-card)';
+                  let glow = 'none';
+
                   if (isSelected) {
                     border = '2px solid var(--fl-teal-light)';
                     bg = 'rgba(0, 245, 180, 0.08)';
+                    glow = '0 0 16px rgba(0, 245, 180, 0.12)';
                   }
+
                   if (isChecked) {
                     if (isCorrectOpt) {
                       border = '2px solid #58CC02';
                       bg = 'rgba(88, 204, 2, 0.15)';
+                      glow = '0 0 16px rgba(88, 204, 2, 0.2)';
                     } else if (isSelected && !isCorrectOpt) {
                       border = '2px solid var(--fl-coral-flame)';
                       bg = 'var(--fl-coral-subtle)';
+                      glow = '0 0 16px rgba(255, 107, 74, 0.2)';
                     }
                   }
 
@@ -1489,16 +1612,50 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       className="fl-card fl-card-interactive"
                       onClick={() => !isChecked && setSelectedOptionId(opt.id)}
                       style={{
-                        padding: '14px 18px',
+                        padding: '16px 20px',
                         borderRadius: '16px',
-                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
                         border,
                         backgroundColor: bg,
-                        fontSize: '15px',
-                        fontWeight: 700
+                        boxShadow: glow,
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease'
                       }}
                     >
-                      {opt.text}
+                      <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--fl-text-primary)', flex: 1, paddingRight: '12px' }}>
+                        {opt.text}
+                      </span>
+
+                      {/* Radio status circle matching Fluentra */}
+                      <div style={{ flexShrink: 0 }}>
+                        {isChecked && isCorrectOpt ? (
+                          <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#58CC02', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Check size={14} color="#FFFFFF" />
+                          </div>
+                        ) : isChecked && isSelected && !isCorrectOpt ? (
+                          <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--fl-coral-flame)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <X size={14} color="#FFFFFF" />
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '50%',
+                              border: `2px solid ${isSelected ? 'var(--fl-teal-light)' : 'var(--fl-border-strong)'}`,
+                              backgroundColor: isSelected ? 'var(--fl-teal-light)' : 'transparent',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            {isSelected && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#0B0F19' }} />}
+                          </div>
+                        )}
+                      </div>
                     </button>
                   );
                 })}
@@ -1601,7 +1758,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             {isChecked ? (
               isCorrect ? (
                 <>
-                  <span>{currentIndex + 1 === rounds.length ? 'Claim Golden Ear Trophy' : 'Continue to Next Round'}</span>
+                  <span>{currentIndex + 1 === rounds.length ? 'Claim Golden Ear Trophy 🎉' : 'Continue to Next Round'}</span>
                   <ArrowRight size={18} />
                 </>
               ) : (
@@ -1612,7 +1769,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
               )
             ) : (
               <>
-                <span>Check Ear Answer</span>
+                <span>{currentRound.mode === 'audio_story' ? 'Check Story Answer' : 'Check Ear Answer'}</span>
                 <ArrowRight size={18} />
               </>
             )}
