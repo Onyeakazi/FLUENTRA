@@ -1004,6 +1004,7 @@ class EarTrainingService {
         instruction: 'Listen to the full spoken sentence. Which spoken word filled the audio gap?',
         audioText: t2.exampleUsage || `${t1.cleanAudioText}, ${t2.cleanAudioText}`,
         langCode,
+        targetText: t2.term,
         sentenceWithBlank: t2.exampleUsage && t2.exampleUsage.includes(t2.term)
           ? t2.exampleUsage.replace(t2.term, '[🔔]')
           : `${t1.term}, [🔔]`,
@@ -1148,7 +1149,7 @@ class EarTrainingService {
         mode: 'boss_shadowing',
         title: 'The Boss Shadowing Test',
         badgeLabel: '10/11 · BOSS SHADOWING',
-        instruction: 'The Ultimate Acoustic Challenge: Listen and shadow these 3 connected phrases from this lesson back-to-back!',
+        instruction: 'The Ultimate Acoustic Challenge: Pronounce each of the 3 phrases one by one to complete the streak!',
         audioText: t1.cleanAudioText,
         langCode,
         bossPhrases: [
@@ -1156,7 +1157,7 @@ class EarTrainingService {
           { id: 'bp-b', audioText: t2.cleanAudioText, targetText: t2.term, translation: t2.translation },
           { id: 'bp-c', audioText: t3.cleanAudioText, targetText: t3.term, translation: t3.translation }
         ],
-        explanation: `Lesson Acoustic Mastery Unlocked! You repeated all 3 key phrases from this lesson with native cadence and clarity.`
+        explanation: `Lesson Acoustic Mastery Unlocked! You successfully shadowed all 3 key phrases one by one with native cadence and clarity.`
       },
 
       // 11. THE NATIVE AUDIO STORY & COMPREHENSION (Mode 11)

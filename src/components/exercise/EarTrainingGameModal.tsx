@@ -75,6 +75,10 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
   const [speechState, setSpeechState] = useState<SpeechRecognitionState>('idle');
   const [evalResult, setEvalResult] = useState<PronunciationResult | null>(null);
   const [lastTranscript, setLastTranscript] = useState('');
+  const [bossActivePhraseIndex, setBossActivePhraseIndex] = useState(0);
+  const [bossCompletedScores, setBossCompletedScores] = useState<Record<number, number>>({});
+  const bossActivePhraseIndexRef = useRef<number>(0);
+  bossActivePhraseIndexRef.current = bossActivePhraseIndex;
 
   // Mode 4 Blitz State
   const [blitzMatches, setBlitzMatches] = useState<string[]>([]);
@@ -112,9 +116,12 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
     if (currentRound.mode === 'echo_mimic') return !evalResult;
     if (currentRound.mode === 'audio_tile_builder') return selectedWords.length === 0;
     if (currentRound.mode === 'audio_true_false') return selectedTrueFalse === null;
-    if (currentRound.mode === 'boss_shadowing') return !evalResult;
+    if (currentRound.mode === 'boss_shadowing') {
+      const total = currentRound.bossPhrases?.length || 3;
+      return Object.keys(bossCompletedScores).length < total;
+    }
     return !selectedOptionId;
-  }, [isChecked, currentRound.mode, evalResult, selectedWords.length, selectedTrueFalse, selectedOptionId]);
+  }, [isChecked, currentRound.mode, evalResult, selectedWords.length, selectedTrueFalse, selectedOptionId, bossCompletedScores, currentRound.bossPhrases]);
 
   // Auto-play audio on round start (except story which has sentence buttons)
   useEffect(() => {
@@ -127,6 +134,8 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
     setSpeechState('idle');
     setShowEnglishReview(false);
     setActiveStorySentenceId(null);
+    setBossActivePhraseIndex(0);
+    setBossCompletedScores({});
 
     const timer = setTimeout(() => {
       if (currentRound && currentRound.mode !== 'audio_story' && currentRound.mode !== 'sound_blitz') {
@@ -180,21 +189,63 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
     speechService.stop();
     setSpeechState('processing');
 
-    const target = currentRound.targetText || currentRound.audioText;
+    const activeBossIdx = bossActivePhraseIndexRef.current;
+    const activeBossPhrase = currentRound.bossPhrases?.[activeBossIdx];
+    const target = currentRound.mode === 'boss_shadowing' && activeBossPhrase
+      ? (activeBossPhrase.targetText || activeBossPhrase.audioText)
+      : (currentRound.targetText || currentRound.audioText);
+
     const result = pronunciationEngine.evaluate(target, transcriptToEval);
     setEvalResult(result);
     setSpeechState('success');
-    const passed = result.overallScore >= 75;
+
+    const passed = result.overallScore >= 65;
+
+    if (currentRound.mode === 'boss_shadowing') {
+      if (passed) {
+        soundService.playCorrect();
+        setBossCompletedScores((prev) => {
+          const nextScores = { ...prev, [activeBossIdx]: result.overallScore };
+          const totalPhrases = currentRound.bossPhrases?.length || 3;
+          if (Object.keys(nextScores).length >= totalPhrases) {
+            setIsCorrect(true);
+            setIsChecked(true);
+            setTotalXpEarned((p) => p + 20);
+            addXp(20);
+          } else {
+            let nextIdx = (activeBossIdx + 1) % totalPhrases;
+            while (nextScores[nextIdx] !== undefined && Object.keys(nextScores).length < totalPhrases) {
+              nextIdx = (nextIdx + 1) % totalPhrases;
+            }
+            setBossActivePhraseIndex(nextIdx);
+            setTimeout(() => {
+              isSpeechEvaluatedRef.current = false;
+              setSpeechState('idle');
+            }, 800);
+          }
+          return nextScores;
+        });
+      } else {
+        soundService.playIncorrect();
+        setTimeout(() => {
+          isSpeechEvaluatedRef.current = false;
+          setSpeechState('idle');
+        }, 1200);
+      }
+      return;
+    }
+
     setIsCorrect(passed);
     setIsChecked(true);
 
     if (passed) {
       soundService.playCorrect();
       setTotalXpEarned((p) => p + 15);
+      addXp(15);
     } else {
       soundService.playIncorrect();
     }
-  }, [currentRound]);
+  }, [currentRound, addXp]);
 
   // Mic Shadowing Handlers
   const handleStartMic = () => {
@@ -220,9 +271,14 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
         setLastTranscript(clean);
 
         // Fast-path: immediate pass if pronunciation meets passing score
-        const target = currentRound.targetText || currentRound.audioText;
+        const activeBossIdx = bossActivePhraseIndexRef.current;
+        const activeBossPhrase = currentRound.bossPhrases?.[activeBossIdx];
+        const target = currentRound.mode === 'boss_shadowing' && activeBossPhrase
+          ? (activeBossPhrase.targetText || activeBossPhrase.audioText)
+          : (currentRound.targetText || currentRound.audioText);
+
         const quick = pronunciationEngine.evaluate(target, clean);
-        if (quick.overallScore >= 75) {
+        if (quick.overallScore >= 65) {
           triggerEvaluateSpeech(clean);
           return;
         }
@@ -294,6 +350,8 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
       passed = selectedWords.join(' ') === currentRound.correctWordOrder?.join(' ');
     } else if (currentRound.mode === 'sound_blitz') {
       passed = blitzMatches.length >= (currentRound.blitzPairs?.length || 4);
+    } else if (currentRound.mode === 'boss_shadowing') {
+      passed = Object.keys(bossCompletedScores).length >= (currentRound.bossPhrases?.length || 3);
     } else if (currentRound.mode === 'audio_story') {
       passed = selectedOptionId === currentRound.storyData?.comprehensionQuestion.correctOptionId;
     }
@@ -326,6 +384,8 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
     setSelectedTrueFalse(null);
     setEvalResult(null);
     setSpeechState('idle');
+    setBossActivePhraseIndex(0);
+    setBossCompletedScores({});
     playAudio(currentRound.audioText, 0.95);
   };
 
@@ -667,8 +727,25 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
 
             {/* Audio Cloze Sentence */}
             {currentRound.sentenceWithBlank && (
-              <div style={{ marginTop: '4px', fontSize: '22px', fontWeight: 800, color: '#FFFFFF' }}>
-                {currentRound.sentenceWithBlank}
+              <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
+                  {currentRound.sentenceWithBlank}
+                </div>
+                {currentRound.translation && (
+                  <div
+                    style={{
+                      fontSize: '15px',
+                      color: 'var(--fl-teal-light)',
+                      fontWeight: 600,
+                      backgroundColor: 'rgba(0, 245, 180, 0.08)',
+                      padding: '5px 16px',
+                      borderRadius: '999px',
+                      border: '1px solid rgba(0, 245, 180, 0.25)'
+                    }}
+                  >
+                    English: “{currentRound.translation}”
+                  </div>
+                )}
               </div>
             )}
 
@@ -752,9 +829,16 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       transition: 'all 0.15s ease'
                     }}
                   >
-                    <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
-                      {opt.text}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                        {opt.text}
+                      </span>
+                      {opt.translation && currentRound.mode !== 'blind_ear' && (
+                        <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
+                          {opt.translation}
+                        </span>
+                      )}
+                    </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                       {opt.audioText && (
@@ -1271,46 +1355,160 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
         )}
 
         {/* ---------------------------------------------------- */}
-        {/* MODE 10: Boss Shadowing (3-Phrase Streak)            */}
+        {/* MODE 10: Boss Shadowing (Progressive 3-Phrase Streak) */}
         {/* ---------------------------------------------------- */}
         {currentRound.mode === 'boss_shadowing' && currentRound.bossPhrases && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {currentRound.bossPhrases.map((p, idx) => (
-              <div
-                key={p.id}
-                className="fl-card"
-                style={{
-                  padding: '16px 20px',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: 'var(--fl-bg-card-hover)',
-                  border: '1.5px solid var(--fl-border)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontWeight: 800, fontSize: '14px', color: 'var(--fl-gold-star)' }}>
-                    #{idx + 1}
-                  </span>
-                  <span style={{ fontSize: '17px', fontWeight: 700, color: '#FFFFFF' }}>
-                    {p.targetText}
-                  </span>
-                </div>
+            {/* Streak Counter Header */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255, 200, 0, 0.08)',
+                border: '1px solid rgba(255, 200, 0, 0.25)'
+              }}
+            >
+              <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--fl-gold-star)' }}>
+                ⚡ BOSS STREAK: {Object.keys(bossCompletedScores).length} OF {currentRound.bossPhrases.length} MASTERED
+              </span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--fl-teal-light)' }}>
+                Pronounce one by one
+              </span>
+            </div>
 
-                <button
-                  type="button"
-                  className="fl-btn-icon"
-                  onClick={() => playAudio(p.audioText, 0.95)}
-                  style={{ width: '38px', height: '38px', borderColor: 'var(--fl-teal-light)', backgroundColor: 'var(--fl-teal-subtle)' }}
-                  title="Listen"
-                  aria-label="Listen"
+            {/* Phrase Cards */}
+            {currentRound.bossPhrases.map((p, idx) => {
+              const isPassed = bossCompletedScores[idx] !== undefined;
+              const isActive = bossActivePhraseIndex === idx && !isPassed;
+
+              let cardBorder = '1.5px solid var(--fl-border)';
+              let cardBg = 'var(--fl-bg-card-hover)';
+              let cardGlow = 'none';
+
+              if (isPassed) {
+                cardBorder = '2px solid #58CC02';
+                cardBg = 'rgba(88, 204, 2, 0.08)';
+              } else if (isActive) {
+                cardBorder = '2px solid var(--fl-teal-light)';
+                cardBg = 'rgba(0, 245, 180, 0.06)';
+                cardGlow = '0 0 16px rgba(0, 245, 180, 0.15)';
+              }
+
+              return (
+                <div
+                  key={p.id}
+                  className="fl-card fl-card-interactive"
+                  onClick={() => {
+                    if (!isChecked) {
+                      setBossActivePhraseIndex(idx);
+                      playAudio(p.audioText, 0.95);
+                    }
+                  }}
+                  style={{
+                    padding: '16px 18px',
+                    borderRadius: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: cardBg,
+                    border: cardBorder,
+                    boxShadow: cardGlow,
+                    cursor: isChecked ? 'default' : 'pointer',
+                    transition: 'all 0.18s ease'
+                  }}
                 >
-                  <Volume2 size={18} color="var(--fl-teal-light)" />
-                </button>
-              </div>
-            ))}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        backgroundColor: isPassed
+                          ? '#58CC02'
+                          : isActive
+                          ? 'var(--fl-teal-light)'
+                          : 'rgba(255, 255, 255, 0.08)',
+                        color: isPassed || isActive ? '#0A0E1A' : 'var(--fl-text-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '13px',
+                        flexShrink: 0
+                      }}
+                    >
+                      {isPassed ? <Check size={16} color="#0A0E1A" strokeWidth={3} /> : idx + 1}
+                    </div>
 
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      <span style={{ fontSize: '17px', fontWeight: 700, color: '#FFFFFF' }}>
+                        {p.targetText}
+                      </span>
+                      {p.translation && (
+                        <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
+                          “{p.translation}”
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isPassed && (
+                      <span
+                        style={{
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          color: '#58CC02',
+                          backgroundColor: 'rgba(88, 204, 2, 0.15)',
+                          padding: '3px 8px',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        {bossCompletedScores[idx]}%
+                      </span>
+                    )}
+                    {isActive && (
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          color: 'var(--fl-teal-light)',
+                          backgroundColor: 'rgba(0, 245, 180, 0.15)',
+                          padding: '3px 8px',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        Active
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      className="fl-btn-icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        playAudio(p.audioText, 0.95);
+                      }}
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        borderColor: 'var(--fl-teal-light)',
+                        backgroundColor: 'var(--fl-teal-subtle)'
+                      }}
+                      title="Listen"
+                      aria-label="Listen"
+                    >
+                      <Volume2 size={16} color="var(--fl-teal-light)" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Mic Controller for the Active Phrase */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
               <button
                 type="button"
@@ -1333,7 +1531,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                     : '0 0 28px rgba(0, 245, 180, 0.45)',
                   transition: 'all 0.18s ease'
                 }}
-                aria-label={speechState === 'listening' ? 'Stop recording' : 'Tap to speak'}
+                aria-label={speechState === 'listening' ? 'Stop recording' : 'Tap to speak active phrase'}
               >
                 {speechState === 'listening' ? (
                   <Square size={28} color="#FFFFFF" fill="#FFFFFF" />
@@ -1341,9 +1539,20 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                   <Mic size={36} color="var(--fl-text-inverse)" />
                 )}
               </button>
-              <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--fl-text-secondary)' }}>
-                {speechState === 'listening' ? 'Recording Boss Streak... Speak clearly' : 'Tap mic and shadow all 3 phrases'}
-              </span>
+              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '15px', fontWeight: 800, color: '#FFFFFF' }}>
+                  {speechState === 'listening'
+                    ? `Listening to Phrase #${bossActivePhraseIndex + 1}... Tap when done`
+                    : Object.keys(bossCompletedScores).length === currentRound.bossPhrases.length
+                    ? 'All 3 Phrases Mastered! Tap Continue below'
+                    : `Tap mic to speak Phrase #${bossActivePhraseIndex + 1}`}
+                </span>
+                <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)' }}>
+                  {speechState === 'listening'
+                    ? `Say: “${currentRound.bossPhrases[bossActivePhraseIndex]?.targetText}”`
+                    : `Pronounce each phrase one by one (${Object.keys(bossCompletedScores).length}/3)`}
+                </span>
+              </div>
             </div>
           </div>
         )}
