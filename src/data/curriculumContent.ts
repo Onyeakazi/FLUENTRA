@@ -265,6 +265,326 @@ export const LANGUAGE_PACKS: Record<string, LanguagePack> = {
   }
 };
 
+interface TopicSentenceItem {
+  target: string;
+  trans: string;
+  explanation: string;
+}
+
+export function getTopicSpecificCurriculumItems(
+  meta: { title: string; category?: string; number: number; levelNumber: number },
+  canonicalName: string
+): { item1: TopicSentenceItem; item2: TopicSentenceItem } {
+  const pack = LANGUAGE_PACKS[canonicalName] || LANGUAGE_PACKS.French;
+  const title = (meta?.title || '').toLowerCase();
+  const category = (meta?.category || '').toLowerCase();
+  const combined = `${title} ${category}`;
+
+  // 1. Saying / Asking Names & Introductions
+  if (combined.includes('name') || combined.includes('prénom') || combined.includes('称呼') || combined.includes('llam') || combined.includes('heiß')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '我叫李明，很高兴认识你', trans: 'My name is Li Ming, pleased to meet you', explanation: 'Essential introduction phrase stating your name in Chinese.' },
+          item2: { target: '请问你叫什么名字？', trans: 'May I ask, what is your name?', explanation: 'Polite way to inquire about someone’s name.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: 'Me llamo Carlos, mucho gusto', trans: 'My name is Carlos, pleased to meet you', explanation: 'Standard way to state your name in Spanish.' },
+          item2: { target: '¿Cómo te llamas tú?', trans: 'What is your name?', explanation: 'Friendly everyday question asking for someone’s name.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Ich heiße Anna, sehr angenehm', trans: 'My name is Anna, very pleased to meet you', explanation: 'Formal and friendly German name introduction.' },
+          item2: { target: 'Wie heißen Sie bitte?', trans: 'What is your name please? (Formal)', explanation: 'Courteous question to ask a name in German.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: '私の名前は田中です、どうぞよろしく', trans: 'My name is Tanaka, pleased to meet you', explanation: 'Standard Japanese self-introduction.' },
+          item2: { target: 'お名前は何とおっしゃいますか？', trans: 'What is your name please? (Polite)', explanation: 'Polite Japanese inquiry for a person’s name.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Mi chiamo Marco, molto piacere', trans: 'My name is Marco, very pleased to meet you', explanation: 'Everyday Italian self-introduction.' },
+          item2: { target: 'Come ti chiami?', trans: 'What is your name?', explanation: 'Common friendly question to ask a name in Italian.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'Je m’appelle Thomas, enchanté', trans: 'My name is Thomas, delighted to meet you', explanation: 'Universal French phrase for stating your name.' },
+          item2: { target: 'Comment vous appelez-vous ?', trans: 'What is your name? (Polite)', explanation: 'Standard polite question to ask someone’s name in French.' }
+        };
+    }
+  }
+
+  // 2. Where Are You From? / Origin & Hometown
+  if (combined.includes('where') || combined.includes('from') || combined.includes('origin') || combined.includes('d’où') || combined.includes('dónde') || combined.includes('来自')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '我来自北京，你呢？', trans: 'I come from Beijing, and you?', explanation: 'Stating your hometown in Chinese.' },
+          item2: { target: '请问你来自哪个城市？', trans: 'Which city do you come from?', explanation: 'Asking where someone is from.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: 'Soy de Madrid, España', trans: 'I am from Madrid, Spain', explanation: 'Expressing your country of origin in Spanish.' },
+          item2: { target: '¿De dónde eres tú?', trans: 'Where are you from?', explanation: 'Asking someone where they are from in Spanish.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Ich komme aus Berlin', trans: 'I come from Berlin', explanation: 'Stating origin with "aus" in German.' },
+          item2: { target: 'Woher kommen Sie?', trans: 'Where do you come from? (Formal)', explanation: 'Polite German inquiry for origin.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: '東京から来ました', trans: 'I come from Tokyo', explanation: 'Expressing hometown origin in Japanese.' },
+          item2: { target: 'ご出身はどちらですか？', trans: 'Where are you from? (Polite)', explanation: 'Respectful way to ask where someone is from.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Vengo da Roma, Italia', trans: 'I come from Rome, Italy', explanation: 'Stating origin with "venire da" in Italian.' },
+          item2: { target: 'Di dove sei?', trans: 'Where are you from?', explanation: 'Common friendly inquiry about origin.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'Je viens de Paris, en France', trans: 'I come from Paris, in France', explanation: 'Stating your origin with "venir de".' },
+          item2: { target: 'D’où venez-vous s’il vous plaît ?', trans: 'Where do you come from please?', explanation: 'Polite inquiry about someone’s hometown.' }
+        };
+    }
+  }
+
+  // 3. Goodbyes & Parting Words
+  if (combined.includes('goodbye') || combined.includes('parting') || combined.includes('farewell') || combined.includes('revoir') || combined.includes('adiós') || combined.includes('tschüss') || combined.includes('再见')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '再见，明天见！', trans: 'Goodbye, see you tomorrow!', explanation: 'Standard Chinese parting phrase.' },
+          item2: { target: '祝你今天过得愉快！', trans: 'Have a wonderful day!', explanation: 'Polite daytime well-wish.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: '¡Adiós, hasta mañana!', trans: 'Goodbye, see you tomorrow!', explanation: 'Everyday parting phrase in Spanish.' },
+          item2: { target: '¡Que tengas un buen día!', trans: 'Have a nice day!', explanation: 'Friendly wish when parting.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Auf Wiedersehen und bis morgen!', trans: 'Goodbye and see you tomorrow!', explanation: 'Formal German parting phrase.' },
+          item2: { target: 'Schönen Tag noch!', trans: 'Have a nice day!', explanation: 'Common friendly farewell wish.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: 'さようなら、また明日！', trans: 'Goodbye, see you tomorrow!', explanation: 'Polite parting phrase in Japanese.' },
+          item2: { target: '良い一日を！', trans: 'Have a nice day!', explanation: 'Friendly farewell expression.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Arrivederci e a presto!', trans: 'Goodbye and see you soon!', explanation: 'Standard polite Italian farewell.' },
+          item2: { target: 'Buona giornata a tutti!', trans: 'Have a good day everyone!', explanation: 'Warm Italian daytime wish.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'Au revoir et à demain !', trans: 'Goodbye and see you tomorrow!', explanation: 'Standard polite French parting phrase.' },
+          item2: { target: 'Bonne journée à vous !', trans: 'Have a good day!', explanation: 'Everyday daytime wish.' }
+        };
+    }
+  }
+
+  // 4. Polite Expressions & Sincere Gratitude
+  if (combined.includes('polite') || combined.includes('gratitude') || combined.includes('merci') || combined.includes('gracias') || combined.includes('danke') || combined.includes('谢谢')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '非常感谢你的热心帮助', trans: 'Thank you very much for your kind help', explanation: 'Expressing deep gratitude in Chinese.' },
+          item2: { target: '不用客气，这是我应该做的', trans: 'You are welcome, happy to help', explanation: 'Polite reply to thanks.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: 'Muchísimas gracias por su ayuda', trans: 'Thank you so much for your help', explanation: 'Heartfelt gratitude in Spanish.' },
+          item2: { target: 'De nada, con mucho gusto', trans: 'You are welcome, with pleasure', explanation: 'Natural polite reply.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Herzlichen Dank für Ihre Hilfe', trans: 'Heartfelt thanks for your help', explanation: 'Polite German expression of gratitude.' },
+          item2: { target: 'Bitte sehr, keine Ursache', trans: 'You are welcome, not at all', explanation: 'Standard courteous reply.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: 'ご親切にありがとうございます', trans: 'Thank you very much for your kindness', explanation: 'Deep gratitude in Japanese.' },
+          item2: { target: 'どういたしまして', trans: 'You are welcome', explanation: 'Standard reply to gratitude.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Grazie di cuore per il vostro aiuto', trans: 'Heartfelt thanks for your help', explanation: 'Warm Italian gratitude.' },
+          item2: { target: 'Prego, non c’è di che', trans: 'You are welcome, not at all', explanation: 'Polite Italian reply.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'Merci infiniment pour votre aide', trans: 'Thank you so much for your help', explanation: 'Sincere polite gratitude in French.' },
+          item2: { target: 'Je vous en prie, avec plaisir', trans: 'You are very welcome, with pleasure', explanation: 'Formal and warm response to thanks.' }
+        };
+    }
+  }
+
+  // 5. Numbers, Counting, Age & Phone Numbers
+  if (combined.includes('number') || combined.includes('count') || combined.includes('age') || combined.includes('phone') || combined.includes('quantit')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '我今年二十五岁', trans: 'I am 25 years old', explanation: 'Stating your age in Chinese.' },
+          item2: { target: '我的电话号码是八八六六', trans: 'My phone number is 8866', explanation: 'Sharing phone digits in Chinese.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: 'Tengo veinticinco años', trans: 'I am 25 years old', explanation: 'Expressing age using "tener" in Spanish.' },
+          item2: { target: 'Mi número de teléfono es cinco cinco', trans: 'My phone number is 55...', explanation: 'Sharing phone numbers in Spanish.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Ich bin fünfundzwanzig Jahre alt', trans: 'I am 25 years old', explanation: 'Stating age using "sein" in German.' },
+          item2: { target: 'Meine Telefonnummer ist null eins', trans: 'My phone number is 01...', explanation: 'Exchanging phone numbers in German.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: '私は二十五歳です', trans: 'I am 25 years old', explanation: 'Stating age in Japanese.' },
+          item2: { target: '電話番号はゼロ八ゼロです', trans: 'The phone number is 080...', explanation: 'Sharing telephone numbers in Japanese.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Ho venticinque anni', trans: 'I am 25 years old', explanation: 'Stating age using "avere" in Italian.' },
+          item2: { target: 'Il mio numero di telefono è tre quattro', trans: 'My phone number is 34...', explanation: 'Sharing contact numbers in Italian.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'J’ai vingt-cinq ans', trans: 'I am 25 years old', explanation: 'Stating your age with "avoir" in French.' },
+          item2: { target: 'Mon numéro de téléphone est le zéro six', trans: 'My phone number is 06...', explanation: 'Exchanging phone numbers in French.' }
+        };
+    }
+  }
+
+  // 6. Calendar, Time, Days of the Week & Appointments
+  if (combined.includes('day') || combined.includes('week') || combined.includes('month') || combined.includes('time') || combined.includes('hour') || combined.includes('calendar')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '今天星期一，天气非常好', trans: 'Today is Monday, weather is very good', explanation: 'Days of the week in Chinese.' },
+          item2: { target: '我们星期五下午见', trans: 'We will meet on Friday afternoon', explanation: 'Scheduling meetings in Chinese.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: 'Hoy es lunes por la mañana', trans: 'Today is Monday morning', explanation: 'Days of the week in Spanish.' },
+          item2: { target: 'Nos vemos el viernes por la tarde', trans: 'See you on Friday afternoon', explanation: 'Scheduling an appointment in Spanish.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Heute ist Montagmorgen', trans: 'Today is Monday morning', explanation: 'Days of the week in German.' },
+          item2: { target: 'Wir sehen uns am Freitagnachmittag', trans: 'See you on Friday afternoon', explanation: 'Setting a time in German.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: '今日は月曜日の朝です', trans: 'Today is Monday morning', explanation: 'Days of the week in Japanese.' },
+          item2: { target: '金曜日の午後にお会いしましょう', trans: 'Let’s meet on Friday afternoon', explanation: 'Scheduling in Japanese.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Oggi è lunedì mattina', trans: 'Today is Monday morning', explanation: 'Days of the week in Italian.' },
+          item2: { target: 'Ci vediamo venerdì pomeriggio', trans: 'See you Friday afternoon', explanation: 'Setting an appointment in Italian.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'Aujourd’hui c’est lundi matin', trans: 'Today is Monday morning', explanation: 'Days of the week in French.' },
+          item2: { target: 'On se voit vendredi après-midi', trans: 'See you on Friday afternoon', explanation: 'Arranging meetings in French.' }
+        };
+    }
+  }
+
+  // 7. Food, Drinks, Café, Bakery & Ordering
+  if (combined.includes('food') || combined.includes('café') || combined.includes('coffee') || combined.includes('drink') || combined.includes('order') || combined.includes('restaurant')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '请给我一杯热咖啡和点心', trans: 'Please give me a hot coffee and snack', explanation: 'Ordering at a café in Chinese.' },
+          item2: { target: '服务员，请问可以买单吗？', trans: 'Waiter, may I have the check please?', explanation: 'Asking for the bill politely.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: 'Quisiera un café con leche y un cruasán', trans: 'I would like a coffee with milk and a croissant', explanation: 'Ordering breakfast in Spanish.' },
+          item2: { target: 'La cuenta por favor señor', trans: 'The check please sir', explanation: 'Asking for the bill in Spanish.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Ich möchte einen Kaffee und ein Croissant', trans: 'I would like a coffee and a croissant', explanation: 'Ordering food in German.' },
+          item2: { target: 'Die Rechnung bitte', trans: 'The bill please', explanation: 'Requesting the check in German.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: 'コーヒーとパンをお願いします', trans: 'A coffee and bread please', explanation: 'Ordering in a Japanese café.' },
+          item2: { target: 'お会計をお願いします', trans: 'The check please', explanation: 'Asking for the bill in Japanese.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Vorrei un caffè espresso e un cornetto', trans: 'I would like an espresso and a croissant', explanation: 'Classic Italian breakfast order.' },
+          item2: { target: 'Il conto per favore', trans: 'The bill please', explanation: 'Asking for the check in Italian.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'Je voudrais un café et un croissant', trans: 'I would like a coffee and a croissant', explanation: 'Classic French café order.' },
+          item2: { target: 'L’addition s’il vous plaît', trans: 'The check please', explanation: 'Polite way to request the bill in French.' }
+        };
+    }
+  }
+
+  // 8. Travel, Directions, Train Station & Street Navigation
+  if (combined.includes('direction') || combined.includes('station') || combined.includes('hotel') || combined.includes('travel') || combined.includes('where is')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return {
+          item1: { target: '请问火车站怎么走？', trans: 'Excuse me, how do I get to the train station?', explanation: 'Asking for directions in Chinese.' },
+          item2: { target: '请一直往前走，然后右转', trans: 'Go straight ahead, then turn right', explanation: 'Direction instructions in Chinese.' }
+        };
+      case 'Spanish':
+        return {
+          item1: { target: 'Disculpe, ¿dónde está la estación?', trans: 'Excuse me, where is the station?', explanation: 'Asking directions in Spanish.' },
+          item2: { target: 'Siga todo recto y gire a la derecha', trans: 'Go straight ahead and turn right', explanation: 'Giving directions in Spanish.' }
+        };
+      case 'German':
+        return {
+          item1: { target: 'Entschuldigung, wo ist der Bahnhof?', trans: 'Excuse me, where is the train station?', explanation: 'Asking for directions in German.' },
+          item2: { target: 'Gehen Sie geradeaus und dann rechts', trans: 'Go straight ahead and then right', explanation: 'Giving street directions in German.' }
+        };
+      case 'Japanese':
+        return {
+          item1: { target: 'すみません、駅はどこですか？', trans: 'Excuse me, where is the station?', explanation: 'Asking for directions in Japanese.' },
+          item2: { target: 'まっすぐ行って右に曲がってください', trans: 'Go straight and turn right please', explanation: 'Direction guidance in Japanese.' }
+        };
+      case 'Italian':
+        return {
+          item1: { target: 'Scusi, dov’è la stazione ferroviaria?', trans: 'Excuse me, where is the train station?', explanation: 'Asking directions in Italian.' },
+          item2: { target: 'Vada dritto e poi giri a destra', trans: 'Go straight and then turn right', explanation: 'Giving directions in Italian.' }
+        };
+      case 'French':
+      default:
+        return {
+          item1: { target: 'Pardon, où se trouve la gare ?', trans: 'Excuse me, where is the train station located?', explanation: 'Asking for navigation directions in French.' },
+          item2: { target: 'Allez tout droit puis tournez à droite', trans: 'Go straight ahead then turn right', explanation: 'Standard French direction phrase.' }
+        };
+    }
+  }
+
+  // 9. Default Fallback using level-appropriate phrases
+  const pool = pack.levelSentences[meta.levelNumber] || pack.levelSentences[1] || [
+    { target: pack.greetingFormal.target, trans: pack.greetingFormal.trans, explanation: pack.greetingFormal.exp }
+  ];
+  const item1 = pool[(meta.number - 1) % pool.length] || pool[0];
+  const item2 = pool[meta.number % pool.length] || pool[0];
+  return { item1, item2 };
+}
+
 /**
  * Returns tailored pedagogical lessons for any unit in the learner's chosen language,
  * generated dynamically by the Fluentra AI curriculum engine
@@ -859,13 +1179,8 @@ export function getLessonsForUnit(
     }
   }
 
-  // For all other units across the 800-unit curriculum:
-  // Dynamically synthesized by the Fluentra AI curriculum generator!
-  const pool = pack.levelSentences[meta.levelNumber] || pack.levelSentences[1] || [
-    { target: pack.greetingFormal.target, trans: pack.greetingFormal.trans, explanation: pack.greetingFormal.exp, options: [pack.greetingFormal.target, pack.goodbye.target] }
-  ];
-  const item1 = pool[(meta.number - 1) % pool.length] || pool[0];
-  const item2 = pool[meta.number % pool.length] || pool[0];
+  // Topic-specific curriculum synthesis for all units across the 800-unit progression:
+  const { item1, item2 } = getTopicSpecificCurriculumItems(meta, canonicalName);
 
   return [
     {

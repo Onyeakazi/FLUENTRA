@@ -127,8 +127,22 @@ export const LearningPath: React.FC<LearningPathProps> = ({
       return;
     }
 
+    let targetLessonId = lessonId;
+    if (!targetLessonId) {
+      const cp = storageService.getResumeCheckpoint(profile?.currentLanguage || 'French');
+      if (cp && cp.unitId === unit.id && cp.lessonId) {
+        targetLessonId = cp.lessonId;
+      } else {
+        const unitProg = progressMap[unit.id];
+        const completedLessonIds = unitProg?.completedLessonIds || [];
+        const lessons = getLessonsForUnit(unit.id, profile?.currentLanguage || 'French');
+        const nextLesson = lessons.find((l) => !completedLessonIds.includes(l.id)) || lessons[0];
+        targetLessonId = nextLesson?.id || `${unit.id}-l1`;
+      }
+    }
+
     if (onOpenEarChallenge) {
-      onOpenEarChallenge(unit, lessonId);
+      onOpenEarChallenge(unit, targetLessonId);
     }
   };
 

@@ -69,7 +69,7 @@ export const LearnView: React.FC<LearnViewProps> = ({
             setLockedModalReason(lockReason || null);
             setLockedModalTitle(customTitle || null);
           }}
-          onOpenEarChallenge={(unit) => setActiveEarGameUnit(unit)}
+          onOpenEarChallenge={(unit, lessonId) => setActiveEarGameUnit(unit, lessonId)}
         />
       </div>
 

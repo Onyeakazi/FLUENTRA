@@ -12,7 +12,7 @@ interface UnitDetailSheetProps {
   unit: UnitMetadata | null;
   onClose: () => void;
   onStartLesson: (unitId: string, lessonId: string, customLesson?: Lesson) => void;
-  onOpenEarChallenge?: (unit: UnitMetadata) => void;
+  onOpenEarChallenge?: (unit: UnitMetadata, lessonId?: string) => void;
 }
 
 export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
@@ -240,7 +240,8 @@ export const UnitDetailSheet: React.FC<UnitDetailSheetProps> = ({
             onClick={() => {
               onClose();
               if (onOpenEarChallenge) {
-                onOpenEarChallenge(unit);
+                const nextLesson = lessons.find((l) => !completedLessons.includes(l.id)) || lessons[0];
+                onOpenEarChallenge(unit, nextLesson?.id);
               }
             }}
             style={{
