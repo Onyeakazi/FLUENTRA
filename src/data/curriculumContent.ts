@@ -1,4 +1,4 @@
-import { Lesson, Exercise } from '../types/curriculum';
+import { Lesson, Exercise, LearningTarget, UnitMetadata } from '../types/curriculum';
 import { CURRICULUM_DATA } from './curriculumRegistry';
 import { aiCurriculumGenerator } from '../services/aiCurriculumGenerator';
 import { UNIT_JOURNEYS, buildUnitLessonFromJourney } from './unitJourneys';
@@ -586,6 +586,287 @@ export function getTopicSpecificCurriculumItems(
 }
 
 /**
+ * Returns 3-4 topic-specific core words as mental building blocks before sentence formation
+ */
+export function getTopicTargetWords(meta: UnitMetadata, canonicalName: string): LearningTarget[] {
+  if (meta?.learningTargets && meta.learningTargets.length > 0) {
+    return meta.learningTargets;
+  }
+
+  const title = (meta?.title || '').toLowerCase();
+  const cat = (meta?.category || '').toLowerCase();
+  const sub = (meta?.subtitle || '').toLowerCase();
+  const combined = `${title} ${cat} ${sub}`;
+
+  // 1. Phonics & Alphabet
+  if (combined.includes('sound') || combined.includes('tone') || combined.includes('vowel') || combined.includes('letter') || combined.includes('alphab') || combined.includes('phoni')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return [
+          { id: 'tw-1', term: 'mā', translation: 'Tone 1: High & Flat (Mother)', phonetic: 'mā ˉ', audioText: 'mā', exampleUsage: 'mā (妈)', exampleTranslation: 'Mother' },
+          { id: 'tw-2', term: 'má', translation: 'Tone 2: Rising (Hemp)', phonetic: 'má ˊ', audioText: 'má', exampleUsage: 'má (麻)', exampleTranslation: 'Hemp' },
+          { id: 'tw-3', term: 'mǎ', translation: 'Tone 3: Dipping (Horse)', phonetic: 'mǎ ˇ', audioText: 'mǎ', exampleUsage: 'mǎ (马)', exampleTranslation: 'Horse' },
+          { id: 'tw-4', term: 'mà', translation: 'Tone 4: Falling (Scold)', phonetic: 'mà ˋ', audioText: 'mà', exampleUsage: 'mà (骂)', exampleTranslation: 'To scold' }
+        ];
+      case 'Spanish':
+        return [
+          { id: 'tw-1', term: '¡Hola!', translation: 'Hello / Hi (Silent H)', phonetic: '/ˈo.la/', audioText: 'Hola', exampleUsage: '¡Hola, amigo!', exampleTranslation: 'Hello, friend!' },
+          { id: 'tw-2', term: 'Buenos días', translation: 'Good morning', phonetic: '/ˈbwe.noz ˈði.as/', audioText: 'Buenos días', exampleUsage: 'Buenos días a todos.', exampleTranslation: 'Good morning to everyone.' },
+          { id: 'tw-3', term: 'Gracias', translation: 'Thank you (Tap R)', phonetic: '/ˈɡɾa.sjas/', audioText: 'Gracias', exampleUsage: 'Muchas gracias.', exampleTranslation: 'Thank you very much.' }
+        ];
+      case 'German':
+        return [
+          { id: 'tw-1', term: 'Hallo', translation: 'Hello / Hi', phonetic: '/ˈha.loː/', audioText: 'Hallo', exampleUsage: 'Hallo, wie geht’s?', exampleTranslation: 'Hello, how are you?' },
+          { id: 'tw-2', term: 'Guten Tag', translation: 'Good day / Hello', phonetic: '/ˌɡuːtn̩ ˈtaːk/', audioText: 'Guten Tag', exampleUsage: 'Guten Tag, mein Herr.', exampleTranslation: 'Good day, sir.' },
+          { id: 'tw-3', term: 'Danke', translation: 'Thank you', phonetic: '/ˈdaŋ.kə/', audioText: 'Danke', exampleUsage: 'Danke schön.', exampleTranslation: 'Thank you kindly.' }
+        ];
+      case 'Japanese':
+        return [
+          { id: 'tw-1', term: 'こんにちは', translation: 'Hello / Good day', phonetic: 'Konnichiwa', audioText: 'こんにちは', exampleUsage: 'こんにちは。', exampleTranslation: 'Hello.' },
+          { id: 'tw-2', term: 'ありがとう', translation: 'Thank you', phonetic: 'Arigatou', audioText: 'ありがとう', exampleUsage: 'どうもありがとう。', exampleTranslation: 'Thank you very much.' },
+          { id: 'tw-3', term: 'すみません', translation: 'Excuse me / Sorry', phonetic: 'Sumimasen', audioText: 'すみません。', exampleTranslation: 'Excuse me.' }
+        ];
+      case 'Italian':
+        return [
+          { id: 'tw-1', term: 'Ciao', translation: 'Hi / Bye (Casual)', phonetic: '/ˈtʃa.o/', audioText: 'Ciao', exampleUsage: 'Ciao a tutti!', exampleTranslation: 'Hi everyone!' },
+          { id: 'tw-2', term: 'Buongiorno', translation: 'Good morning', phonetic: '/bwonˈdʒor.no/', audioText: 'Buongiorno', exampleUsage: 'Buongiorno signora.', exampleTranslation: 'Good morning ma’am.' },
+          { id: 'tw-3', term: 'Grazie', translation: 'Thank you', phonetic: '/ˈɡrat.tsje/', audioText: 'Grazie', exampleUsage: 'Mille grazie.', exampleTranslation: 'A thousand thanks.' }
+        ];
+      case 'French':
+      default:
+        return [
+          { id: 'tw-1', term: 'Bonjour', translation: 'Hello / Good morning', phonetic: '/bɔ̃.ʒuʁ/', audioText: 'Bonjour', exampleUsage: 'Bonjour, comment allez-vous ?', exampleTranslation: 'Good morning, how are you?' },
+          { id: 'tw-2', term: 'Salut', translation: 'Hi / Bye (Silent T)', phonetic: '/sa.ly/', audioText: 'Salut', exampleUsage: 'Salut tout le monde !', exampleTranslation: 'Hi everyone!' },
+          { id: 'tw-3', term: 'Merci', translation: 'Thank you', phonetic: '/mɛʁ.si/', audioText: 'Merci', exampleUsage: 'Merci beaucoup !', exampleTranslation: 'Thank you very much!' }
+        ];
+    }
+  }
+
+  // 2. Greetings, Introductions & Names
+  if (combined.includes('greet') || combined.includes('name') || combined.includes('meet') || combined.includes('intro') || combined.includes('hello')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return [
+          { id: 'tw-1', term: '你好', translation: 'Hello', phonetic: 'Nǐ hǎo', audioText: '你好', exampleUsage: '你好，朋友！', exampleTranslation: 'Hello friend!' },
+          { id: 'tw-2', term: '我叫', translation: 'My name is / I am called', phonetic: 'Wǒ jiào', audioText: '我叫', exampleUsage: '我叫大卫。', exampleTranslation: 'My name is David.' },
+          { id: 'tw-3', term: '很高兴', translation: 'Very glad / Pleased', phonetic: 'Hěn gāoxìng', audioText: '很高兴', exampleUsage: '很高兴认识你！', exampleTranslation: 'Nice to meet you!' }
+        ];
+      case 'Spanish':
+        return [
+          { id: 'tw-1', term: '¡Hola!', translation: 'Hello', phonetic: '/ˈo.la/', audioText: 'Hola', exampleUsage: '¡Hola a todos!', exampleTranslation: 'Hello to all!' },
+          { id: 'tw-2', term: 'Me llamo', translation: 'My name is', phonetic: '/me ˈʝa.mo/', audioText: 'Me llamo', exampleUsage: 'Me llamo Carlos.', exampleTranslation: 'My name is Carlos.' },
+          { id: 'tw-3', term: 'Mucho gusto', translation: 'Pleased to meet you', phonetic: '/ˈmu.tʃo ˈɣus.to/', audioText: 'Mucho gusto', exampleUsage: 'Mucho gusto en conocerte.', exampleTranslation: 'Nice to meet you.' }
+        ];
+      case 'German':
+        return [
+          { id: 'tw-1', term: 'Hallo', translation: 'Hello', phonetic: '/ˈha.loː/', audioText: 'Hallo', exampleUsage: 'Hallo zusammen!', exampleTranslation: 'Hello everyone!' },
+          { id: 'tw-2', term: 'Ich heiße', translation: 'My name is', phonetic: '/ɪç ˈhaɪ̯.sə/', audioText: 'Ich heiße', exampleUsage: 'Ich heiße Anna.', exampleTranslation: 'My name is Anna.' },
+          { id: 'tw-3', term: 'Freut mich', translation: 'Pleased to meet you', phonetic: '/fʁɔɪ̯t mɪç/', audioText: 'Freut mich', exampleUsage: 'Freut mich sehr.', exampleTranslation: 'Very pleased to meet you.' }
+        ];
+      case 'Japanese':
+        return [
+          { id: 'tw-1', term: 'はじめまして', translation: 'Nice to meet you (First time)', phonetic: 'Hajimemashite', audioText: 'はじめまして', exampleUsage: 'はじめまして、田中です。', exampleTranslation: 'Nice to meet you, I am Tanaka.' },
+          { id: 'tw-2', term: '名前', translation: 'Name', phonetic: 'Namae', audioText: '名前', exampleUsage: 'お名前は何ですか？', exampleTranslation: 'What is your name?' },
+          { id: 'tw-3', term: 'よろしく', translation: 'Please treat me well / Regards', phonetic: 'Yoroshiku', audioText: 'よろしく', exampleUsage: 'よろしくお願いします。', exampleTranslation: 'Pleased to meet you.' }
+        ];
+      case 'Italian':
+        return [
+          { id: 'tw-1', term: 'Piacere', translation: 'Pleasure / Nice to meet you', phonetic: '/pjaˈtʃe.re/', audioText: 'Piacere', exampleUsage: 'Piacere di conoscerti!', exampleTranslation: 'Nice to meet you!' },
+          { id: 'tw-2', term: 'Mi chiamo', translation: 'My name is', phonetic: '/mi ˈkja.mo/', audioText: 'Mi chiamo', exampleUsage: 'Mi chiamo Marco.', exampleTranslation: 'My name is Marco.' },
+          { id: 'tw-3', term: 'Buongiorno', translation: 'Good day / Hello', phonetic: '/bwonˈdʒor.no/', audioText: 'Buongiorno', exampleUsage: 'Buongiorno signore.', exampleTranslation: 'Good day sir.' }
+        ];
+      case 'French':
+      default:
+        return [
+          { id: 'tw-1', term: 'Je m’appelle', translation: 'My name is', phonetic: '/ʒə ma.pɛl/', audioText: 'Je m’appelle', exampleUsage: 'Je m’appelle Thomas.', exampleTranslation: 'My name is Thomas.' },
+          { id: 'tw-2', term: 'Enchanté', translation: 'Delighted / Nice to meet you', phonetic: '/ɑ̃.ʃɑ̃.te/', audioText: 'Enchanté', exampleUsage: 'Enchanté de faire votre connaissance.', exampleTranslation: 'Delighted to make your acquaintance.' },
+          { id: 'tw-3', term: 'Comment', translation: 'How', phonetic: '/kɔ.mɑ̃/', audioText: 'Comment', exampleUsage: 'Comment vous appelez-vous ?', exampleTranslation: 'What is your name?' }
+        ];
+    }
+  }
+
+  // 3. Origins, Countries & Where you are from
+  if (combined.includes('from') || combined.includes('origin') || combined.includes('country') || combined.includes('where') || combined.includes('city') || combined.includes('national')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return [
+          { id: 'tw-1', term: '来自', translation: 'Come from', phonetic: 'Láizì', audioText: '来自', exampleUsage: '我来自中国。', exampleTranslation: 'I come from China.' },
+          { id: 'tw-2', term: '哪里', translation: 'Where', phonetic: 'Nǎlǐ', audioText: '哪里', exampleUsage: '你来自哪里？', exampleTranslation: 'Where do you come from?' },
+          { id: 'tw-3', term: '国家', translation: 'Country / Nation', phonetic: 'Guójiā', audioText: '国家', exampleUsage: '美丽的国家。', exampleTranslation: 'Beautiful country.' }
+        ];
+      case 'Spanish':
+        return [
+          { id: 'tw-1', term: 'Soy de', translation: 'I am from', phonetic: '/soj de/', audioText: 'Soy de', exampleUsage: 'Soy de Madrid.', exampleTranslation: 'I am from Madrid.' },
+          { id: 'tw-2', term: '¿De dónde?', translation: 'From where?', phonetic: '/de ˈðon.de/', audioText: 'De dónde', exampleUsage: '¿De dónde eres tú?', exampleTranslation: 'Where are you from?' },
+          { id: 'tw-3', term: 'País', translation: 'Country', phonetic: '/paˈis/', audioText: 'País', exampleUsage: 'Un país hermoso.', exampleTranslation: 'A beautiful country.' }
+        ];
+      case 'German':
+        return [
+          { id: 'tw-1', term: 'Ich komme aus', translation: 'I come from', phonetic: '/ɪç ˈkɔ.mə aʊ̯s/', audioText: 'Ich komme aus', exampleUsage: 'Ich komme aus Berlin.', exampleTranslation: 'I come from Berlin.' },
+          { id: 'tw-2', term: 'Woher', translation: 'Where from', phonetic: '/voːˈheːɐ̯/', audioText: 'Woher', exampleUsage: 'Woher kommen Sie?', exampleTranslation: 'Where do you come from?' },
+          { id: 'tw-3', term: 'Stadt', translation: 'City / Town', phonetic: '/ʃtat/', audioText: 'Stadt', exampleUsage: 'Eine schöne Stadt.', exampleTranslation: 'A beautiful city.' }
+        ];
+      case 'Japanese':
+        return [
+          { id: 'tw-1', term: '出身', translation: 'Origin / Hometown', phonetic: 'Shusshin', audioText: '出身', exampleUsage: '東京の出身です。', exampleTranslation: 'I am from Tokyo.' },
+          { id: 'tw-2', term: 'どこ', translation: 'Where', phonetic: 'Doko', audioText: 'どこ', exampleUsage: 'ご出身はどちらですか？', exampleTranslation: 'Where are you from?' },
+          { id: 'tw-3', term: '国', translation: 'Country', phonetic: 'Kuni', audioText: '国', exampleUsage: '美しい国です。', exampleTranslation: 'It is a beautiful country.' }
+        ];
+      case 'Italian':
+        return [
+          { id: 'tw-1', term: 'Vengo da', translation: 'I come from', phonetic: '/ˈvɛŋ.ɡo da/', audioText: 'Vengo da', exampleUsage: 'Vengo da Roma.', exampleTranslation: 'I come from Rome.' },
+          { id: 'tw-2', term: 'Di dove', translation: 'From where', phonetic: '/di ˈdo.ve/', audioText: 'Di dove', exampleUsage: 'Di dove sei?', exampleTranslation: 'Where are you from?' },
+          { id: 'tw-3', term: 'Città', translation: 'City', phonetic: '/tʃitˈta/', audioText: 'Città', exampleUsage: 'Una bella città.', exampleTranslation: 'A beautiful city.' }
+        ];
+      case 'French':
+      default:
+        return [
+          { id: 'tw-1', term: 'Je viens de', translation: 'I come from', phonetic: '/ʒə vjɛ̃ də/', audioText: 'Je viens de', exampleUsage: 'Je viens de Paris.', exampleTranslation: 'I come from Paris.' },
+          { id: 'tw-2', term: 'D’où', translation: 'From where', phonetic: '/du/', audioText: 'D’où', exampleUsage: 'D’où venez-vous ?', exampleTranslation: 'Where do you come from?' },
+          { id: 'tw-3', term: 'Pays', translation: 'Country', phonetic: '/pe.i/', audioText: 'Pays', exampleUsage: 'Un magnifique pays.', exampleTranslation: 'A wonderful country.' }
+        ];
+    }
+  }
+
+  // 4. Polite Expressions & Gratitude
+  if (combined.includes('thank') || combined.includes('polite') || combined.includes('please') || combined.includes('welcome') || combined.includes('courtes')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return [
+          { id: 'tw-1', term: '谢谢', translation: 'Thank you', phonetic: 'Xièxiè', audioText: '谢谢', exampleUsage: '非常谢谢！', exampleTranslation: 'Thank you very much!' },
+          { id: 'tw-2', term: '请', translation: 'Please', phonetic: 'Qǐng', audioText: '请', exampleUsage: '请进。', exampleTranslation: 'Please come in.' },
+          { id: 'tw-3', term: '不客气', translation: 'You are welcome', phonetic: 'Bù kèqì', audioText: '不客气', exampleUsage: '不用客气！', exampleTranslation: 'No need to be polite!' }
+        ];
+      case 'Spanish':
+        return [
+          { id: 'tw-1', term: 'Por favor', translation: 'Please', phonetic: '/poɾ faˈβoɾ/', audioText: 'Por favor', exampleUsage: 'Un café, por favor.', exampleTranslation: 'A coffee, please.' },
+          { id: 'tw-2', term: 'Muchas gracias', translation: 'Thank you very much', phonetic: '/ˈmu.tʃaz ˈɣɾa.sjas/', audioText: 'Muchas gracias', exampleUsage: 'Muchas gracias por todo.', exampleTranslation: 'Thank you very much for everything.' },
+          { id: 'tw-3', term: 'De nada', translation: 'You are welcome', phonetic: '/de ˈna.ða/', audioText: 'De nada', exampleUsage: 'De nada, un placer.', exampleTranslation: 'You are welcome, a pleasure.' }
+        ];
+      case 'German':
+        return [
+          { id: 'tw-1', term: 'Bitte', translation: 'Please / You’re welcome', phonetic: '/ˈbɪ.tə/', audioText: 'Bitte', exampleUsage: 'Einen Kaffee, bitte.', exampleTranslation: 'A coffee, please.' },
+          { id: 'tw-2', term: 'Danke schön', translation: 'Thank you kindly', phonetic: '/ˈdaŋ.kə ʃøːn/', audioText: 'Danke schön', exampleUsage: 'Danke schön für die Hilfe.', exampleTranslation: 'Thank you kindly for the help.' },
+          { id: 'tw-3', term: 'Gerne', translation: 'With pleasure / Gladly', phonetic: '/ˈɡɛʁ.nə/', audioText: 'Gerne', exampleUsage: 'Sehr gerne!', exampleTranslation: 'With great pleasure!' }
+        ];
+      case 'Japanese':
+        return [
+          { id: 'tw-1', term: 'お願いします', translation: 'Please (Requesting)', phonetic: 'Onegaishimasu', audioText: 'お願いします', exampleUsage: 'これをお願いします。', exampleTranslation: 'This one please.' },
+          { id: 'tw-2', term: 'ありがとうございます', translation: 'Thank you very much (Polite)', phonetic: 'Arigatou gozaimasu', audioText: 'ありがとうございます', exampleUsage: 'ご親切にありがとうございます。', exampleTranslation: 'Thank you for your kindness.' },
+          { id: 'tw-3', term: 'どういたしまして', translation: 'You are welcome', phonetic: 'Douitashimashite', audioText: 'どういたしまして', exampleUsage: 'どういたしまして！', exampleTranslation: 'You are very welcome!' }
+        ];
+      case 'Italian':
+        return [
+          { id: 'tw-1', term: 'Per favore', translation: 'Please', phonetic: '/per faˈvo.re/', audioText: 'Per favore', exampleUsage: 'Un caffè, per favore.', exampleTranslation: 'A coffee, please.' },
+          { id: 'tw-2', term: 'Grazie mille', translation: 'Thanks a million', phonetic: '/ˈɡrat.tsje ˈmil.le/', audioText: 'Grazie mille', exampleUsage: 'Grazie mille di cuore.', exampleTranslation: 'Thanks a million from the heart.' },
+          { id: 'tw-3', term: 'Prego', translation: 'You are welcome', phonetic: '/ˈprɛ.ɡo/', audioText: 'Prego', exampleUsage: 'Prego, si accomodi.', exampleTranslation: 'You are welcome, have a seat.' }
+        ];
+      case 'French':
+      default:
+        return [
+          { id: 'tw-1', term: 'S’il vous plaît', translation: 'Please (Polite)', phonetic: '/sil vu plɛ/', audioText: 'S’il vous plaît', exampleUsage: 'Un café, s’il vous plaît.', exampleTranslation: 'A coffee, please.' },
+          { id: 'tw-2', term: 'Merci beaucoup', translation: 'Thank you very much', phonetic: '/mɛʁ.si bo.ku/', audioText: 'Merci beaucoup', exampleUsage: 'Merci beaucoup pour votre aide.', exampleTranslation: 'Thank you very much for your help.' },
+          { id: 'tw-3', term: 'De rien', translation: 'You’re welcome / Not at all', phonetic: '/də ʁjɛ̃/', audioText: 'De rien', exampleUsage: 'De rien, avec plaisir !', exampleTranslation: 'You’re welcome, with pleasure!' }
+        ];
+    }
+  }
+
+  // 5. Food, Drinks, Café & Ordering
+  if (combined.includes('food') || combined.includes('drink') || combined.includes('café') || combined.includes('cafe') || combined.includes('order') || combined.includes('restaur') || combined.includes('menu') || combined.includes('eat')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return [
+          { id: 'tw-1', term: '水', translation: 'Water', phonetic: 'Shuǐ', audioText: '水', exampleUsage: '一杯水。', exampleTranslation: 'A glass of water.' },
+          { id: 'tw-2', term: '咖啡', translation: 'Coffee', phonetic: 'Kāfēi', audioText: '咖啡', exampleUsage: '热咖啡。', exampleTranslation: 'Hot coffee.' },
+          { id: 'tw-3', term: '请给我', translation: 'Please give me', phonetic: 'Qǐng gěi wǒ', audioText: '请给我', exampleUsage: '请给我菜单。', exampleTranslation: 'Please give me the menu.' }
+        ];
+      case 'Spanish':
+        return [
+          { id: 'tw-1', term: 'Un café', translation: 'A coffee', phonetic: '/un kaˈfe/', audioText: 'Un café', exampleUsage: 'Un café con leche.', exampleTranslation: 'A coffee with milk.' },
+          { id: 'tw-2', term: 'Agua', translation: 'Water', phonetic: '/ˈa.ɣwa/', audioText: 'Agua', exampleUsage: 'Un vaso de agua.', exampleTranslation: 'A glass of water.' },
+          { id: 'tw-3', term: 'La cuenta', translation: 'The bill / check', phonetic: '/la ˈkwen.ta/', audioText: 'La cuenta', exampleUsage: 'La cuenta, por favor.', exampleTranslation: 'The bill, please.' }
+        ];
+      case 'German':
+        return [
+          { id: 'tw-1', term: 'Ein Kaffee', translation: 'A coffee', phonetic: '/aɪ̯n ˈka.feː/', audioText: 'Ein Kaffee', exampleUsage: 'Einen Kaffee bitte.', exampleTranslation: 'A coffee please.' },
+          { id: 'tw-2', term: 'Wasser', translation: 'Water', phonetic: '/ˈva.sɐ/', audioText: 'Wasser', exampleUsage: 'Ein Glas Wasser.', exampleTranslation: 'A glass of water.' },
+          { id: 'tw-3', term: 'Die Rechnung', translation: 'The bill', phonetic: '/diː ˈʁɛç.nʊŋ/', audioText: 'Die Rechnung', exampleUsage: 'Die Rechnung bitte.', exampleTranslation: 'The bill please.' }
+        ];
+      case 'Japanese':
+        return [
+          { id: 'tw-1', term: 'お水', translation: 'Water', phonetic: 'Omizu', audioText: 'お水', exampleUsage: 'お水をください。', exampleTranslation: 'Water please.' },
+          { id: 'tw-2', term: 'コーヒー', translation: 'Coffee', phonetic: 'Koohii', audioText: 'コーヒー', exampleUsage: 'アイスコーヒー。', exampleTranslation: 'Iced coffee.' },
+          { id: 'tw-3', term: 'お会計', translation: 'The bill / check', phonetic: 'Okaikei', audioText: 'お会計', exampleUsage: 'お会計をお願いします。', exampleTranslation: 'The bill please.' }
+        ];
+      case 'Italian':
+        return [
+          { id: 'tw-1', term: 'Un caffè', translation: 'An espresso / coffee', phonetic: '/un kafˈfɛ/', audioText: 'Un caffè', exampleUsage: 'Un caffè al banco.', exampleTranslation: 'An espresso at the counter.' },
+          { id: 'tw-2', term: 'Acqua', translation: 'Water', phonetic: '/ˈak.kwa/', audioText: 'Acqua', exampleUsage: 'Una bottiglia d’acqua.', exampleTranslation: 'A bottle of water.' },
+          { id: 'tw-3', term: 'Il conto', translation: 'The bill', phonetic: '/il ˈkon.to/', audioText: 'Il conto', exampleUsage: 'Il conto, per favore.', exampleTranslation: 'The bill, please.' }
+        ];
+      case 'French':
+      default:
+        return [
+          { id: 'tw-1', term: 'Un café', translation: 'A coffee', phonetic: '/œ̃ ka.fe/', audioText: 'Un café', exampleUsage: 'Un café noir, s’il vous plaît.', exampleTranslation: 'A black coffee, please.' },
+          { id: 'tw-2', term: 'L’addition', translation: 'The bill / check', phonetic: '/la.di.sjɔ̃/', audioText: 'L’addition', exampleUsage: 'L’addition, s’il vous plaît.', exampleTranslation: 'The bill, please.' },
+          { id: 'tw-3', term: 'Je voudrais', translation: 'I would like', phonetic: '/ʒə vu.dʁɛ/', audioText: 'Je voudrais', exampleUsage: 'Je voudrais un croissant.', exampleTranslation: 'I would like a croissant.' }
+        ];
+    }
+  }
+
+  // 6. Directions, Navigation & Travel
+  if (combined.includes('direct') || combined.includes('where') || combined.includes('station') || combined.includes('train') || combined.includes('street') || combined.includes('travel') || combined.includes('hotel')) {
+    switch (canonicalName) {
+      case 'Chinese Mandarin':
+        return [
+          { id: 'tw-1', term: '在哪里', translation: 'Where is (located)', phonetic: 'Zài nǎlǐ', audioText: '在哪里', exampleUsage: '地铁站在哪里？', exampleTranslation: 'Where is the subway station?' },
+          { id: 'tw-2', term: '直走', translation: 'Go straight', phonetic: 'Zhí zǒu', audioText: '直走', exampleUsage: '一直直走。', exampleTranslation: 'Go straight ahead.' },
+          { id: 'tw-3', term: '右转', translation: 'Turn right', phonetic: 'Yòu zhuǎn', audioText: '右转', exampleUsage: '然后右转。', exampleTranslation: 'Then turn right.' }
+        ];
+      case 'Spanish':
+        return [
+          { id: 'tw-1', term: '¿Dónde está?', translation: 'Where is?', phonetic: '/ˈdon.de esˈta/', audioText: 'Dónde está', exampleUsage: '¿Dónde está la estación?', exampleTranslation: 'Where is the station?' },
+          { id: 'tw-2', term: 'Todo recto', translation: 'Straight ahead', phonetic: '/ˈto.ðo ˈrek.to/', audioText: 'Todo recto', exampleUsage: 'Siga todo recto.', exampleTranslation: 'Continue straight ahead.' },
+          { id: 'tw-3', term: 'A la derecha', translation: 'To the right', phonetic: '/a la ðeˈɾe.tʃa/', audioText: 'A la derecha', exampleUsage: 'Gire a la derecha.', exampleTranslation: 'Turn to the right.' }
+        ];
+      case 'German':
+        return [
+          { id: 'tw-1', term: 'Wo ist', translation: 'Where is', phonetic: '/voː ɪst/', audioText: 'Wo ist', exampleUsage: 'Wo ist der Bahnhof?', exampleTranslation: 'Where is the train station?' },
+          { id: 'tw-2', term: 'Geradeaus', translation: 'Straight ahead', phonetic: '/ɡəˈʁaː.də.aʊ̯s/', audioText: 'Geradeaus', exampleUsage: 'Immer geradeaus gehen.', exampleTranslation: 'Always go straight ahead.' },
+          { id: 'tw-3', term: 'Rechts', translation: 'Right', phonetic: '/ʁɛçts/', audioText: 'Rechts', exampleUsage: 'Biegen Sie rechts ab.', exampleTranslation: 'Turn right.' }
+        ];
+      case 'Japanese':
+        return [
+          { id: 'tw-1', term: 'どこですか', translation: 'Where is it?', phonetic: 'Doko desu ka', audioText: 'どこですか', exampleUsage: '駅はどこですか？', exampleTranslation: 'Where is the station?' },
+          { id: 'tw-2', term: 'まっすぐ', translation: 'Straight ahead', phonetic: 'Massugu', audioText: 'まっすぐ', exampleUsage: 'まっすぐ行ってください。', exampleTranslation: 'Please go straight.' },
+          { id: 'tw-3', term: '右', translation: 'Right', phonetic: 'Migi', audioText: '右', exampleUsage: '右に曲がります。', exampleTranslation: 'Turn right.' }
+        ];
+      case 'Italian':
+        return [
+          { id: 'tw-1', term: 'Dov’è', translation: 'Where is', phonetic: '/doˈvɛ/', audioText: 'Dov’è', exampleUsage: 'Dov’è la stazione?', exampleTranslation: 'Where is the station?' },
+          { id: 'tw-2', term: 'Dritto', translation: 'Straight ahead', phonetic: '/ˈdrit.to/', audioText: 'Dritto', exampleUsage: 'Vada sempre dritto.', exampleTranslation: 'Go always straight.' },
+          { id: 'tw-3', term: 'A destra', translation: 'To the right', phonetic: '/a ˈdɛs.tra/', audioText: 'A destra', exampleUsage: 'Giri a destra.', exampleTranslation: 'Turn right.' }
+        ];
+      case 'French':
+      default:
+        return [
+          { id: 'tw-1', term: 'Où est', translation: 'Where is', phonetic: '/u ɛ/', audioText: 'Où est', exampleUsage: 'Où est la gare ?', exampleTranslation: 'Where is the station?' },
+          { id: 'tw-2', term: 'Tout droit', translation: 'Straight ahead', phonetic: '/tu dʁwa/', audioText: 'Tout droit', exampleUsage: 'Continuez tout droit.', exampleTranslation: 'Continue straight ahead.' },
+          { id: 'tw-3', term: 'À droite', translation: 'To the right', phonetic: '/a dʁwat/', audioText: 'À droite', exampleUsage: 'Tournez à droite.', exampleTranslation: 'Turn to the right.' }
+        ];
+    }
+  }
+
+  // 7. General / Fallback Words
+  const pack = LANGUAGE_PACKS[canonicalName] || LANGUAGE_PACKS.French;
+  return [
+    { id: 'tw-1', term: pack.greetingFormal.target, translation: pack.greetingFormal.trans, phonetic: pack.greetingFormal.hint, audioText: pack.greetingFormal.target, exampleUsage: pack.greetingFormal.target, exampleTranslation: pack.greetingFormal.trans },
+    { id: 'tw-2', term: pack.thankYou.target, translation: pack.thankYou.trans, phonetic: pack.thankYou.hint, audioText: pack.thankYou.target, exampleUsage: pack.thankYou.target, exampleTranslation: pack.thankYou.trans },
+    { id: 'tw-3', term: pack.howAreYou.target, translation: pack.howAreYou.trans, phonetic: pack.howAreYou.hint, audioText: pack.howAreYou.target, exampleUsage: pack.howAreYou.target, exampleTranslation: pack.howAreYou.trans }
+  ];
+}
+
+/**
  * Returns tailored pedagogical lessons for any unit in the learner's chosen language,
  * generated dynamically by the Fluentra AI curriculum engine
  */
@@ -607,6 +888,8 @@ export function getLessonsForUnit(
 
   // Unit 1: Absolute Ground-Zero Ear-Training, Phonetics & Sound Architecture
   if (unitId === 'u1') {
+    const u1Targets = getTopicTargetWords(meta, canonicalName);
+
     if (canonicalName === 'Chinese Mandarin') {
       return [
         {
@@ -616,6 +899,14 @@ export function getLessonsForUnit(
           order: 1,
           xpReward: 15,
           exercises: [
+            {
+              id: 'u1-l1-e0-words',
+              type: 'target_discovery',
+              stepType: 'discover',
+              prompt: 'Learn the 4 core tone sounds before training your ear:',
+              targets: u1Targets,
+              xpReward: 5
+            },
             {
               id: 'u1-l1-e1',
               type: 'multiple_choice',
@@ -1181,6 +1472,7 @@ export function getLessonsForUnit(
 
   // Topic-specific curriculum synthesis for all units across the 800-unit progression:
   const { item1, item2 } = getTopicSpecificCurriculumItems(meta, canonicalName);
+  const targetWords = getTopicTargetWords(meta, canonicalName);
 
   return [
     {
@@ -1188,8 +1480,16 @@ export function getLessonsForUnit(
       title: `${meta.title} — AI Core Studio`,
       description: `Dynamically synthesized for ${pack.name} · Level ${meta.levelNumber} · Goal: ${learningGoal.toUpperCase()}`,
       order: 1,
-      xpReward: 15,
+      xpReward: 20,
       exercises: [
+        {
+          id: `${unitId}-l1-e0-words`,
+          type: 'target_discovery',
+          stepType: 'discover',
+          prompt: `Learn the core words for "${meta.title}" before using them in sentences:`,
+          targets: targetWords,
+          xpReward: 5
+        },
         {
           id: `${unitId}-l1-e1`,
           type: 'multiple_choice',
@@ -1223,8 +1523,16 @@ export function getLessonsForUnit(
       title: `${meta.title} — Conversational Reflexes`,
       description: `Apply ${meta.title} into active context through listening and voice practice in ${pack.name}.`,
       order: 2,
-      xpReward: 20,
+      xpReward: 25,
       exercises: [
+        {
+          id: `${unitId}-l2-e0-words`,
+          type: 'target_discovery',
+          stepType: 'discover',
+          prompt: `Core vocabulary for conversational fluency in "${meta.title}":`,
+          targets: targetWords.slice(1).concat(targetWords[0]),
+          xpReward: 5
+        },
         {
           id: `${unitId}-l2-e1`,
           type: 'listening',

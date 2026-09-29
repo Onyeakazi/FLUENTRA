@@ -492,11 +492,15 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({
           </div>
         )}
 
-        {/* STEP 1: DISCOVER CARD */}
+        {/* STEP 1: WORD PRIMING & TARGET DISCOVERY */}
         {isDiscoveryType && (
           <TargetDiscovery
-            targets={currentUnitMeta?.learningTargets || unitJourney?.learningTargets || []}
-            practicalOutcome={currentUnitMeta?.practicalOutcome || unitJourney?.practicalOutcome}
+            targets={
+              currentExercise.targets && currentExercise.targets.length > 0
+                ? currentExercise.targets
+                : (currentUnitMeta?.learningTargets || unitJourney?.learningTargets || [])
+            }
+            practicalOutcome={currentExercise.prompt || currentUnitMeta?.practicalOutcome || unitJourney?.practicalOutcome}
             onComplete={handleNext}
           />
         )}
