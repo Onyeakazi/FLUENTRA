@@ -729,18 +729,21 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
             {currentRound.sentenceWithBlank && (
               <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
                 <div style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
-                  {currentRound.sentenceWithBlank}
+                  {isChecked && isCorrect && currentRound.audioText
+                    ? currentRound.audioText
+                    : currentRound.sentenceWithBlank}
                 </div>
-                {currentRound.translation && (
+                {isChecked && isCorrect && currentRound.translation && (
                   <div
+                    className="animate-fade-in"
                     style={{
                       fontSize: '15px',
-                      color: 'var(--fl-teal-light)',
+                      color: '#58CC02',
                       fontWeight: 600,
-                      backgroundColor: 'rgba(0, 245, 180, 0.08)',
+                      backgroundColor: 'rgba(88, 204, 2, 0.12)',
                       padding: '5px 16px',
                       borderRadius: '999px',
-                      border: '1px solid rgba(0, 245, 180, 0.25)'
+                      border: '1px solid rgba(88, 204, 2, 0.3)'
                     }}
                   >
                     English: “{currentRound.translation}”
@@ -749,8 +752,8 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
               </div>
             )}
 
-            {/* Revealed Target Text & Phonetic Guide on Check */}
-            {isChecked && currentRound.targetText && (
+            {/* Revealed Target Text & Phonetic Guide on Check (for non-cloze rounds) */}
+            {isChecked && isCorrect && currentRound.targetText && !currentRound.sentenceWithBlank && (
               <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
                 <span style={{ fontSize: '28px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.01em' }}>
                   {currentRound.targetText}
@@ -761,7 +764,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                   </span>
                 )}
                 {currentRound.translation && (
-                  <span style={{ fontSize: '16px', color: 'var(--fl-text-secondary)', marginTop: '2px' }}>
+                  <span style={{ fontSize: '16px', color: '#58CC02', marginTop: '2px', fontWeight: 600 }}>
                     “{currentRound.translation}”
                   </span>
                 )}
@@ -833,8 +836,8 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                         {opt.text}
                       </span>
-                      {opt.translation && currentRound.mode !== 'blind_ear' && (
-                        <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
+                      {isChecked && isCorrect && opt.translation && currentRound.mode !== 'blind_ear' && (
+                        <span className="animate-fade-in" style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
                           {opt.translation}
                         </span>
                       )}
@@ -1295,9 +1298,16 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                     transition: 'all 0.15s ease'
                   }}
                 >
-                  <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
-                    {opt.text}
-                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
+                      {opt.text}
+                    </span>
+                    {isChecked && isCorrect && opt.translation && (
+                      <span className="animate-fade-in" style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
+                        {opt.translation}
+                      </span>
+                    )}
+                  </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                     {opt.audioText && (
