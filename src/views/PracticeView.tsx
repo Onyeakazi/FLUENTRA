@@ -1148,9 +1148,11 @@ export const PracticeView: React.FC = () => {
                           <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--fl-text-primary)' }}>
                             {opt.text}
                           </span>
-                          <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>
-                            {opt.translation}
-                          </span>
+                          {(isSelected || (isListeningChecked && isCorrect)) && opt.translation && (
+                            <span style={{ fontSize: '12px', color: 'var(--fl-text-secondary)' }}>
+                              {opt.translation}
+                            </span>
+                          )}
                         </button>
                       );
                     })}

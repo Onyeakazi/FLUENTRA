@@ -1065,8 +1065,8 @@ class EarTrainingService {
         targetText: t1.term,
         translation: t1.translation,
         options: [
-          { id: 'mp-1', text: `${t1.term} (${t1.translation})`, audioText: t1.cleanAudioText, translation: t1.translation },
-          { id: 'mp-2', text: `${t2.term} (${t2.translation})`, audioText: t2.cleanAudioText, translation: t2.translation }
+          { id: 'mp-1', text: t1.term, audioText: t1.cleanAudioText, translation: t1.translation },
+          { id: 'mp-2', text: t2.term, audioText: t2.cleanAudioText, translation: t2.translation }
         ],
         correctOptionId: 'mp-1',
         explanation: `Your ear detected “${t1.term}”! Recognizing acoustic nuances learned in this lesson builds fluency.`
@@ -1103,8 +1103,8 @@ class EarTrainingService {
         translation: t3.exampleTranslation || `${t1.translation} · ${t2.translation}`,
         options: [
           { id: 'sw-1', text: t3.exampleUsage || `${t1.term} ${t2.term}`, translation: t3.exampleTranslation || `${t1.translation} · ${t2.translation}` },
-          { id: 'sw-2', text: `${t4.term} ${t2.term}`, translation: 'Distractor' },
-          { id: 'sw-3', text: `${t2.term} ${t1.term}`, translation: 'Distractor' }
+          { id: 'sw-2', text: `${t4.term} ${t2.term}`, translation: `${t4.translation} · ${t2.translation}` },
+          { id: 'sw-3', text: `${t2.term} ${t1.term}`, translation: `${t2.translation} · ${t1.translation}` }
         ],
         correctOptionId: 'sw-1',
         explanation: 'At 1.25x speed, native speakers link words through smooth acoustic transitions.'

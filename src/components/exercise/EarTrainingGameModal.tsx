@@ -836,7 +836,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                         {opt.text}
                       </span>
-                      {isChecked && isCorrect && opt.translation && currentRound.mode !== 'blind_ear' && (
+                      {(isSelected || (isChecked && (isCorrect || isCorrectOpt))) && opt.translation && opt.translation !== 'Distractor' && opt.translation !== 'Incorrect' && currentRound.mode !== 'blind_ear' && (
                         <span className="animate-fade-in" style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
                           {opt.translation}
                         </span>
@@ -1302,7 +1302,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                     <span style={{ fontSize: '17px', fontWeight: 700, color: 'var(--fl-text-primary)' }}>
                       {opt.text}
                     </span>
-                    {isChecked && isCorrect && opt.translation && (
+                    {(isSelected || (isChecked && (isCorrect || isCorrectOpt))) && opt.translation && opt.translation !== 'Distractor' && opt.translation !== 'Incorrect' && (
                       <span className="animate-fade-in" style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
                         {opt.translation}
                       </span>
@@ -1457,7 +1457,7 @@ export const EarTrainingGameModal: React.FC<EarTrainingGameModalProps> = ({
                       <span style={{ fontSize: '17px', fontWeight: 700, color: '#FFFFFF' }}>
                         {p.targetText}
                       </span>
-                      {p.translation && (
+                      {isPassed && p.translation && (
                         <span style={{ fontSize: '13px', color: 'var(--fl-text-secondary)', fontWeight: 500 }}>
                           “{p.translation}”
                         </span>
