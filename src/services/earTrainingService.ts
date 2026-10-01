@@ -1246,7 +1246,7 @@ class EarTrainingService {
         mode: 'boss_shadowing',
         title: 'The Boss Shadowing Test',
         badgeLabel: '10/11 · BOSS SHADOWING',
-        instruction: 'The Ultimate Acoustic Challenge: Pronounce each of the 3 phrases one by one to complete the streak!',
+        instruction: 'Shadowing Challenge: Tap 🔊 to listen to the active phrase, then tap the mic to repeat it aloud. Master all 3 to conquer the boss round!',
         audioText: t1.exampleUsage || t1.cleanAudioText,
         langCode,
         bossPhrases: [

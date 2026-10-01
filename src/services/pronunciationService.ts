@@ -129,23 +129,20 @@ class PronunciationEngine {
     });
 
     const averageScore = targetWords.length > 0 ? Math.round(totalScore / targetWords.length) : 100;
-    const isPassed = averageScore >= 80;
+    const isPassed = averageScore >= 50;
 
     let feedbackMessage = '';
     let phoneticAdvice = '';
 
-    if (averageScore >= 90) {
+    if (averageScore >= 80) {
       feedbackMessage = 'Outstanding pronunciation! Clear, natural and confident.';
       phoneticAdvice = 'Your intonation was exceptionally close to native speakers.';
-    } else if (averageScore >= 80) {
-      feedbackMessage = 'Great job! Your pronunciation meets the 80%+ passing bar.';
-      phoneticAdvice = 'Accurate articulation and clear vowel shaping.';
-    } else if (averageScore >= 60) {
-      feedbackMessage = 'Almost there! You need at least 80% to advance (Score: ' + averageScore + '%).';
-      phoneticAdvice = 'Listen to the model pronunciation again and practice phrase by phrase.';
+    } else if (averageScore >= 50) {
+      feedbackMessage = 'Good attempt! You achieved a passing score of ' + averageScore + '%.';
+      phoneticAdvice = 'Clear vowel and consonant shaping detected.';
     } else {
-      feedbackMessage = 'Needs practice! A score of 80%+ is required to pass.';
-      phoneticAdvice = 'Tap the turtle icon for slower playback, then speak clearly into your mic.';
+      feedbackMessage = 'Keep practicing! (Score: ' + averageScore + '%).';
+      phoneticAdvice = 'Tap the audio icon to listen again, then speak clearly into your mic.';
     }
 
     return {
