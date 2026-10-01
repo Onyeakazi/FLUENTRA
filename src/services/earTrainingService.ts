@@ -435,6 +435,66 @@ function getDynamicDialogue(
     }
   }
 
+  // Unit 2: Nasal Vowels & Survival Words
+  if (unitId === 'u2' || combined.includes('nasal')) {
+    switch (canonicalName) {
+      case 'French':
+      default:
+        return {
+          promptAudioText: 'Bonjour messieurs-dames ! Qu’est-ce qui vous ferait plaisir pour le déjeuner ?',
+          promptTargetText: 'Bonjour ! Qu’est-ce qui vous ferait plaisir ?',
+          promptTranslation: 'Hello! What would you like for lunch?',
+          options: [
+            { id: 'dr-1', text: 'Un bon pain frais et un verre de vin s’il vous plaît !', translation: 'A good fresh bread and a glass of wine please!', audioText: 'Un bon pain et un verre de vin s’il vous plaît !' },
+            { id: 'dr-2', text: 'Je m’appelle Thomas et j’ai faim.', translation: 'My name is Thomas and I am hungry.', audioText: 'Je m’appelle Thomas.' },
+            { id: 'dr-3', text: 'Au revoir et à demain matin.', translation: 'Goodbye and see you tomorrow morning.', audioText: 'Au revoir et à demain.' }
+          ],
+          correctOptionId: 'dr-1',
+          explanation: 'Au restaurant ou à la boulangerie, on commande avec courtoisie : « Un bon pain... et du vin s’il vous plaît ! ».'
+        };
+    }
+  }
+
+  // Unit 3: Silent Letters & Sentence Stems
+  if (unitId === 'u3' || combined.includes('silent')) {
+    switch (canonicalName) {
+      case 'French':
+      default:
+        return {
+          promptAudioText: 'Est-ce que c’est difficile d’apprendre la prononciation française ?',
+          promptTargetText: 'C’est difficile d’apprendre le français ?',
+          promptTranslation: 'Is it difficult to learn French pronunciation?',
+          options: [
+            { id: 'dr-1', text: 'Non, ce n’est pas difficile avec de l’écoute régulière !', translation: 'No, it is not difficult with regular listening!', audioText: 'Non, ce n’est pas difficile !' },
+            { id: 'dr-2', text: 'Il est trois heures et quart à la montre.', translation: 'It is a quarter past three on the watch.', audioText: 'Il est trois heures.' },
+            { id: 'dr-3', text: 'Une grande baguette bien chaude.', translation: 'A large hot baguette.', audioText: 'Une grande baguette.' }
+          ],
+          correctOptionId: 'dr-1',
+          explanation: 'Pour exprimer une négation claire sur une difficulté, la réplique naturelle est « Ce n’est pas difficile ! ».'
+        };
+    }
+  }
+
+  // Unit 4: Elisions & Liaisons in Real Speech
+  if (unitId === 'u4' || combined.includes('elision') || combined.includes('liaison')) {
+    switch (canonicalName) {
+      case 'French':
+      default:
+        return {
+          promptAudioText: 'Pardon monsieur, vous avez le temps pour une question rapide ?',
+          promptTargetText: 'Pardon, vous avez le temps ?',
+          promptTranslation: 'Excuse me, do you have time for a quick question?',
+          options: [
+            { id: 'dr-1', text: 'Oui, j’ai cinq minutes, c’est un plaisir !', translation: 'Yes, I have five minutes, it’s a pleasure!', audioText: 'Oui, j’ai cinq minutes, c’est un plaisir !' },
+            { id: 'dr-2', text: 'Au revoir et passez une bonne nuit !', translation: 'Goodbye and have a good night!', audioText: 'Au revoir et bonne nuit !' },
+            { id: 'dr-3', text: 'La gare centrale est très loin.', translation: 'The central station is very far.', audioText: 'La gare est très loin.' }
+          ],
+          correctOptionId: 'dr-1',
+          explanation: 'À la question « Vous avez le temps ? », la réplique naturelle et courtoise est « Oui, j’ai cinq minutes, c’est un plaisir ! », en respectant l’élision (j’ai) et la liaison (c’est un).'
+        };
+    }
+  }
+
   // 1. Topic: Saying / Asking Names
   if (combined.includes('name') || combined.includes('prénom') || combined.includes('称呼') || combined.includes('llam') || combined.includes('heiß')) {
     switch (canonicalName) {
@@ -632,18 +692,30 @@ function getDynamicDialogue(
     }
   }
 
-  // General Dynamic Fallback based on lesson items
+  // General Dynamic Fallback: build an authentic question-and-answer exchange
+  const questionPrompt = t1.exampleUsage && t1.exampleUsage.includes('?')
+    ? t1.exampleUsage
+    : `Pardon, ${t1.exampleUsage || t1.term} ?`;
+  const questionTrans = t1.exampleTranslation || `Excuse me, ${t1.translation}?`;
+
+  const naturalReply = t2.exampleUsage
+    ? `Oui, ${t2.exampleUsage}`
+    : `Oui, ${t2.term}, merci !`;
+  const naturalReplyTrans = t2.exampleTranslation
+    ? `Yes, ${t2.exampleTranslation}`
+    : `Yes, ${t2.translation}, thank you!`;
+
   return {
-    promptAudioText: `${t1.cleanAudioText} !`,
-    promptTargetText: t1.term,
-    promptTranslation: t1.translation,
+    promptAudioText: questionPrompt,
+    promptTargetText: questionPrompt,
+    promptTranslation: questionTrans,
     options: [
-      { id: 'dr-1', text: `${t2.term} !`, translation: t2.translation, audioText: t2.cleanAudioText },
-      { id: 'dr-2', text: `${t3.term} !`, translation: t3.translation, audioText: t3.cleanAudioText },
-      { id: 'dr-3', text: `${pack.goodbye.target} !`, translation: pack.goodbye.trans, audioText: pack.goodbye.target }
+      { id: 'dr-1', text: naturalReply, translation: naturalReplyTrans, audioText: naturalReply },
+      { id: 'dr-2', text: `${pack.goodbye.target} et bonne soirée !`, translation: `Goodbye and have a good evening!`, audioText: `${pack.goodbye.target} et bonne soirée !` },
+      { id: 'dr-3', text: `Non désolé, je ne sais pas.`, translation: `No sorry, I do not know.`, audioText: `Non désolé, je ne sais pas.` }
     ],
     correctOptionId: 'dr-1',
-    explanation: `Dans le cadre de cette leçon sur « ${unitMeta?.title || 'le sujet'} », la réplique naturelle est « ${t2.term} » (${t2.translation}).`
+    explanation: `Dans ce contexte, la réponse polie et naturelle est « ${naturalReply} » (${naturalReplyTrans}).`
   };
 }
 
@@ -960,16 +1032,43 @@ class EarTrainingService {
 
     // 1. Extract vocabulary strictly from the active lesson
     const { items, lessonTitle } = extractLessonVocab(unitId, canonicalName, lessonId);
+    const n = Math.max(items.length, 1);
     const t1 = items[0];
-    const t2 = items[1] || items[0];
-    const t3 = items[2] || items[0];
-    const t4 = items[3] || items[1] || items[0];
+    const t2 = items[1 % n] || items[0];
+    const t3 = items[2 % n] || items[1 % n] || items[0];
+    const t4 = items[3 % n] || items[2 % n] || items[0];
+    const t5 = items[4 % n] || items[3 % n] || items[0];
 
     // 2. Generate dynamic topic dialogue for Round 9
-    const dialogue = getDynamicDialogue(unitId, canonicalName, lessonId, [t1, t2, t3, t4]);
+    const dialogue = getDynamicDialogue(unitId, canonicalName, lessonId, [t1, t2, t3, t4, t5]);
 
     // 3. Generate dynamic topic story for Round 11
-    const story = getDynamicStory(unitId, canonicalName, lessonId, [t1, t2, t3, t4], lessonTitle);
+    const story = getDynamicStory(unitId, canonicalName, lessonId, [t1, t2, t3, t4, t5], lessonTitle);
+
+    // Dynamic tile builder sentence selection
+    const tileCandidate = [t3.exampleUsage, t4.exampleUsage, t5.exampleUsage, t1.exampleUsage].find(
+      s => s && s.split(/\s+/).length >= 3 && s.split(/\s+/).length <= 6
+    ) || `${t3.term} ${t2.term}`;
+    const tileTrans = (tileCandidate === t3.exampleUsage ? t3.exampleTranslation : tileCandidate === t4.exampleUsage ? t4.exampleTranslation : tileCandidate === t5.exampleUsage ? t5.exampleTranslation : tileCandidate === t1.exampleUsage ? t1.exampleTranslation : `${t3.translation} ${t2.translation}`) || t3.translation;
+    const tileWords = tileCandidate.replace(/[.,?!:;]/g, '').trim().split(/\s+/);
+    const extraWord = (t5.term.split(/\s+/)[0] !== tileWords[0] ? t5.term.split(/\s+/)[0] : t2.term.split(/\s+/)[0]) || 'ici';
+    const tileChips = [...tileWords, extraWord].sort(() => 0.5 - Math.random());
+
+    // Dynamic speed warp sentence selection with authentic options
+    const warpTarget = t5.exampleUsage || t3.exampleUsage || t4.exampleUsage || `${t3.term} ${t2.term}`;
+    const warpTargetTrans = t5.exampleTranslation || t3.exampleTranslation || t4.exampleTranslation || `${t3.translation} ${t2.translation}`;
+    const warpDistractor1 = t1.exampleUsage || `${t1.term} s’il vous plaît.`;
+    const warpDistractor1Trans = t1.exampleTranslation || `${t1.translation}, please.`;
+    const warpDistractor2 = (t4.exampleUsage && t4.exampleUsage !== warpTarget ? t4.exampleUsage : t2.exampleUsage) || `${t4.term} ici.`;
+    const warpDistractor2Trans = (t4.exampleUsage && t4.exampleUsage !== warpTarget ? t4.exampleTranslation : t2.exampleTranslation) || `${t4.translation} here.`;
+
+    // Dynamic cloze sentence
+    const clozeSentence = (t2.exampleUsage && t2.exampleUsage.includes(t2.term))
+      ? t2.exampleUsage
+      : (t3.exampleUsage || `${t3.term} ${t2.term}`);
+    const clozeWithBlank = clozeSentence.includes(t2.term)
+      ? clozeSentence.replace(t2.term, '[🔔]')
+      : `${t3.term}, [🔔]`;
 
     const rounds: EarGameRound[] = [
       // 1. BLIND EAR (Pure Acoustic Comprehension)
@@ -1002,16 +1101,14 @@ class EarTrainingService {
         title: 'Spoken Gap-Fill',
         badgeLabel: '2/11 · AUDIO CLOZE',
         instruction: 'Listen to the full spoken sentence. Which spoken word filled the audio gap?',
-        audioText: t2.exampleUsage || `${t1.cleanAudioText}, ${t2.cleanAudioText}`,
+        audioText: clozeSentence,
         langCode,
         targetText: t2.term,
-        sentenceWithBlank: t2.exampleUsage && t2.exampleUsage.includes(t2.term)
-          ? t2.exampleUsage.replace(t2.term, '[🔔]')
-          : `${t1.term}, [🔔]`,
-        translation: t2.exampleTranslation || `${t1.translation}, ${t2.translation}`,
+        sentenceWithBlank: clozeWithBlank,
+        translation: t2.exampleTranslation || t2.translation,
         options: [
           { id: 'c-opt1', text: t2.term, translation: t2.translation, audioText: t2.cleanAudioText },
-          { id: 'c-opt2', text: t1.term, translation: t1.translation, audioText: t1.cleanAudioText },
+          { id: 'c-opt2', text: t3.term, translation: t3.translation, audioText: t3.cleanAudioText },
           { id: 'c-opt3', text: t4.term, translation: t4.translation, audioText: t4.cleanAudioText }
         ],
         correctOptionId: 'c-opt1',
@@ -1026,12 +1123,12 @@ class EarTrainingService {
         title: 'Voice Shadowing Sprint',
         badgeLabel: '3/11 · ECHO MIMIC',
         instruction: 'Listen to native tempo and rhythm. When the countdown hits 0, speak into your mic to mimic the pitch:',
-        audioText: t2.cleanAudioText,
+        audioText: t3.cleanAudioText,
         langCode,
-        targetText: t2.term,
-        translation: t2.translation,
-        phoneticHint: t2.phonetic || '',
-        explanation: `Excellent acoustic resonance! You mirrored “${t2.term}” (${t2.translation}) with native cadence.`
+        targetText: t3.term,
+        translation: t3.translation,
+        phoneticHint: t3.phonetic || '',
+        explanation: `Excellent acoustic resonance! You mirrored “${t3.term}” (${t3.translation}) with native cadence.`
       },
 
       // 4. SOUND BLITZ (Speed Audio-to-Meaning Sprint)
@@ -1060,16 +1157,16 @@ class EarTrainingService {
         title: 'Minimal Pair Acoustic Duel',
         badgeLabel: '5/11 · ACOUSTIC DUEL',
         instruction: 'Listen carefully to the acoustic shaping: Which term from this lesson was spoken?',
-        audioText: t1.cleanAudioText,
+        audioText: t4.cleanAudioText,
         langCode,
-        targetText: t1.term,
-        translation: t1.translation,
+        targetText: t4.term,
+        translation: t4.translation,
         options: [
-          { id: 'mp-1', text: t1.term, audioText: t1.cleanAudioText, translation: t1.translation },
-          { id: 'mp-2', text: t2.term, audioText: t2.cleanAudioText, translation: t2.translation }
+          { id: 'mp-1', text: t4.term, audioText: t4.cleanAudioText, translation: t4.translation },
+          { id: 'mp-2', text: t5.term, audioText: t5.cleanAudioText, translation: t5.translation }
         ],
         correctOptionId: 'mp-1',
-        explanation: `Your ear detected “${t1.term}”! Recognizing acoustic nuances learned in this lesson builds fluency.`
+        explanation: `Your ear detected “${t4.term}”! Recognizing acoustic nuances learned in this lesson builds fluency.`
       },
 
       // 6. AUDIO TILE BUILDER (Reverse Dictation)
@@ -1080,13 +1177,13 @@ class EarTrainingService {
         title: 'Reverse Audio Dictation',
         badgeLabel: '6/11 · TILE BUILDER',
         instruction: 'Listen to the full phrase with no written prompt. Tap the word chips in exact spoken order:',
-        audioText: `${t1.cleanAudioText} ${t2.cleanAudioText}`,
+        audioText: tileCandidate,
         langCode,
-        targetText: `${t1.term} ${t2.term}`,
-        translation: `${t1.translation} · ${t2.translation}`,
-        tileChips: [t2.term, t1.term, t3.term],
-        correctWordOrder: [t1.term, t2.term],
-        explanation: `Sentence accurately reconstructed from this lesson: “${t1.term} ${t2.term}”.`
+        targetText: tileCandidate,
+        translation: tileTrans,
+        tileChips: tileChips,
+        correctWordOrder: tileWords,
+        explanation: `Sentence accurately reconstructed from this lesson: “${tileCandidate}”.`
       },
 
       // 7. SPEED WARP (Normal vs Fast Native Cadence)
@@ -1097,14 +1194,14 @@ class EarTrainingService {
         title: 'Speed Warp: 1.0x vs 1.25x Street Speed',
         badgeLabel: '7/11 · SPEED WARP',
         instruction: 'Compare normal 1.0x cadence against fast conversational 1.25x speed. What was said?',
-        audioText: t3.exampleUsage || `${t1.cleanAudioText} ${t2.cleanAudioText}`,
+        audioText: warpTarget,
         langCode,
-        targetText: t3.exampleUsage || `${t1.term} ${t2.term}`,
-        translation: t3.exampleTranslation || `${t1.translation} · ${t2.translation}`,
+        targetText: warpTarget,
+        translation: warpTargetTrans,
         options: [
-          { id: 'sw-1', text: t3.exampleUsage || `${t1.term} ${t2.term}`, translation: t3.exampleTranslation || `${t1.translation} · ${t2.translation}` },
-          { id: 'sw-2', text: `${t4.term} ${t2.term}`, translation: `${t4.translation} · ${t2.translation}` },
-          { id: 'sw-3', text: `${t2.term} ${t1.term}`, translation: `${t2.translation} · ${t1.translation}` }
+          { id: 'sw-1', text: warpTarget, translation: warpTargetTrans },
+          { id: 'sw-2', text: warpDistractor1, translation: warpDistractor1Trans },
+          { id: 'sw-3', text: warpDistractor2, translation: warpDistractor2Trans }
         ],
         correctOptionId: 'sw-1',
         explanation: 'At 1.25x speed, native speakers link words through smooth acoustic transitions.'
@@ -1118,11 +1215,11 @@ class EarTrainingService {
         title: 'Rapid Auditory Reality Check',
         badgeLabel: '8/11 · TRUE OR FALSE',
         instruction: 'Listen to the native statement. Does it match the concept card?',
-        audioText: t1.cleanAudioText,
+        audioText: t5.cleanAudioText,
         langCode,
-        conceptStatement: `The speaker is saying: “${t1.translation}”`,
+        conceptStatement: `The speaker is saying: “${t5.translation}”`,
         isTrueStatement: true,
-        explanation: `Correct! In this lesson, “${t1.term}” means “${t1.translation}”.`
+        explanation: `Correct! In this lesson, “${t5.term}” means “${t5.translation}”.`
       },
 
       // 9. AUDIO DIALOGUE REPLY (Topic-Driven Conversational Reaction)
@@ -1150,12 +1247,12 @@ class EarTrainingService {
         title: 'The Boss Shadowing Test',
         badgeLabel: '10/11 · BOSS SHADOWING',
         instruction: 'The Ultimate Acoustic Challenge: Pronounce each of the 3 phrases one by one to complete the streak!',
-        audioText: t1.cleanAudioText,
+        audioText: t1.exampleUsage || t1.cleanAudioText,
         langCode,
         bossPhrases: [
-          { id: 'bp-a', audioText: t1.cleanAudioText, targetText: t1.term, translation: t1.translation },
-          { id: 'bp-b', audioText: t2.cleanAudioText, targetText: t2.term, translation: t2.translation },
-          { id: 'bp-c', audioText: t3.cleanAudioText, targetText: t3.term, translation: t3.translation }
+          { id: 'bp-a', audioText: t1.exampleUsage || t1.cleanAudioText, targetText: t1.exampleUsage || t1.term, translation: t1.exampleTranslation || t1.translation },
+          { id: 'bp-b', audioText: t3.exampleUsage || t3.cleanAudioText, targetText: t3.exampleUsage || t3.term, translation: t3.exampleTranslation || t3.translation },
+          { id: 'bp-c', audioText: t5.exampleUsage || t5.cleanAudioText, targetText: t5.exampleUsage || t5.term, translation: t5.exampleTranslation || t5.translation }
         ],
         explanation: `Lesson Acoustic Mastery Unlocked! You successfully shadowed all 3 key phrases one by one with native cadence and clarity.`
       },
